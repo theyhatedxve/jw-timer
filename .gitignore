@@ -1,0 +1,15 @@
+node_modules/
+.refactor-backups/
+.npm-cache/
+.expo/
+android/
+ios/
+dist/
+*.tsbuildinfo
+.env
+.env.*
+*.jks
+*.keystore
+*.db
+*.db-shm
+*.db-wal

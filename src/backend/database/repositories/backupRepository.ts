@@ -187,9 +187,12 @@ function replaceRows(
   }
 }
 
-export const backupRepository = {
+export function createBackupRepository(
+  database: () => SQLiteDatabase,
+) {
+  return {
   capture(): BackupArchive {
-    const db = getAppDatabase();
+    const db = database();
     let archive: BackupArchive | undefined;
 
     db.withTransactionSync(() => {
@@ -210,7 +213,7 @@ export const backupRepository = {
   },
 
   token(): string {
-    const db = getAppDatabase();
+    const db = database();
     let token = '';
 
     db.withTransactionSync(() => {
@@ -221,7 +224,7 @@ export const backupRepository = {
   },
 
   prepare(archive: BackupArchive): BackupSummary {
-    const current = getAppDatabase();
+    const current = database();
     checkMigrations(current, archive);
 
     const staged = openDatabaseSync(':memory:', {
@@ -258,7 +261,7 @@ export const backupRepository = {
   },
 
   restore(archive: BackupArchive, expectedToken: string): void {
-    const db = getAppDatabase();
+    const db = database();
 
     db.withTransactionSync(() => {
       checkMigrations(db, archive);
@@ -271,4 +274,8 @@ export const backupRepository = {
       validateData(db);
     });
   },
-};
+  };
+}
+
+export const backupRepository =
+  createBackupRepository(getAppDatabase);

@@ -205,3 +205,8 @@ export function getAppDatabase(): SQLiteDatabase {
     throw error;
   }
 }
+
+export {
+  MIGRATIONS as APP_SCHEMA_MIGRATIONS,
+  checksum as migrationChecksum,
+};

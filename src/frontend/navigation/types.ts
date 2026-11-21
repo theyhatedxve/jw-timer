@@ -40,6 +40,8 @@ export type RootStackParamList = {
   };
 
   Backups: undefined;
+  BackupChecks: undefined;
+
 };
 
 declare global {

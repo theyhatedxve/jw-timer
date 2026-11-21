@@ -5,3 +5,7 @@ export interface DiagnosticResult {
 }
 
 export type RunSqliteChecks = () => readonly DiagnosticResult[];
+
+export type RunBackupChecks =
+  () => Promise<readonly DiagnosticResult[]>;
+  

@@ -33,6 +33,9 @@ import WorkbookImportScreen from '../screens/WorkbookImportScreen';
 import { workbookImportEn } from '../../constants/strings/workbookImportEn';
 import BackupsScreen from '../screens/BackupsScreen';
 import { backupEn } from '../../constants/strings/backupEn';
+import BackupChecksScreen from '../screens/BackupChecksScreen';
+import { runBackupChecks } from '../../backend/database/diagnostics/backupDiagnostics';
+import { backupChecksEn } from '../../constants/strings/backupChecksEn';
 
 import type {
   RootStackParamList,
@@ -159,7 +162,7 @@ export default function AppNavigator() {
               title: workbookImportEn.title,
             }}
           />
-                    <Root.Screen
+          <Root.Screen
             name="Backups"
             component={BackupsScreen}
             options={{
@@ -167,6 +170,17 @@ export default function AppNavigator() {
               title: backupEn.title,
             }}
           />
+          <Root.Screen
+            name="BackupChecks"
+            options={{
+              headerShown: true,
+              title: backupChecksEn.title,
+            }}
+          >
+            {() => (
+              <BackupChecksScreen runChecks={runBackupChecks} />
+            )}
+          </Root.Screen>
         </Root.Group>
       ) : (
         <Root.Screen

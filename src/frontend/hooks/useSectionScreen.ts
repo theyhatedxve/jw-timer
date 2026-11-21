@@ -12,6 +12,8 @@ import {
   type MainSection,
 } from '../../constants/strings/en';
 
+import { backupChecksEn } from '../../constants/strings/backupChecksEn';
+
 import { backupEn } from '../../constants/strings/backupEn';
 
 interface SectionAction {
@@ -100,6 +102,11 @@ export function useSectionScreen(section: MainSection) {
         id: 'backups',
         label: backupEn.title,
         onPress: () => navigation.navigate('Backups'),
+      },
+      {
+        id: 'backup-checks',
+        label: backupChecksEn.title,
+        onPress: () => navigation.navigate('BackupChecks'),
       },
     ],
   };

@@ -7,7 +7,7 @@ export const workbookParsingEn = {
   scope: 'Only pages with a recognized date and meeting section are listed.',
   review: 'Compare the date, section placement, order, and titles with the PDF.',
   manual:
-    'Add songs, prayers, opening and concluding comments, counsel, and other unnumbered items manually.',
+   'Review prayers, counsel, and any other missing items against the PDF.',
   missingDuration:
     'Some durations were missing. Enter them in the editor before saving.',
   missingTitle: 'Some titles could not be read. Correct them in the editor.',
@@ -23,4 +23,11 @@ export const workbookParsingEn = {
   duplicate:
     'A meeting with this date, type, and language, or this PDF source page, already exists. Edit the existing meeting.',
   invalidDraft: 'The imported meeting draft is invalid. Return to PDF import.',
+    openingSection: 'Opening',
+  closingSection: 'Conclusion',
+  songsToArrange: 'Songs — review placement',
+  extraPlacement:
+    'Some songs or comments could not be placed reliably. Arrange or add them in the editor.',
+  extraDuration:
+    'Some songs or comments have no printed duration. Enter a duration or deliberately mark them untimed.',
 } as const;

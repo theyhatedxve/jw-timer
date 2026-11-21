@@ -1,7 +1,7 @@
 export interface WorkbookSource {
   readonly filename: string;
   readonly page: number;
-  readonly parser: 'numbered-workbook-v1';
+  readonly parser: 'numbered-workbook-v1' | 'workbook-v2';
 }
 
 export function readWorkbookSource(
@@ -26,7 +26,10 @@ export function readWorkbookSource(
     !Number.isInteger(value.page) ||
     value.page < 1 ||
     value.page > 32 ||
-    value.parser !== 'numbered-workbook-v1'
+    (
+      value.parser !== 'numbered-workbook-v1' &&
+      value.parser !== 'workbook-v2'
+    )
   ) {
     return null;
   }
@@ -34,6 +37,6 @@ export function readWorkbookSource(
   return {
     filename: value.filename.trim(),
     page: value.page,
-    parser: 'numbered-workbook-v1',
+    parser: value.parser,
   };
 }

@@ -9,6 +9,11 @@ import {
   validateMeetingDraft,
 } from '../meetings/meetingValidation';
 
+import {
+  arrangeWorkbookExtras,
+  readWorkbookExtras,
+} from './workbookExtras';
+
 import { workbookParsingEn as text } from '../../../constants/strings/workbookParsingEn';
 
 export interface WorkbookCandidate {
@@ -105,6 +110,8 @@ export function buildWorkbookCandidates(
 
     const warnings = new Set<string>([text.review, text.manual]);
 
+    const extras = readWorkbookExtras(page);
+
     const parts: {
       number: number;
       group: number;
@@ -116,9 +123,21 @@ export function buildWorkbookCandidates(
       const offset = start.index ?? 0;
       const next = starts[index + 1]?.index ?? page.length;
 
-      const chunk = page.slice(
+    const nextBoundary = [
+        ...extras.boundaries,
+        ...headings.map(heading => heading.index),
+      ].reduce(
+        (end, position) =>
+          position > offset ? Math.min(end, position) : end,
+        next,
+      );
+
+        const chunk = page.slice(
         offset + start[0].length,
-        Math.min(next, offset + start[0].length + 600),
+        Math.min(
+          nextBoundary,
+          offset + start[0].length + 600,
+        ),
       );
 
       const duration = /\(\s*(\d{1,3})\s*min\.?\s*\)/i.exec(chunk);
@@ -177,6 +196,12 @@ export function buildWorkbookCandidates(
     const sections = [0, 1, 2, 3].flatMap(group => {
       const grouped = parts.filter(part => part.group === group);
 
+    const arrangedSections = arrangeWorkbookExtras(
+      extras,
+      sections,
+      warnings,
+    );
+
       if (grouped.length === 0) return [];
 
       return [{
@@ -196,11 +221,11 @@ export function buildWorkbookCandidates(
       programLanguage: /MGA\s+BAHANDI|KARANTAHON/i.test(page)
         ? 'war'
         : 'en',
-      sections,
+      sections: arrangedSections,
       importSource: {
         filename,
         page: pageIndex + 1,
-        parser: 'numbered-workbook-v1',
+        parser: 'workbook-v2',
       },
     });
 

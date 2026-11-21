@@ -5,11 +5,10 @@ import type { ScheduleResult } from './assignment';
 
 
 export const MEETING_DUTY_SLOTS = [
-  { key: 'sound', role: 'sound' },
-  { key: 'timer', role: 'timer' },
-  { key: 'attendant', role: 'attendant' },
-  { key: 'microphone-left', role: 'microphones' },
-  { key: 'microphone-right', role: 'microphones' },
+  { key: 'mic-server', role: 'microphones' },
+  { key: 'sound-operator', role: 'sound' },
+  { key: 'laptop-operator', role: 'laptop' },
+  { key: 'microphone-adjuster', role: 'microphone-adjuster' },
 ] as const satisfies readonly {
   key: string;
   role: PublisherRole;

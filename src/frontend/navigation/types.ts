@@ -18,6 +18,8 @@ export type RootStackParamList = {
   SetupProfile: undefined;
   Main: NavigatorScreenParams<MainTabParamList> | undefined;
   Settings: undefined;
+  ManageAssignments: undefined;
+  Publishers: undefined;
   MeetingPrograms: undefined;
   EditProfile: undefined;
   PracticeTimer: TimerProgramRequest | undefined;

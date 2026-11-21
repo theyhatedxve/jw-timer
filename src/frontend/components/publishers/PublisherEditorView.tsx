@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
   PUBLISHER_NAME_LIMIT,
-  PUBLISHER_ROLE_CODES,
+  TECHNICAL_ROLE_CODES as PUBLISHER_ROLE_CODES,
 } from '../../../backend/domain/publishers/publisher';
 
 import { publisherEn as text } from '../../../constants/strings/publisherEn';

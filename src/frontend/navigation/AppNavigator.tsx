@@ -20,8 +20,8 @@ import SettingsScreen from '../screens/SettingsScreen';
 import TimerSessionScreen from '../screens/TimerSessionScreen';
 
 import TabNavigator from './TabNavigator';
-import AssignmentEditorScreen from '../screens/AssignmentEditorScreen';
-import { scheduleEn } from '../../constants/strings/scheduleEn';
+import ManageAssignmentsScreen from '../screens/ManageAssignmentsScreen';
+import PublishersScreen from '../screens/PublishersScreen';
 
 import PublisherEditorScreen from '../screens/PublisherEditorScreen';
 import { publisherEn } from '../../constants/strings/publisherEn';
@@ -72,12 +72,14 @@ export default function AppNavigator() {
             component={TabNavigator}
           />
           <Root.Screen
-            name="AssignmentEditor"
-            component={AssignmentEditorScreen}
-            getId={({ params }) =>
-              `${params.meetingId}:${params.partId}:${params.role ?? 'new'}`
-            }
-            options={{ headerShown: true, title: scheduleEn.editor }}
+            name="ManageAssignments"
+            component={ManageAssignmentsScreen}
+            options={{ headerShown: true, title: meetingDutyEn.title }}
+          />
+          <Root.Screen
+            name="Publishers"
+            component={PublishersScreen}
+            options={{ headerShown: true, title: meetingDutyEn.publishers }}
           />
 
           <Root.Screen

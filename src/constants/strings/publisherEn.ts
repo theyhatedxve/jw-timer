@@ -9,9 +9,9 @@ export const publisherEn = {
   edit: 'Edit publisher',
   name: 'Name',
   filter: 'Filter publishers',
-  responsibilities: 'Assignable parts and privileges',
+  responsibilities: 'Assignable duties',
   responsibilitiesHint:
-    'Select the responsibilities this person can be assigned.',
+    'Select the duties this publisher can perform.',
   active: 'Active publisher',
   activeHint:
     'Keep inactive records for reference and future reactivation.',
@@ -43,9 +43,11 @@ export const publisherEn = {
     talk: 'Talk',
     study: 'Conduct a study',
     reader: 'Reader',
-    sound: 'Sound',
-    microphones: 'Microphones',
+    sound: 'Sound Operator',
+    microphones: 'Mic Server',
     timer: 'Timer',
     attendant: 'Attendant',
+    laptop: 'Laptop Operator',
+    'microphone-adjuster': 'Microphone Adjuster',
   } satisfies Record<PublisherRole, string>,
 } as const;

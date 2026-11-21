@@ -13,10 +13,19 @@ export const PUBLISHER_ROLE_CODES = [
   'microphones',
   'timer',
   'attendant',
+  'laptop',
+  'microphone-adjuster',
 ] as const;
 
 export type PublisherRole =
   typeof PUBLISHER_ROLE_CODES[number];
+
+export const TECHNICAL_ROLE_CODES = [
+  'microphones',
+  'sound',
+  'laptop',
+  'microphone-adjuster',
+] as const satisfies readonly PublisherRole[];
 
 export interface PublisherDraft {
   readonly displayName: string;

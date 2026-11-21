@@ -2,50 +2,34 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import {
+  MEETING_DUTY_SLOTS,
   validateMeetingDuty,
 } from '../src/backend/domain/assignments/meetingDuty';
 
 const command = {
   meetingId: 'a'.repeat(32),
-  key: 'microphone-left',
   publisherId: 'b'.repeat(32),
   meetingRevision: 1,
   expectedRevision: 0,
 };
 
-test('named microphone slots are accepted', () => {
-  assert.equal(validateMeetingDuty(command).ok, true);
-
-  assert.equal(validateMeetingDuty({
-    ...command,
-    key: 'microphone-right',
-  }).ok, true);
-});
-
-test('a duty can be explicitly unassigned', () => {
-  const result = validateMeetingDuty({
-    ...command,
-    publisherId: null,
-  });
-
-  assert.equal(result.ok, true);
-
-  if (result.ok) {
-    assert.equal(result.value.publisherId, null);
+test('only the four technical duties are offered', () => {
+  assert.deepEqual(
+    MEETING_DUTY_SLOTS.map(slot => slot.key),
+    ['mic-server', 'sound-operator', 'laptop-operator', 'microphone-adjuster'],
+  );
+  for (const slot of MEETING_DUTY_SLOTS) {
+    assert.equal(validateMeetingDuty({ ...command, key: slot.key }).ok, true);
   }
 });
 
-test('unknown duties and invalid revisions are rejected', () => {
-  assert.equal(
-    validateMeetingDuty({ ...command, key: 'unknown' }).ok,
-    false,
-  );
+test('old duty keys are rejected for new assignments', () => {
+  for (const key of ['timer', 'attendant', 'microphone-left']) {
+    assert.equal(validateMeetingDuty({ ...command, key }).ok, false);
+  }
+});
 
-  assert.equal(
-    validateMeetingDuty({
-      ...command,
-      expectedRevision: -1,
-    }).ok,
-    false,
-  );
+test('assignments can be cleared and invalid revisions rejected', () => {
+  assert.equal(validateMeetingDuty({ ...command, key: 'mic-server', publisherId: null }).ok, true);
+  assert.equal(validateMeetingDuty({ ...command, key: 'mic-server', expectedRevision: -1 }).ok, false);
 });

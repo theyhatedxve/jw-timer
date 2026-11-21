@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { AccessibilityInfo } from 'react-native';
+import { meetingDutyEn } from '../../constants/strings/meetingDutyEn';
 
 import {
   useFocusEffect,
@@ -71,6 +72,11 @@ export function useSectionScreen(section: MainSection) {
     ],
 
     settings: [
+      {
+        id: 'manage-assignments',
+        label: meetingDutyEn.title,
+        onPress: () => navigation.navigate('ManageAssignments'),
+      },
       {
         id: 'profile',
         label: en.actions.openProfile,

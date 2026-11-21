@@ -18,6 +18,7 @@ import {
 } from '../../styles/publishers/publishers.styles';
 
 import type { usePublishers } from '../../hooks/usePublishers';
+import { TECHNICAL_ROLE_CODES } from '../../../backend/domain/publishers/publisher';
 
 type Props = ReturnType<typeof usePublishers>;
 
@@ -25,13 +26,20 @@ export default function PublishersListView(model: Props) {
   const { width, fontScale } = useWindowDimensions();
   const wide = width >= 700 && fontScale <= 1.3;
 
+  const visiblePublishers = model.publishers.map(publisher => ({
+    ...publisher,
+    roles: publisher.roles.filter(role =>
+      TECHNICAL_ROLE_CODES.some(allowed => allowed === role),
+    ),
+  }));
+
   return (
     <SafeAreaView
       style={styles.screen}
       edges={['left', 'right', 'bottom']}
     >
       <FlatList
-        data={model.publishers}
+        data={visiblePublishers}
         keyExtractor={publisher => publisher.id}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.content}

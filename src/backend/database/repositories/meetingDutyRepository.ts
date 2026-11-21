@@ -75,7 +75,7 @@ export const localMeetingDutyRepository:
       return safely(() =>
         getAppDatabase().getAllSync<DutyRow>(
           `SELECT meeting_id, duty_key, publisher_id, revision
-           FROM local_meeting_duties
+           FROM local_technical_duties
            WHERE meeting_id = ? ORDER BY duty_key`,
           meetingId,
         ).map(decode),
@@ -113,7 +113,7 @@ export const localMeetingDutyRepository:
 
           const previousRow = db.getFirstSync<DutyRow>(
             `SELECT meeting_id, duty_key, publisher_id, revision
-             FROM local_meeting_duties
+             FROM local_technical_duties
              WHERE meeting_id = ? AND duty_key = ?`,
             command.meetingId,
             command.key,
@@ -159,7 +159,7 @@ export const localMeetingDutyRepository:
           const revision = command.expectedRevision + 1;
 
           const saved = db.runSync(
-            `INSERT INTO local_meeting_duties
+            `INSERT INTO local_technical_duties
              (meeting_id, duty_key, publisher_id,
               revision, updated_at)
              VALUES (?, ?, ?, ?, ?)
@@ -167,7 +167,7 @@ export const localMeetingDutyRepository:
                publisher_id = excluded.publisher_id,
                revision = excluded.revision,
                updated_at = excluded.updated_at
-             WHERE local_meeting_duties.revision = ?`,
+             WHERE local_technical_duties.revision = ?`,
             command.meetingId,
             command.key,
             command.publisherId,

@@ -8,6 +8,7 @@ import { ASSIGNMENT_SQL } from './migrations/004_assignments';
 import {
   MEETING_DUTY_SQL,
 } from './migrations/005_meeting_duties';
+import { TECHNICAL_ASSIGNMENT_SQL } from './migrations/006_technical_assignments';
 
 export class AppDatabaseError extends Error {
   constructor(readonly code: 'corrupt') {
@@ -88,6 +89,7 @@ const MIGRATIONS = [
   { version: 3, sql: PUBLISHER_SQL },
   { version: 4, sql: ASSIGNMENT_SQL },
   { version: 5, sql: MEETING_DUTY_SQL },
+  { version: 6, sql: TECHNICAL_ASSIGNMENT_SQL },
 ] as const;
 
 let connection: SQLiteDatabase | null = null;

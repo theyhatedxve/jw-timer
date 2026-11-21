@@ -3,16 +3,19 @@ export const en = {
 
   navigation: {
     home: 'Home',
-    meetings: 'Meetings',
+    meetings: 'Meeting programs',
     assignments: 'Assignments',
     timer: 'Timer',
     settings: 'Settings',
   },
 
   actions: {
-    openMeetings: 'Open meetings',
+    openMeetings: 'Manage programs',
+    managePrograms: 'Manage programs',
+    openAssignments: 'Open assignments',
     openTimer: 'Open timer',
-    openPracticeTimer: 'Open practice timer',
+    openPracticeTimer: 'Open current timer',
+    openSettings: 'Open settings',
     openDiagnostics: 'Open SQLite checks',
     openProfile: 'Congregation profile',
     back: 'Back',
@@ -21,37 +24,48 @@ export const en = {
   sections: {
     home: {
       title: 'Home',
-      description: 'Meeting programs, responsibilities, and timing.',
+      description: 'Your programs, assignments and local timer.',
       heading: 'Welcome to JW Timer',
-      body: 'Use Meetings to view programs, Assignments to view duties, and Timer to operate your local countdown.',
+      body:
+        'Use Timer to manage meeting programs and countdowns. ' +
+        'Use Assignments to organize meeting responsibilities.',
     },
 
     meetings: {
-      title: 'Meetings',
-      description: 'Midweek and Weekend meeting programs.',
+      title: 'Meeting programs',
+      description: 'Saved Midweek and Weekend programs.',
       heading: 'Meeting programs',
-      body: 'Your saved programs will appear here. Waray-Waray is the primary meeting-content language, with English also supported.',
+      body:
+        'Create and edit programs locally. English and ' +
+        'Waray-Waray content are supported.',
     },
 
     assignments: {
       title: 'Assignments',
       description: 'People and meeting responsibilities.',
       heading: 'Meeting duties',
-      body: 'Your microphone, sound, timer, and other responsibility assignments will appear here.',
+      body:
+        'Your meeting schedules, publishers and assigned ' +
+        'responsibilities will appear here.',
     },
 
     timer: {
       title: 'Timer',
-      description: 'Control each part with an explicit Start.',
-      heading: 'Practice timer',
-      body: 'Open the existing timer to use its two practice parts. Each part waits for Start and continues into overtime until you advance.',
+      description: 'Meeting programs and manual timing.',
+      heading: 'Meeting timer',
+      body:
+        'Manage your saved programs or reopen the current timer. ' +
+        'Every part requires Start and continues into overtime ' +
+        'until you advance.',
     },
 
     settings: {
       title: 'Settings',
-      description: 'Language preferences and local tools.',
-      heading: 'Language',
-      body: 'Open Congregation profile to view or change your local name, timezone, and primary meeting-content language.',
+      description: 'Profile preferences and local tools.',
+      heading: 'Congregation profile',
+      body:
+        'View or change your congregation name, time zone ' +
+        'and program-language preference.',
     },
   },
 } as const;

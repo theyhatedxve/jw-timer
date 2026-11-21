@@ -35,12 +35,21 @@ export function useProfileForm() {
   });
 
   const leave = useCallback(() => {
-    if (navigation.canGoBack()) navigation.goBack();
-    else navigation.dispatch(CommonActions.reset({
-      index: 0,
-      routes: [{ name: 'Main', params: { screen: 'Settings' } }],
-    }));
-  }, [navigation]);
+  if (navigation.canGoBack()) {
+    navigation.goBack();
+    return;
+  }
+
+  navigation.dispatch(
+    CommonActions.reset({
+      index: 1,
+      routes: [
+        { name: 'Main' },
+        { name: 'Settings' },
+      ],
+    }),
+  );
+}, [navigation]);
 
   // Navigate only after the completed render has disabled removal prevention.
   useEffect(() => {

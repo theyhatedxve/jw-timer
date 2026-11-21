@@ -1,0 +1,47 @@
+export const timerEn = {
+  agenda: 'Program',
+  title: 'Title',
+  duration: 'Duration',
+  timer: 'Timer',
+  currentTime: 'Current time',
+  selectedPart: 'Selected part',
+  ready: 'Ready',
+  earlier: 'Earlier in program',
+  finished: 'Finished',
+  estimatedFinish: 'Estimated finish',
+  estimateNote:
+    'Estimate assumes immediate starts, immediate advance at zero, and no extra pauses.',
+  estimateUnavailable:
+    'The finish estimate is available while timing is running.',
+  managePrograms: 'Manage programs',
+  editProgram: 'Edit saved program',
+  start: 'Start',
+  pause: 'Pause',
+  resume: 'Resume',
+  next: 'Next part',
+  finish: 'Finish program',
+  restart: 'Restart part',
+  fullscreen: 'Fullscreen',
+  exitFullscreen: 'Exit fullscreen',
+  keepAwake: 'Keep screen awake in fullscreen',
+  selectPart: 'Select part',
+  selectTitle: 'Change selected part?',
+  selectMessage:
+    'The current part’s elapsed time will be cleared. The selected part will wait for Start.',
+  keepCurrent: 'Keep current',
+  cancel: 'Cancel',
+  partMenu: 'Part actions',
+  recover: 'Recover saved timer?',
+  restoreReady: 'Restore part ready',
+  restorePaused: 'Restore checkpoint paused',
+  restartRecovered: 'Restart part and wait',
+  recoveryNote:
+    'The checkpoint may be older than the interruption. Time while closed is excluded.',
+  retrySaving: 'Retry saving',
+  snapshotNote:
+    'Editing the saved meeting does not change this loaded program. Reload it from Manage programs to use newer edits.',
+  legacyMetadata:
+    'Reload this saved program from Manage programs to show its meeting week and section labels.',
+  practice: 'Practice program',
+  dateMissing: 'Meeting date not recorded',
+} as const;

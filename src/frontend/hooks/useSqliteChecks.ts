@@ -24,8 +24,20 @@ export function useSqliteChecks(runChecks: RunSqliteChecks) {
   return {
     results, busy, run,
     onBack: () => {
-      if (navigation.canGoBack()) navigation.goBack();
-      else navigation.dispatch(CommonActions.reset({ index: 0, routes: [{ name: 'Main', params: { screen: 'Settings' } }] }));
+      if (navigation.canGoBack()) {
+        navigation.goBack();
+        return;
+      }
+
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 1,
+          routes: [
+            { name: 'Main' },
+            { name: 'Settings' },
+          ],
+        }),
+      );
     },
   };
 }

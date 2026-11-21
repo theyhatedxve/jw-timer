@@ -46,6 +46,16 @@ import type {
   TimerProgramRequest,
 } from '../navigation/types';
 
+import {
+  selectProgramPart,
+} from '../../backend/domain/timer/timerAgenda';
+
+import {
+  timerEn,
+} from '../../constants/strings/timerEn';
+
+import type { AlertButton } from 'react-native';
+
 interface Runtime {
   readonly program: TimerProgram;
   readonly timer: TimerState;
@@ -476,6 +486,146 @@ export function useTimerSession(
     );
   }
 
+function editLoadedProgram() {
+  if (!canControl()) return;
+
+  const meetingId = current.current.program.meetingId;
+
+  if (meetingId) {
+    navigation.navigate('MeetingEditor', { meetingId });
+  }
+}
+
+function selectPart(index: number) {
+  if (!canControl()) return;
+
+  const existing = current.current;
+  const part = existing.program.parts[index];
+
+  if (
+    !Number.isSafeInteger(index) ||
+    index < 0 ||
+    !part ||
+    (
+      index === existing.timer.partIndex &&
+      existing.timer.status !== 'completed'
+    )
+  ) {
+    return;
+  }
+
+  function loadSelectedPart() {
+    if (
+      !canControl() ||
+      !navigation.isFocused() ||
+      current.current.program !== existing.program
+    ) {
+      return;
+    }
+
+    commit({
+      program: existing.program,
+      timer: selectProgramPart(existing.program, index),
+    });
+  }
+
+  if (existing.timer.status === 'completed') {
+    loadSelectedPart();
+    return;
+  }
+
+  if (
+    existing.timer.status === 'running' &&
+    !commit({
+      ...existing,
+      timer: pause(existing.timer, performance.now()),
+    })
+  ) {
+    return;
+  }
+
+  promptActive.current = true;
+  setPromptOpen(true);
+
+  let settled = false;
+
+  function finish(accept: boolean) {
+    if (settled) return;
+    settled = true;
+
+    promptActive.current = false;
+    setPromptOpen(false);
+
+    if (accept) loadSelectedPart();
+  }
+
+  Alert.alert(
+    timerEn.selectTitle,
+    `${part.title}\n\n${timerEn.selectMessage}`,
+    [
+      {
+        text: timerEn.keepCurrent,
+        style: 'cancel',
+        onPress: () => finish(false),
+      },
+      {
+        text: timerEn.selectPart,
+        onPress: () => finish(true),
+      },
+    ],
+    {
+      cancelable: true,
+      onDismiss: () => finish(false),
+    },
+  );
+}
+
+  function openPartMenu(index: number) {
+    if (!canControl()) return;
+
+    const existing = current.current;
+    const part = existing.program.parts[index];
+
+    if (!part) return;
+
+    function sameProgram(): boolean {
+      return current.current.program === existing.program;
+    }
+
+    const buttons: AlertButton[] = [
+      {
+        text: index === existing.timer.partIndex
+          ? timerEn.restart
+          : timerEn.selectPart,
+        onPress: () => {
+          if (!sameProgram()) return;
+
+          if (index === current.current.timer.partIndex) {
+            confirmReset();
+          } else {
+            selectPart(index);
+          }
+        },
+      },
+    ];
+
+    if (existing.program.meetingId) {
+      buttons.push({
+        text: timerEn.editProgram,
+        onPress: () => {
+          if (sameProgram()) editLoadedProgram();
+        },
+      });
+    }
+
+    buttons.push({
+      text: timerEn.cancel,
+      style: 'cancel',
+    });
+
+    Alert.alert(part.title, timerEn.partMenu, buttons);
+  }
+
   const { program, timer } = session;
   const overtime = elapsed(timer, now) >= timer.durationMs;
 
@@ -549,5 +699,11 @@ export function useTimerSession(
       requestReplacement(service.practice(3_600_000));
     },
     openDiagnostics: () => navigation.navigate('Diagnostics'),
+
+    nowMs: now,
+    openPartMenu,
+    editLoadedProgram,
+    openPrograms: () => navigation.navigate('MeetingPrograms'),
+    openSettings: () => navigation.navigate('Settings'),
   };
 }

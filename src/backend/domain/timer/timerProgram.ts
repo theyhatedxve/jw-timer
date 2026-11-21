@@ -1,9 +1,14 @@
-import type { MeetingDraft } from '../meetings/meeting.types';
+import type {
+  MeetingDraft,
+  MeetingType,
+} from '../meetings/meeting.types';
+
 import {
+  isCalendarDate,
+  isTimezone,
   MEETING_LIMITS,
   validateMeetingDraft,
 } from '../meetings/meetingValidation';
-
 import {
   createTimer,
   elapsed,
@@ -18,12 +23,17 @@ export interface TimedPart {
   readonly id: string;
   readonly title: string;
   readonly durationMs: number;
+  readonly sectionTitle?: string;
+  readonly sectionIndex?: number;
 }
 
 export interface TimerProgram {
   readonly meetingId: string | null;
   readonly revision: number;
   readonly title: string;
+  readonly meetingDate?: string;
+  readonly meetingType?: MeetingType;
+  readonly timezone?: string;
   readonly parts: readonly TimedPart[];
 }
 
@@ -81,6 +91,19 @@ export function isTimerProgram(
       ? value.revision < 1
       : value.revision !== 0) ||
     !validTitle(value.title) ||
+    (
+      value.meetingDate !== undefined &&
+      !isCalendarDate(value.meetingDate)
+    ) ||
+    (
+      value.timezone !== undefined &&
+      !isTimezone(value.timezone)
+    ) ||
+    (
+      value.meetingType !== undefined &&
+      value.meetingType !== 'midweek' &&
+      value.meetingType !== 'weekend'
+    ) ||
     !Array.isArray(value.parts) ||
     value.parts.length === 0 ||
     value.parts.length >
@@ -104,7 +127,20 @@ export function isTimerProgram(
       typeof part.durationMs !== 'number' ||
       !Number.isSafeInteger(part.durationMs) ||
       part.durationMs <= 0 ||
-      part.durationMs > MAX_TIMER_DURATION_MS
+      part.durationMs > MAX_TIMER_DURATION_MS ||
+      (
+        part.sectionTitle !== undefined &&
+        !validTitle(part.sectionTitle)
+      ) ||
+      (
+        part.sectionIndex !== undefined &&
+        (
+          typeof part.sectionIndex !== 'number' ||
+          !Number.isSafeInteger(part.sectionIndex) ||
+          part.sectionIndex < 0 ||
+          part.sectionIndex >= MEETING_LIMITS.sectionCount
+        )
+      )
     ) {
       return false;
     }
@@ -147,7 +183,10 @@ export function programFromMeeting(
 
   const parts: TimedPart[] = [];
 
-  for (const section of validated.value.sections) {
+  for (
+    const [sectionIndex, section]
+      of validated.value.sections.entries()
+  ) {
     for (const part of section.parts) {
       if (!part.isTimed) continue;
 
@@ -161,6 +200,8 @@ export function programFromMeeting(
         id: part.id,
         title: part.title,
         durationMs: part.durationSeconds * 1000,
+        sectionTitle: section.title,
+        sectionIndex,
       });
     }
   }
@@ -175,6 +216,9 @@ export function programFromMeeting(
     meetingId: input.id,
     revision: input.revision,
     title: validated.value.title,
+    meetingDate: validated.value.meetingDate,
+    meetingType: validated.value.meetingType,
+    timezone: validated.value.timezone,
     parts,
   };
 

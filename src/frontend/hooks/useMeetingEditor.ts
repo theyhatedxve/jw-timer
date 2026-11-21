@@ -256,23 +256,26 @@ export function useMeetingEditor(
   });
 
   const leave = useCallback(() => {
-    if (navigation.canGoBack()) {
-      navigation.goBack();
-      return;
-    }
+  if (navigation.canGoBack()) {
+    navigation.goBack();
+    return;
+  }
 
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [
-          {
-            name: 'Main',
-            params: { screen: 'Meetings' },
-          },
-        ],
-      }),
-    );
-  }, [navigation]);
+  navigation.dispatch(
+    CommonActions.reset({
+      index: 1,
+      routes: [
+        {
+          name: 'Main',
+          params: { screen: 'Timer' },
+        },
+        {
+          name: 'MeetingPrograms',
+        },
+      ],
+    }),
+  );
+}, [navigation]);
 
   // Leave after the successful render disables removal prevention.
   useEffect(() => {

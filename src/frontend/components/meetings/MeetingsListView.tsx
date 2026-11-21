@@ -20,7 +20,7 @@ export default function MeetingsListView({
 
   return (
     <SafeAreaView
-      edges={['top', 'left', 'right']}
+      edges={['left', 'right', 'bottom']}
       style={styles.screen}
     >
       <FlatList

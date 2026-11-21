@@ -9,7 +9,7 @@ export default function SectionView({ content, actions }: ReturnType<typeof useS
   return (
     <SafeAreaView
       style={styles.screen}
-      edges={['top', 'left', 'right']}
+      edges={['left', 'right', 'bottom']}
     >
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.appName}>{en.appName}</Text>

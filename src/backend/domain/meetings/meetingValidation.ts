@@ -52,7 +52,7 @@ function validateTitle(
   return { ok: true, value: title };
 }
 
-function isCalendarDate(value: unknown): value is string {
+export function isCalendarDate(value: unknown): value is string {
   if (typeof value !== 'string') return false;
 
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
@@ -91,7 +91,7 @@ function isCalendarDate(value: unknown): value is string {
   return maximum !== undefined && day <= maximum;
 }
 
-function isTimezone(value: unknown): value is string {
+export function isTimezone(value: unknown): value is string {
   if (
     typeof value !== 'string' ||
     value.length === 0 ||

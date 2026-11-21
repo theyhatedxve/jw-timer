@@ -565,3 +565,26 @@ the existing timer-loading and recovery flow; it never starts timing
 automatically. Received schedules remain separate.
 
 Source applied; owner typecheck, tests, and device verification pending.
+
+## Timer presentation redesign — 2026-11-22
+
+The Timer tab presents existing program-management and current-timer
+entry actions using shared themed components.
+
+The session screen shows large countdown digits, current status,
+elapsed/allotted progress, current and next parts, and expandable
+access to the virtualized program agenda. Controls remain scrollable
+when large text requires more space.
+
+Progress reads existing monotonic timer state and caps at 100 percent.
+It never advances, starts, resets, or otherwise changes the timer.
+
+Start/Pause/Resume, Next/Finish, confirmed Restart, recovery choices,
+part menus, snapshot editing behavior, and fullscreen exit retain their
+existing handlers. Keep-awake remains limited to active fullscreen
+presentation when enabled.
+
+Recovery choices remain explicit. Backgrounding and navigation keep
+their existing pause/checkpoint behavior. No timer state is synchronized.
+
+Source applied; owner typecheck, tests, and device verification pending.

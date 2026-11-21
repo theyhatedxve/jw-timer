@@ -1,33 +1,30 @@
+import { useState } from 'react';
 import {
+  ActivityIndicator,
   FlatList,
-  Pressable,
-  ScrollView,
   Switch,
   Text,
   View,
 } from 'react-native';
-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useKeepAwake } from 'expo-keep-awake';
 
 import { timerEn as text } from '../../../constants/strings/timerEn';
+import { timerPresentationEn as presentation } from '../../../constants/strings/timerPresentationEn';
 
-import ActionButton from '../common/ActionButton';
-import SettingsButton from '../common/SettingsButton';
-
-import {
-  digitSize,
-  sectionColor,
-  styles,
-} from '../../styles/timer/timerAgenda.styles';
-
-import {
-  useTimerAgenda,
-  type TimerAgendaRow,
-} from '../../hooks/useTimerAgenda';
-
+import { useAppTheme } from '../../context/AppearanceContext';
+import { useTimerAgenda } from '../../hooks/useTimerAgenda';
 import type { useTimerSession } from '../../hooks/useTimerSession';
+import { styles } from '../../styles/timer/timerPresentation.styles';
+
+import AppButton from '../common/AppButton';
+import AppCard from '../common/AppCard';
+import SettingsButton from '../common/SettingsButton';
+import TimerAgendaCard from './TimerAgendaCard';
+import TimerControls from './TimerControls';
+import TimerCountdown from './TimerCountdown';
+import TimerSessionMessages from './TimerSessionMessages';
 
 type Model = ReturnType<typeof useTimerSession>;
 
@@ -39,434 +36,176 @@ function AwakeWhilePresented() {
   return null;
 }
 
-function TimerControls({ model }: { readonly model: Model }) {
-  const completed = model.timer.status === 'completed';
-
-  const actions = [
-    {
-      label: model.timer.status === 'running'
-        ? text.pause
-        : model.timer.status === 'paused'
-          ? text.resume
-          : text.start,
-      onPress: model.toggleRunning,
-      disabled: model.locked || completed,
-      variant: styles.startControl,
-    },
-    {
-      label: model.isLastPart ? text.finish : text.next,
-      onPress: model.advancePart,
-      disabled: model.locked || completed,
-      variant: undefined,
-    },
-    {
-      label: text.restart,
-      onPress: model.confirmReset,
-      disabled: model.locked,
-      variant: styles.restartControl,
-    },
-    {
-      label: model.fullscreen
-        ? text.exitFullscreen
-        : text.fullscreen,
-      onPress: model.toggleFullscreen,
-      disabled: !model.fullscreen && model.locked,
-      variant: undefined,
-    },
-  ];
-
-  return (
-    <View style={styles.actions}>
-      {actions.map(action => (
-        <Pressable
-          key={action.label}
-          accessibilityRole="button"
-          accessibilityLabel={action.label}
-          accessibilityState={{ disabled: action.disabled }}
-          disabled={action.disabled}
-          onPress={action.onPress}
-          style={({ pressed }) => [
-            styles.control,
-            action.variant,
-            action.disabled && styles.disabled,
-            pressed && styles.pressed,
-          ]}
-        >
-          <Text style={styles.controlLabel}>
-            {action.label}
-          </Text>
-        </Pressable>
-      ))}
-    </View>
-  );
-}
-
-function SessionMessages({
-  model,
-}: {
-  readonly model: Model;
-}) {
-  const saved = model.pendingRecovery;
-
-  return (
-    <>
-      {model.notice ? (
-        <View style={styles.notice}>
-          <Text accessibilityRole="alert" style={styles.text}>
-            {model.notice}
-          </Text>
-        </View>
-      ) : null}
-
-      {model.error ? (
-        <View style={styles.notice}>
-          <Text accessibilityRole="alert" style={styles.text}>
-            {model.error}
-          </Text>
-
-          {model.ready && !saved ? (
-            <ActionButton
-              label={text.retrySaving}
-              onPress={model.retrySaving}
-            />
-          ) : null}
-        </View>
-      ) : null}
-
-      {saved ? (
-        <View style={styles.notice}>
-          <Text accessibilityRole="header" style={styles.heading}>
-            {text.recover}
-          </Text>
-
-          <Text style={styles.text}>
-            {saved.program.title} · {model.recoveryTitle}
-          </Text>
-
-          <Text style={styles.muted}>
-            {new Date(saved.savedAtMs).toLocaleString()}
-            {' · '}
-            {Math.floor(saved.elapsedMs / 1000)} seconds saved
-          </Text>
-
-          <Text style={styles.text}>
-            {text.recoveryNote}
-          </Text>
-
-          <ActionButton
-            label={saved.status === 'ready'
-              ? text.restoreReady
-              : text.restorePaused}
-            onPress={model.restoreCheckpoint}
-          />
-
-          <ActionButton
-            label={text.restartRecovered}
-            onPress={model.restartRecoveredPart}
-          />
-        </View>
-      ) : null}
-    </>
-  );
-}
-
-interface RowProps {
-  readonly row: TimerAgendaRow;
-  readonly compact: boolean;
-  readonly disabled: boolean;
-  readonly onMenu: (index: number) => void;
-}
-
-function AgendaRow({
-  row,
-  compact,
-  disabled,
-  onMenu,
-}: RowProps) {
-  const tone = sectionColor(row.sectionIndex);
-
-  return (
-    <View>
-      {row.startsSection ? (
-        <Text
-          accessibilityRole="header"
-          style={[
-            styles.sectionHeader,
-            { color: tone, borderLeftColor: tone },
-          ]}
-        >
-          {row.sectionTitle}
-        </Text>
-      ) : null}
-
-      <View
-        style={[
-          styles.agendaRow,
-          compact && styles.compactRow,
-          row.current && styles.selectedRow,
-        ]}
-      >
-        <View style={!compact ? styles.flexible : undefined}>
-          <Text style={[styles.text, { color: tone }]}>
-            {row.index + 1}. {row.title}
-          </Text>
-
-          {row.current ? (
-            <Text style={styles.muted}>
-              {text.selectedPart}
-            </Text>
-          ) : null}
-        </View>
-
-        <View style={styles.rowValues}>
-          <View style={styles.valueColumn}>
-            {compact ? (
-              <Text style={styles.muted}>{text.duration}</Text>
-            ) : null}
-
-            <Text style={styles.number}>
-              {row.durationLabel}
-            </Text>
-          </View>
-
-          <View style={styles.valueColumn}>
-            {compact ? (
-              <Text style={styles.muted}>{text.timer}</Text>
-            ) : null}
-
-            <Text
-              accessibilityLiveRegion="none"
-              style={styles.number}
-            >
-              {row.timerLabel}
-            </Text>
-          </View>
-
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`${text.partMenu}: ${row.title}`}
-            accessibilityState={{ disabled }}
-            disabled={disabled}
-            onPress={() => onMenu(row.index)}
-            style={({ pressed }) => [
-              styles.menu,
-              disabled && styles.disabled,
-              pressed && styles.pressed,
-            ]}
-          >
-            <Text
-              accessible={false}
-              allowFontScaling={false}
-              style={styles.menuGlyph}
-            >
-              ⋮
-            </Text>
-          </Pressable>
-        </View>
-      </View>
-    </View>
-  );
-}
-
 export default function TimerSessionView(model: Model) {
+  const { palette, resolved } = useAppTheme();
+  const [showAgenda, setShowAgenda] = useState(false);
   const agenda = useTimerAgenda(model);
+
   const presenting = model.fullscreen && model.active;
+  const showCountdown = model.ready && !model.pendingRecovery;
+
+  const current = agenda.rows[model.timer.partIndex];
+  const next = model.timer.status === 'completed'
+    ? undefined
+    : agenda.rows[model.timer.partIndex + 1];
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <StatusBar style="light" hidden={presenting} />
-
-      {presenting && model.keepAwake ? (
-        <AwakeWhilePresented />
+    <SafeAreaView
+      style={[styles.safe, { backgroundColor: palette.canvas }]}
+    >
+      {model.active ? (
+        <StatusBar
+          style={resolved === 'dark' ? 'light' : 'dark'}
+          hidden={presenting}
+        />
       ) : null}
 
-      {model.fullscreen ? (
-        <ScrollView
-          contentContainerStyle={styles.fullscreenContent}
-        >
-          <SessionMessages model={model} />
+      {presenting && model.keepAwake ? <AwakeWhilePresented /> : null}
 
-          <Text style={styles.heading}>
-            {model.partTitle}
-          </Text>
-
-          <Text style={styles.text}>
-            {model.stateLabel}
-          </Text>
-
-          <Text
-            accessibilityLabel={
-              `${model.stateLabel}: ${model.digits}`
-            }
-            accessibilityLiveRegion="none"
-            style={[
-              styles.fullscreenDigits,
-              digitSize(model.displaySize),
-              model.overtime && styles.overtime,
-            ]}
-          >
-            {model.digits}
-          </Text>
-
-          <TimerControls model={model} />
-        </ScrollView>
-      ) : (
-        <>
-          <FlatList
-            style={styles.list}
-            contentContainerStyle={styles.content}
-            data={agenda.rows}
-            keyExtractor={row => row.id}
-            ListHeaderComponent={
-              <View style={styles.header}>
-                <View style={styles.topRow}>
-                  <View style={styles.titleBlock}>
-                    <Text
-                      accessibilityRole="header"
-                      style={styles.title}
-                    >
+      <FlatList
+        key={model.fullscreen ? 'fullscreen' : 'session'}
+        className="flex-1"
+        contentContainerStyle={[
+          styles.content,
+          model.fullscreen && styles.fullscreenContent,
+        ]}
+        data={!model.fullscreen && showAgenda ? agenda.rows : []}
+        keyExtractor={row => row.id}
+        extraData={model.locked}
+        ListHeaderComponent={
+          <View className="gap-app-medium pb-app-medium">
+            {!model.fullscreen ? (
+              <>
+                <View className="flex-row items-start gap-app-small">
+                  <View className="flex-1 gap-app-small">
+                    <Text accessibilityRole="header" className="text-app-title font-bold text-app-text">
                       {model.program.title}
                     </Text>
-
-                    <Text style={styles.text}>
+                    <Text className="text-app-body text-app-secondary">
                       {agenda.week}
                     </Text>
                   </View>
 
-                  <SettingsButton
-                    onPress={model.openSettings}
-                  />
+                  <SettingsButton onPress={model.openSettings} />
                 </View>
 
-                <View style={styles.clockBox}>
-                  <Text style={styles.muted}>
-                    {text.currentTime} · {agenda.timezone}
+                <AppCard>
+                  <Text className="text-app-body text-app-secondary">
+                    {text.currentTime}
+                    {' · '}
+                    {agenda.timezone}
                   </Text>
-
-                  <Text
-                    accessibilityLiveRegion="none"
-                    style={styles.clock}
-                  >
+                  <Text accessibilityLiveRegion="none" className="text-app-body font-bold text-app-text">
                     {agenda.clock}
                   </Text>
-                </View>
+                </AppCard>
+              </>
+            ) : null}
 
-                <View style={styles.actions}>
-                  <ActionButton
-                    label={text.managePrograms}
-                    onPress={model.openPrograms}
-                  />
+            <TimerSessionMessages model={model} />
 
-                  {model.program.meetingId ? (
-                    <ActionButton
-                      label={text.editProgram}
-                      disabled={model.locked}
-                      onPress={model.editLoadedProgram}
-                    />
-                  ) : null}
-                </View>
+            {!model.ready && !model.error ? (
+              <View className="gap-app-small">
+                <ActivityIndicator color={palette.brand} />
+                <Text accessibilityLiveRegion="polite" className="text-app-body text-app-secondary">
+                  {presentation.loading}
+                </Text>
+              </View>
+            ) : null}
 
-                <SessionMessages model={model} />
+            {showCountdown ? (
+              <TimerCountdown
+                model={model}
+                durationLabel={
+                  current?.durationLabel ?? presentation.durationMissing
+                }
+              />
+            ) : null}
 
-                {model.program.meetingId &&
-                !model.program.meetingDate ? (
-                  <Text style={styles.muted}>
-                    {text.legacyMetadata}
-                  </Text>
+            <TimerControls model={model} />
+
+            {!model.fullscreen ? (
+              <>
+                {showCountdown && next ? (
+                  <AppCard>
+                    <Text className="text-app-body text-app-secondary">
+                      {presentation.next}
+                    </Text>
+                    <Text className="text-app-body font-bold text-app-text">
+                      {next.title}
+                    </Text>
+                    <Text className="text-app-body text-app-secondary">
+                      {next.durationLabel}
+                    </Text>
+                  </AppCard>
                 ) : null}
 
-                {!model.pendingRecovery ? (
-                  <View style={styles.currentCard}>
-                    <Text style={styles.muted}>
-                      {model.stateLabel}
-                    </Text>
-
-                    <Text style={styles.heading}>
-                      {model.partTitle}
-                    </Text>
-
-                    <Text
-                      accessibilityLabel={
-                        `${model.stateLabel}: ${model.digits}`
-                      }
-                      accessibilityLiveRegion="none"
-                      style={[
-                        styles.currentDigits,
-                        model.overtime && styles.overtime,
-                      ]}
-                    >
-                      {model.digits}
-                    </Text>
-                  </View>
-                ) : null}
-
-                <View style={styles.topRow}>
-                  <Text style={[styles.text, styles.flexible]}>
+                <View className="flex-row items-center gap-app-medium">
+                  <Text className="flex-1 text-app-body text-app-text">
                     {text.keepAwake}
                   </Text>
-
                   <Switch
                     accessibilityLabel={text.keepAwake}
                     value={model.keepAwake}
                     onValueChange={model.setKeepAwake}
+                    trackColor={{
+                      false: palette.border,
+                      true: palette.brand,
+                    }}
+                    thumbColor={palette.surface}
                   />
                 </View>
 
-                <Text style={styles.muted}>
+                <AppCard>
+                  <Text accessibilityLiveRegion="none" className="text-app-body text-app-text">
+                    {text.estimatedFinish}: {agenda.estimatedFinish}
+                  </Text>
+                  <Text className="text-app-body text-app-secondary">
+                    {agenda.estimateNote}
+                  </Text>
+                </AppCard>
+
+                <AppButton
+                  label={text.managePrograms}
+                  onPress={model.openPrograms}
+                />
+
+                {model.program.meetingId ? (
+                  <AppButton
+                    label={text.editProgram}
+                    disabled={model.locked}
+                    onPress={model.editLoadedProgram}
+                  />
+                ) : null}
+
+                <Text className="text-app-body text-app-secondary">
                   {text.snapshotNote}
                 </Text>
 
-                {!agenda.compact ? (
-                  <View style={styles.tableHeader}>
-                    <Text style={[styles.muted, styles.flexible]}>
-                      {text.title}
-                    </Text>
-
-                    <View style={styles.rowValues}>
-                      <View style={styles.valueColumn}>
-                        <Text style={styles.muted}>
-                          {text.duration}
-                        </Text>
-                      </View>
-
-                      <View style={styles.valueColumn}>
-                        <Text style={styles.muted}>
-                          {text.timer}
-                        </Text>
-                      </View>
-
-                      <View style={styles.menu} />
-                    </View>
-                  </View>
+                {model.program.meetingId && !model.program.meetingDate ? (
+                  <Text className="text-app-body text-app-secondary">
+                    {text.legacyMetadata}
+                  </Text>
                 ) : null}
-              </View>
-            }
-            renderItem={({ item }) => (
-              <AgendaRow
-                row={item}
-                compact={agenda.compact}
-                disabled={model.locked}
-                onMenu={model.openPartMenu}
-              />
-            )}
-          />
 
-          <View style={styles.footer}>
-            <Text
-              accessibilityLiveRegion="none"
-              style={styles.text}
-            >
-              {text.estimatedFinish}: {agenda.estimatedFinish}
-            </Text>
-
-            <Text style={styles.muted}>
-              {agenda.estimateNote}
-            </Text>
-
-            <TimerControls model={model} />
+                <AppButton
+                  label={showAgenda
+                    ? presentation.hideAgenda
+                    : presentation.showAgenda}
+                  onPress={() => setShowAgenda(currentValue => !currentValue)}
+                />
+              </>
+            ) : null}
           </View>
-        </>
-      )}
+        }
+        renderItem={({ item }) => (
+          <TimerAgendaCard
+            row={item}
+            disabled={model.locked}
+            onMenu={model.openPartMenu}
+          />
+        )}
+      />
     </SafeAreaView>
   );
 }

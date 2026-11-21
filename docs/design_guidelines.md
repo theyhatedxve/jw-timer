@@ -511,3 +511,23 @@ Section controls expose expanded state and preserve 48dp touch targets.
 Date selection uses a validated date-entry dialog without a new dependency.
 Both themes, large text, TalkBack, and keyboard behavior require owner
 device verification.
+
+## Timer presentation tokens — 2026-11-22
+
+Timer presentation uses shared appearance palettes and section colors.
+Its additional tokens are centralized in timerTheme.ts.
+
+Countdown digits use tabular numbers and the existing responsive size.
+Single-line fitting accommodates long overtime values. Font scaling
+remains enabled.
+
+Status labels and signed overtime digits provide meaning beyond color.
+Progress and changing digits do not produce live announcements on every
+tick; existing timer status announcements remain in place.
+
+The red Restart action retains confirmation. Fullscreen has a visible
+exit control and existing Android Back handling. Scrolling keeps controls
+reachable at large text sizes.
+
+Device verification is required for both themes, long overtime values,
+large text, TalkBack, fullscreen, recovery, and screen-awake behavior.

@@ -19,3 +19,12 @@ export const timerLayout = {
   tableBreakpoint: 700,
   valueColumnWidth: 100,
 } as const;
+
+export const timerPresentation = {
+  progressHeight: 10,
+  minimumDigitScale: 0.3,
+  runningBackground: timerColors.start,
+  runningText: timerColors.onControl,
+  restartBackground: timerColors.danger,
+  restartText: timerColors.onControl,
+} as const;

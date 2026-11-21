@@ -5,6 +5,8 @@ import type {
   MeetingSectionDraft,
 } from './meeting.types';
 
+import { readWorkbookSource } from '../imports/workbookSource';
+
 export const MEETING_LIMITS = {
   titleLength: 200,
   sectionCount: 30,
@@ -357,6 +359,14 @@ export function validateMeetingDraft(
     sections.push(result.value);
   }
 
+    const importSource = input.importSource === undefined
+    ? undefined
+    : readWorkbookSource(input.importSource);
+
+  if (importSource === null) {
+    return failure('importSource', 'Invalid workbook source.');
+  }
+
   return {
     ok: true,
     value: {
@@ -368,6 +378,7 @@ export function validateMeetingDraft(
       timezone,
       programLanguage,
       sections,
+      ...(importSource === undefined ? {} : { importSource }),
     },
   };
 }

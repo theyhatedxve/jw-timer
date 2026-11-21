@@ -30,6 +30,9 @@ import type {
 } from '../../backend/services/meetingService';
 
 import { MEETING_LIMITS } from '../../backend/domain/meetings/meetingValidation';
+import { validateMeetingDraft } from '../../backend/domain/meetings/meetingValidation';
+import type { WorkbookSource } from '../../backend/domain/imports/workbookSource';
+import { workbookParsingEn } from '../../constants/strings/workbookParsingEn';
 
 interface EditorPart {
   readonly key: string;
@@ -48,6 +51,7 @@ interface EditorSection {
 }
 
 interface EditorForm {
+  readonly importSource?: WorkbookSource;
   readonly title: string;
   readonly meetingType: MeetingDraft['meetingType'];
   readonly meetingDate: string;
@@ -58,7 +62,10 @@ interface EditorForm {
   readonly sections: readonly EditorSection[];
 }
 
-type HeaderField = Exclude<keyof EditorForm, 'sections'>;
+type HeaderField = Exclude<
+  keyof EditorForm,
+  'sections' | 'importSource'
+>;
 
 type PartChanges = Partial<
   Pick<
@@ -103,6 +110,7 @@ function toForm(
 
 function toDraft(form: EditorForm): MeetingDraft {
   return {
+    importSource: form.importSource,
     title: form.title,
     meetingType: form.meetingType,
     meetingDate: form.meetingDate,
@@ -152,6 +160,7 @@ function moveItem<T>(
 export function useMeetingEditor(
   service: MeetingService,
   meetingId: string | undefined,
+  importDraft: unknown = undefined,
 ) {
   const navigation = useNavigation();
   const { state: profileState } = useLocalProfile();
@@ -188,7 +197,20 @@ export function useMeetingEditor(
     let draft: MeetingDraft;
     let savedTarget: MeetingTarget | null = null;
 
-    if (meetingId !== undefined) {
+    if (importDraft !== undefined) {
+      const parsed = validateMeetingDraft(importDraft);
+
+      if (
+        meetingId !== undefined ||
+        !parsed.ok ||
+        !parsed.value.importSource
+      ) {
+        setLoadError(workbookParsingEn.invalidDraft);
+        return;
+      }
+
+      draft = parsed.value;
+    } else if (meetingId !== undefined) {
       const result = service.get(meetingId);
 
       if (!result.ok) {
@@ -220,8 +242,27 @@ export function useMeetingEditor(
 
     const loadedForm = toForm(draft, nextKey);
 
-    setForm(loadedForm);
-    setBaseline(JSON.stringify(loadedForm));
+    const preparedForm = importDraft === undefined
+      ? loadedForm
+      : {
+          ...loadedForm,
+          sections: loadedForm.sections.map(section => ({
+            ...section,
+            parts: section.parts.map(part => ({
+              ...part,
+              isTimed: part.durationText === '0'
+                ? true
+                : part.isTimed,
+            })),
+          })),
+        };
+
+    setForm(preparedForm);
+    setBaseline(
+      importDraft === undefined
+        ? JSON.stringify(preparedForm)
+        : '',
+    );
     setTarget(savedTarget);
     setLoadError(null);
     setIssue(null);
@@ -231,6 +272,7 @@ export function useMeetingEditor(
   }, [
     service,
     meetingId,
+    importDraft,
     defaultTimezone,
     nextKey,
   ]);

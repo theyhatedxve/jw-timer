@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type {
   WorkbookFile,
@@ -9,17 +9,43 @@ import type {
   WorkbookTextService,
 } from '../../backend/domain/imports/workbookText';
 
+import { Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useLocalProfile } from './useLocalProfile';
+
+import { buildWorkbookCandidates } from '../../backend/domain/imports/workbookParser';
+import { workbookParsingEn as parsingText } from '../../constants/strings/workbookParsingEn';
+
 import { workbookImportEn as text } from '../../constants/strings/workbookImportEn';
 
 export function useWorkbookFile(
   service: WorkbookFileService,
   extractor: WorkbookTextService,
 ) {
+
   const [file, setFile] = useState<WorkbookFile | null>(null);
   const [pages, setPages] = useState<readonly string[]>([]);
   const [busy, setBusy] =
     useState<'selecting' | 'extracting' | null>(null);
   const [error, setError] = useState('');
+
+  const navigation = useNavigation();
+  const { state: profileState } = useLocalProfile();
+  const [year, setYear] = useState(String(new Date().getFullYear()));
+
+  const timezone = profileState.status === 'ready'
+    ? profileState.profile?.timezone ?? 'UTC'
+    : 'UTC';
+
+  const candidates = useMemo(
+    () => buildWorkbookCandidates(
+      pages,
+      year,
+      timezone,
+      file?.name ?? '',
+    ),
+    [pages, year, timezone, file?.name],
+  );
 
   const current = useRef<WorkbookFile | null>(null);
   const mounted = useRef(false);
@@ -66,6 +92,11 @@ export function useWorkbookFile(
 
       current.current = result.file;
       setFile(result.file);
+
+      const filenameYear =
+        /_(\d{4})\d{2}\.pdf$/i.exec(result.file.name)?.[1];
+
+      setYear(filenameYear ?? String(new Date().getFullYear()));
       setPages([]);
     } catch {
       if (mounted.current) setError(text.unreadable);
@@ -108,5 +139,39 @@ export function useWorkbookFile(
     }
   }
 
-  return { file, pages, busy, error, select, extract };
+  function openCandidate(key: string) {
+    if (working.current || !file) return;
+
+    const candidate = candidates.find(item => item.key === key);
+    if (!candidate) return;
+
+    Alert.alert(
+      parsingText.confirmTitle,
+      candidate.warnings.join('\n\n'),
+      [
+        { text: parsingText.cancel, style: 'cancel' },
+        {
+          text: parsingText.continue,
+          onPress: () => navigation.navigate('MeetingEditor', {
+            importDraft: candidate.draft,
+            importKey: `${file.uri}:${candidate.key}`,
+          }),
+        },
+      ],
+    );
+  }
+
+
+  return {
+    file,
+    pages,
+    busy,
+    error,
+    select,
+    extract,
+    year,
+    setYear,
+    candidates,
+    openCandidate,
+  };
 }

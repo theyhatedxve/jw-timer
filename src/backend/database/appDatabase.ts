@@ -8,6 +8,7 @@ import { ASSIGNMENT_SQL } from './migrations/004_assignments';
 import {
   MEETING_DUTY_SQL,
 } from './migrations/005_meeting_duties';
+import { WORKBOOK_SOURCE_SQL } from './migrations/008_workbook_source';
 
 import { MEETING_END_TIME_SQL } from './migrations/007_meeting_end_time';
 import { TECHNICAL_ASSIGNMENT_SQL } from './migrations/006_technical_assignments';
@@ -93,6 +94,7 @@ const MIGRATIONS = [
   { version: 5, sql: MEETING_DUTY_SQL },
   { version: 6, sql: TECHNICAL_ASSIGNMENT_SQL },
   { version: 7, sql: MEETING_END_TIME_SQL },
+  { version: 8, sql: WORKBOOK_SOURCE_SQL },
 ] as const;
 
 let connection: SQLiteDatabase | null = null;

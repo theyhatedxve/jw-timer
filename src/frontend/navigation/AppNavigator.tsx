@@ -107,7 +107,7 @@ export default function AppNavigator() {
             name="MeetingEditor"
             component={MeetingEditorScreen}
             getId={({ params }) =>
-              params?.meetingId ?? 'new'
+              params?.meetingId ?? params?.importKey ?? 'new'
             }
           />
 

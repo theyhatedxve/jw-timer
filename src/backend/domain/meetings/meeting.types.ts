@@ -1,3 +1,5 @@
+import type { WorkbookSource } from '../imports/workbookSource';
+
 export type MeetingType = 'midweek' | 'weekend';
 
 export type MeetingLanguage = 'en' | 'war';
@@ -34,6 +36,7 @@ export interface MeetingDraft {
   readonly timezone: string;
   readonly programLanguage: MeetingLanguage;
   readonly sections: readonly MeetingSectionDraft[];
+  readonly importSource?: WorkbookSource;
 }
 
 export interface MeetingValidationError {

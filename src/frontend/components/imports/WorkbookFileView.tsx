@@ -5,6 +5,9 @@ import ActionButton from '../common/ActionButton';
 import { styles } from '../../styles/publishers/publishers.styles';
 import { workbookImportEn as text } from '../../../constants/strings/workbookImportEn';
 
+import { MeetingField } from '../meetings/MeetingControls';
+import { workbookParsingEn as parsingText } from '../../../constants/strings/workbookParsingEn';
+
 import type { useWorkbookFile } from '../../hooks/useWorkbookFile';
 
 type Props = ReturnType<typeof useWorkbookFile>;
@@ -25,6 +28,54 @@ export default function WorkbookFileView(model: Props) {
           <View style={styles.group}>
             <Text style={styles.text}>{text.empty}</Text>
 
+            {model.pages.length > 0 ? (
+              <>
+                <MeetingField
+                  label={parsingText.year}
+                  hint={parsingText.yearHint}
+                  value={model.year}
+                  editable={model.busy === null}
+                  keyboardType="number-pad"
+                  onChangeText={model.setYear}
+                />
+
+                <Text accessibilityRole="header" style={styles.heading}>
+                  {parsingText.candidates}
+                </Text>
+                <Text style={styles.secondary}>
+                  {parsingText.scope}
+                </Text>
+
+                {model.candidates.length === 0 ? (
+                  <Text style={styles.error}>{parsingText.none}</Text>
+                ) : null}
+
+                {model.candidates.map(candidate => (
+                  <View key={candidate.key} style={styles.publisher}>
+                    <Text style={styles.heading}>
+                      {candidate.draft.title}
+                    </Text>
+                    <Text style={styles.secondary}>
+                      {parsingText.page(candidate.page)}
+                    </Text>
+
+                    {candidate.warnings.map(warning => (
+                      <Text key={warning} style={styles.error}>
+                        {warning}
+                      </Text>
+                    ))}
+
+                    <ActionButton
+                      label={parsingText.open}
+                      disabled={model.busy !== null}
+                      onPress={() =>
+                        model.openCandidate(candidate.key)
+                      }
+                    />
+                  </View>
+                ))}
+              </>
+            ) : null}
             <ActionButton
               label={
                 model.busy === 'selecting'

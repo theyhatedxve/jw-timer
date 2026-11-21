@@ -19,6 +19,8 @@ import type {
   SavedMeeting,
 } from '../../services/meetingService';
 
+import { workbookParsingEn } from '../../../constants/strings/workbookParsingEn';
+
 import { validateMeetingDraft } from '../../domain/meetings/meetingValidation';
 
 interface MeetingRow {
@@ -32,6 +34,7 @@ interface MeetingRow {
   program_language: string;
   revision: number;
   updated_at: number;
+  import_source_json: string | null;
 }
 
 interface SectionRow {
@@ -146,6 +149,10 @@ function decodeHeader(
     timezone: row.timezone,
     programLanguage: row.program_language,
     sections,
+
+    importSource: row.import_source_json === null
+     ? undefined
+     : JSON.parse(row.import_source_json),
   });
 
   if (!result.ok) corrupt();
@@ -432,6 +439,29 @@ export const localMeetingRepository: MeetingRepository = {
         const id = current?.id ?? newId(db);
         const now = Date.now();
 
+                if (!current && draft.importSource) {
+          const duplicate = db.getFirstSync<{ id: string }>(
+            `SELECT id FROM local_meeting_drafts
+             WHERE (
+               meeting_date = ?
+               AND meeting_type = ?
+               AND program_language = ?
+             ) OR import_source_json = ?
+             LIMIT 1`,
+            draft.meetingDate,
+            draft.meetingType,
+            draft.programLanguage,
+            JSON.stringify(draft.importSource),
+          );
+
+          if (duplicate) {
+            throw new MeetingStorageError(
+              'conflict',
+              workbookParsingEn.duplicate,
+            );
+          }
+        }
+
         const scheduleChanged = current !== null && (
           current.draft.meetingDate !== draft.meetingDate ||
           current.draft.startLocalTime !== draft.startLocalTime ||
@@ -516,6 +546,16 @@ export const localMeetingRepository: MeetingRepository = {
         }
 
         saveMeetingChildren(db, id, draft);
+
+        db.runSync(
+          `UPDATE local_meeting_drafts
+           SET import_source_json = ?
+           WHERE id = ?`,
+          draft.importSource
+            ? JSON.stringify(draft.importSource)
+            : null,
+          id,
+        );
 
         saved = readMeeting(db, id);
 

@@ -19,6 +19,7 @@ export default function MeetingEditorScreen({ route }: Props) {
   const model = useMeetingEditor(
     meetingService,
     route.params?.meetingId,
+    route.params?.importDraft,
   );
 
   return <MeetingEditorView {...model} />;

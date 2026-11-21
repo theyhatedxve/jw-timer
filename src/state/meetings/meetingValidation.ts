@@ -112,6 +112,24 @@ function isTimezone(value: unknown): value is string {
   }
 }
 
+function validateDraftId(
+  input: unknown,
+  field: string,
+): MeetingResult<string | undefined> {
+  if (input === undefined) {
+    return { ok: true, value: undefined };
+  }
+
+  if (
+    typeof input !== 'string' ||
+    !/^[a-f0-9]{32}$/.test(input)
+  ) {
+    return failure(field, 'Invalid saved item identifier.');
+  }
+
+  return { ok: true, value: input };
+}
+
 function validatePart(
   input: unknown,
   field: string,
@@ -119,6 +137,10 @@ function validatePart(
   if (!isRecord(input)) {
     return failure(field, 'Invalid meeting part.');
   }
+  
+  const id = validateDraftId(input.id, `${field}.id`);
+
+  if (!id.ok) return id;
 
   const title = validateTitle(input.title, `${field}.title`);
 
@@ -171,6 +193,7 @@ function validatePart(
   return {
     ok: true,
     value: {
+      ...(id.value === undefined ? {} : { id: id.value }),
       title: title.value,
       kind,
       durationSeconds,
@@ -186,6 +209,10 @@ function validateSection(
   if (!isRecord(input)) {
     return failure(field, 'Invalid meeting section.');
   }
+
+  const id = validateDraftId(input.id, `${field}.id`);
+
+  if (!id.ok) return id;
 
   const title = validateTitle(input.title, `${field}.title`);
 
@@ -216,7 +243,11 @@ function validateSection(
 
   return {
     ok: true,
-    value: { title: title.value, parts },
+    value: {
+      ...(id.value === undefined ? {} : { id: id.value }),
+      title: title.value,
+      parts,
+    },
   };
 }
 

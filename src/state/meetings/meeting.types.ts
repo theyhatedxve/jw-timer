@@ -16,11 +16,13 @@ export interface MeetingPartDraft {
   readonly kind: MeetingPartKind;
   readonly durationSeconds: number;
   readonly isTimed: boolean;
+  readonly id?: string;
 }
 
 export interface MeetingSectionDraft {
   readonly title: string;
   readonly parts: readonly MeetingPartDraft[];
+  readonly id?: string;
 }
 
 export interface MeetingDraft {

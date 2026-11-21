@@ -1,7 +1,9 @@
+import type { SQLiteDatabase } from 'expo-sqlite';
+
 import {
-  openDatabaseSync,
-  type SQLiteDatabase,
-} from 'expo-sqlite';
+  AppDatabaseError,
+  getAppDatabase as database,
+} from '../db/appDatabase';
 
 import type { ProfileRepository } from './profileService';
 import {
@@ -14,34 +16,10 @@ import {
 
 const PROFILE_KEY = 'local_profile';
 
-const MIGRATION_SQL = `
-CREATE TABLE app_preferences (
-  key TEXT PRIMARY KEY,
-  value_json TEXT NOT NULL,
-  updated_at INTEGER NOT NULL
-);
-`;
-
-let connection: SQLiteDatabase | null = null;
-
 class ProfileRepositoryError extends Error {
   constructor(readonly code: ProfileErrorCode) {
     super(code);
   }
-}
-
-// A migration-change checksum, not a security signature.
-function migrationChecksum(text: string): string {
-  let hash = 2166136261;
-
-  for (let index = 0; index < text.length; index += 1) {
-    hash = Math.imul(
-      hash ^ text.charCodeAt(index),
-      16777619,
-    );
-  }
-
-  return `fnv1a32:${(hash >>> 0).toString(16)}`;
 }
 
 function safely<T>(
@@ -53,75 +31,11 @@ function safely<T>(
     return {
       ok: false,
       code:
-        error instanceof ProfileRepositoryError
+        error instanceof ProfileRepositoryError ||
+        error instanceof AppDatabaseError
           ? error.code
           : 'storage',
     };
-  }
-}
-
-function database(): SQLiteDatabase {
-  if (connection) return connection;
-
-  const db = openDatabaseSync('jw-timer.db', {
-    useNewConnection: true,
-  });
-
-  try {
-    db.execSync(
-      'PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL;',
-    );
-
-    db.withTransactionSync(() => {
-      db.execSync(`
-        CREATE TABLE IF NOT EXISTS schema_migrations (
-          version INTEGER PRIMARY KEY CHECK (version >= 1),
-          checksum TEXT NOT NULL,
-          applied_at INTEGER NOT NULL
-        );
-      `);
-
-      const migrations = db.getAllSync<{
-        version: number;
-        checksum: string;
-      }>(
-        'SELECT version, checksum FROM schema_migrations ORDER BY version',
-      );
-
-      const checksum = migrationChecksum(MIGRATION_SQL);
-
-      if (migrations.length === 0) {
-        db.execSync(MIGRATION_SQL);
-
-        db.runSync(
-          'INSERT INTO schema_migrations VALUES (?, ?, ?)',
-          1,
-          checksum,
-          Date.now(),
-        );
-      } else {
-        const first = migrations[0];
-
-        if (
-          migrations.length !== 1 ||
-          first?.version !== 1 ||
-          first.checksum !== checksum
-        ) {
-          throw new ProfileRepositoryError('corrupt');
-        }
-      }
-    });
-
-    connection = db;
-    return db;
-  } catch (error) {
-    try {
-      db.closeSync();
-    } catch {
-      // Preserve the initialization error.
-    }
-
-    throw error;
   }
 }
 

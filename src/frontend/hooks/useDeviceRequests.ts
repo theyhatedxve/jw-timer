@@ -89,5 +89,8 @@ export function useDeviceRequests(service: DeviceRequestService) {
     revoke: (fingerprint: string) => perform(
       () => service.revoke(fingerprint),
     ),
+    requestAgain: (fingerprint: string) => perform(
+      () => service.requestAgain(fingerprint),
+    ),
   };
 }

@@ -42,6 +42,8 @@ import { deviceIdentityEn } from '../../constants/strings/deviceIdentityEn';
 
 import DeviceRequestsScreen from '../screens/DeviceRequestsScreen';
 import { deviceRequestsEn } from '../../constants/strings/deviceRequestsEn';
+import SignedPairingScreen from '../screens/SignedPairingScreen';
+import { signedPairingEn } from '../../constants/strings/signedPairingEn';
 
 import type {
   RootStackParamList,
@@ -84,6 +86,15 @@ export default function AppNavigator() {
           <Root.Screen
             name="Main"
             component={TabNavigator}
+          />
+          <Root.Screen
+            name="SignedPairing"
+            component={SignedPairingScreen}
+            getId={({ params }) => params.fingerprint}
+            options={{
+              headerShown: true,
+              title: signedPairingEn.title,
+            }}
           />
           <Root.Screen
             name="ManageAssignments"

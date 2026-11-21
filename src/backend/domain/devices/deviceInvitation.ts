@@ -9,8 +9,9 @@ export interface DeviceRequest {
   readonly label: string;
   readonly publicKey: string;
   readonly fingerprint: string;
-  readonly state: 'pending' | 'revoked';
+  readonly state: 'pending' | 'trusted' | 'revoked';
   readonly createdAt: number;
+  readonly revision: number;
 }
 
 export type PairingErrorCode =

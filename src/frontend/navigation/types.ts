@@ -43,6 +43,7 @@ export type RootStackParamList = {
   BackupChecks: undefined;
   DeviceIdentity: undefined;
   DeviceRequests: undefined;
+  SignedPairing: { fingerprint: string };
 
 };
 

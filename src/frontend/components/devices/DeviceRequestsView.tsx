@@ -8,7 +8,9 @@ import { deviceRequestsEn as text } from '../../../constants/strings/deviceReque
 import type { useDeviceRequests } from '../../hooks/useDeviceRequests';
 
 export default function DeviceRequestsView(
-  model: ReturnType<typeof useDeviceRequests>,
+  model: ReturnType<typeof useDeviceRequests> & {
+    readonly onPair: (fingerprint: string) => void;
+  },
 ) {
   return (
     <SafeAreaView
@@ -74,16 +76,34 @@ export default function DeviceRequestsView(
               {request.fingerprint}
             </Text>
             <Text style={styles.secondary}>
-              {request.state === 'pending' ? text.pending : text.revoked}
+              {request.state === 'pending'
+                ? text.pending
+                : request.state === 'trusted'
+                  ? text.trusted
+                  : text.revoked}
             </Text>
 
             {request.state === 'pending' ? (
+              <ActionButton
+                label={text.pair}
+                disabled={model.busy}
+                onPress={() => model.onPair(request.fingerprint)}
+              />
+            ) : null}
+
+            {request.state !== 'revoked' ? (
               <ActionButton
                 label={text.revoke}
                 disabled={model.busy}
                 onPress={() => model.revoke(request.fingerprint)}
               />
-            ) : null}
+            ) : (
+              <ActionButton
+                label={text.requestAgain}
+                disabled={model.busy}
+                onPress={() => model.requestAgain(request.fingerprint)}
+              />
+            )}
           </View>
         ))}
       </ScrollView>

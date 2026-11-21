@@ -19,13 +19,14 @@ function database(localFingerprint: string): SQLiteDatabase {
     });
 
     try {
-      db.execSync('PRAGMA busy_timeout = 3000');
-
+        db.execSync(
+        'PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 3000;',
+      );
       const version = db.getFirstSync<{ user_version: number }>(
         'PRAGMA user_version',
       )?.user_version;
 
-      if (version !== 0 && version !== 1) {
+    if (version !== 0 && version !== 1 && version !== 2) {
         throw new PairingFailure('storage');
       }
 
@@ -48,6 +49,68 @@ function database(localFingerprint: string): SQLiteDatabase {
             );
 
             PRAGMA user_version = 1;
+          `);
+        });
+      }
+
+            const currentVersion = db.getFirstSync<{
+        user_version: number;
+      }>('PRAGMA user_version')?.user_version;
+
+      if (currentVersion === 1) {
+        db.withTransactionSync(() => {
+          db.execSync(`
+            CREATE TABLE device_requests_v2 (
+              fingerprint TEXT PRIMARY KEY NOT NULL,
+              public_key TEXT NOT NULL,
+              label TEXT NOT NULL
+                CHECK (length(trim(label)) BETWEEN 1 AND 100),
+              state TEXT NOT NULL
+                CHECK (state IN ('pending', 'trusted', 'revoked')),
+              created_at INTEGER NOT NULL CHECK (created_at >= 0),
+              revision INTEGER NOT NULL DEFAULT 1
+                CHECK (revision >= 1),
+              paired_at INTEGER
+            );
+
+            INSERT INTO device_requests_v2
+              (fingerprint, public_key, label, state, created_at)
+            SELECT fingerprint, public_key, label, state, created_at
+            FROM device_requests;
+
+            DROP TABLE device_requests;
+
+            ALTER TABLE device_requests_v2
+              RENAME TO device_requests;
+
+            CREATE TABLE pairing_attempts (
+              nonce TEXT PRIMARY KEY NOT NULL,
+              peer_fingerprint TEXT NOT NULL
+                REFERENCES device_requests(fingerprint),
+              request_revision INTEGER NOT NULL,
+              expires_at INTEGER NOT NULL,
+              created_at INTEGER NOT NULL,
+              used INTEGER NOT NULL CHECK (used IN (0, 1))
+            );
+
+            CREATE TABLE pairing_peer_nonces (
+              peer_fingerprint TEXT NOT NULL
+                REFERENCES device_requests(fingerprint),
+              nonce TEXT NOT NULL,
+              expires_at INTEGER NOT NULL,
+              PRIMARY KEY (peer_fingerprint, nonce)
+            );
+
+            CREATE TABLE trust_events (
+              id INTEGER PRIMARY KEY,
+              peer_fingerprint TEXT NOT NULL,
+              action TEXT NOT NULL
+                CHECK (action IN ('paired', 'revoked', 'reopened')),
+              revision INTEGER NOT NULL,
+              created_at INTEGER NOT NULL
+            );
+
+            PRAGMA user_version = 2;
           `);
         });
       }
@@ -87,8 +150,10 @@ export const deviceRequestRepository = {
       label: string;
       state: string;
       created_at: number;
+      revision: number;
     }>(
-      `SELECT fingerprint, public_key, label, state, created_at
+      `SELECT fingerprint, public_key, label, state,
+        created_at, revision
        FROM device_requests ORDER BY created_at, fingerprint`,
     );
 
@@ -105,7 +170,13 @@ export const deviceRequestRepository = {
         row.label.trim().length === 0 ||
         row.label.length > 100 ||
         /[\u0000-\u001f\u007f]/.test(row.label) ||
-        (row.state !== 'pending' && row.state !== 'revoked') ||
+        (
+          row.state !== 'pending' &&
+          row.state !== 'trusted' &&
+          row.state !== 'revoked'
+        ) ||
+        !Number.isSafeInteger(row.revision) ||
+        row.revision < 1 ||
         !Number.isSafeInteger(row.created_at) ||
         row.created_at < 0
       ) {
@@ -118,6 +189,7 @@ export const deviceRequestRepository = {
         label: row.label,
         state: row.state,
         createdAt: row.created_at,
+        revision: row.revision,
       };
     });
   },
@@ -150,10 +222,65 @@ export const deviceRequestRepository = {
   },
 
   revoke(localFingerprint: string, fingerprint: string): void {
-    database(localFingerprint).runSync(
-      `UPDATE device_requests SET state = 'revoked'
-       WHERE fingerprint = ?`,
-      fingerprint,
-    );
+    const db = database(localFingerprint);
+
+    db.withTransactionSync(() => {
+      const changed = db.runSync(
+        `UPDATE device_requests
+         SET state = 'revoked', revision = revision + 1
+         WHERE fingerprint = ? AND state <> 'revoked'`,
+        fingerprint,
+      );
+
+      db.runSync(
+        'UPDATE pairing_attempts SET used = 1 WHERE peer_fingerprint = ?',
+        fingerprint,
+      );
+
+      if (changed.changes === 1) {
+        db.runSync(
+          `INSERT INTO trust_events
+             (peer_fingerprint, action, revision, created_at)
+           SELECT fingerprint, 'revoked', revision, ?
+           FROM device_requests WHERE fingerprint = ?`,
+          Date.now(),
+          fingerprint,
+        );
+      }
+    });
+  },
+
+  reopen(localFingerprint: string, fingerprint: string): void {
+    const db = database(localFingerprint);
+
+    db.withTransactionSync(() => {
+      const changed = db.runSync(
+        `UPDATE device_requests
+         SET state = 'pending', revision = revision + 1,
+             paired_at = NULL
+         WHERE fingerprint = ? AND state = 'revoked'`,
+        fingerprint,
+      );
+
+      if (changed.changes !== 1) {
+        throw new PairingFailure('invalid');
+      }
+
+      db.runSync(
+        'UPDATE pairing_attempts SET used = 1 WHERE peer_fingerprint = ?',
+        fingerprint,
+      );
+
+      db.runSync(
+        `INSERT INTO trust_events
+           (peer_fingerprint, action, revision, created_at)
+         SELECT fingerprint, 'reopened', revision, ?
+         FROM device_requests WHERE fingerprint = ?`,
+        Date.now(),
+        fingerprint,
+      );
+    });
   },
 };
+
+export { database as getDeviceTrustDatabase };

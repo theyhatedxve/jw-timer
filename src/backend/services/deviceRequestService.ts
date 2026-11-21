@@ -11,6 +11,7 @@ interface Repository {
   list(owner: string): readonly DeviceRequest[];
   add(owner: string, label: string, peer: DeviceInvitation): void;
   revoke(owner: string, fingerprint: string): void;
+  reopen(owner: string, fingerprint: string): void;
 }
 
 interface PeerInspector {
@@ -33,6 +34,15 @@ export function createDeviceRequestService(
   }
 
   return {
+    async requestAgain(fingerprint: string): Promise<void> {
+      if (!/^sha256:[a-f0-9]{64}$/.test(fingerprint)) {
+        throw new PairingFailure('invalid');
+      }
+
+      const own = await ownIdentity();
+      repository.reopen(own.fingerprint, fingerprint);
+    },
+
     async load() {
       const own = await ownIdentity();
 

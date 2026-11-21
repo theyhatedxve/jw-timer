@@ -1,7 +1,10 @@
 export const deviceRequestsEn = {
   title: 'Device requests',
   description:
-    'Pending requests are unverified. They cannot read or publish schedules. Signed proof and mutual confirmation come next.',
+    'Add a request, then exchange signed proofs on both phones. Identity trust grants no schedule permissions.',
+  pair: 'Start signed pairing',
+  trusted: 'Trusted identity — no schedule permissions',
+  requestAgain: 'Create a new pending request',
   own: 'This device’s public invitation',
   label: 'Other device’s label',
   invitation: 'Paste the other device’s invitation',

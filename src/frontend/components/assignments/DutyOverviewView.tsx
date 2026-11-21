@@ -48,6 +48,15 @@ export default function DutyOverviewView(model: Props) {
               <View key={row.key} style={styles.group}>
                 <Text style={styles.secondary}>{row.label}</Text>
                 <Text style={styles.text}>{row.name}</Text>
+                {row.notices.map(message => (
+                  <Text
+                    key={message}
+                    style={styles.error}
+                    accessibilityLabel={`${row.label}: ${message}`}
+                  >
+                    {message}
+                  </Text>
+                ))}
               </View>
             ))}
             {model.onEdit ? (

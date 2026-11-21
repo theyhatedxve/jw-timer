@@ -1,4 +1,4 @@
-import { ScrollView, Text } from 'react-native';
+import { FlatList, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ActionButton from '../common/ActionButton';
@@ -15,30 +15,75 @@ export default function WorkbookFileView(model: Props) {
       style={styles.screen}
       edges={['left', 'right', 'bottom']}
     >
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.text}>{text.empty}</Text>
+      <FlatList
+        data={model.pages}
+        keyExtractor={(_, index) => String(index)}
+        contentContainerStyle={styles.content}
+        initialNumToRender={2}
+        maxToRenderPerBatch={2}
+        ListHeaderComponent={
+          <View style={styles.group}>
+            <Text style={styles.text}>{text.empty}</Text>
 
-        <ActionButton
-          label={model.busy ? text.selecting : text.select}
-          onPress={model.select}
-        />
+            <ActionButton
+              label={
+                model.busy === 'selecting'
+                  ? text.selecting
+                  : text.select
+              }
+              disabled={model.busy !== null}
+              onPress={model.select}
+            />
 
-        {model.error ? (
-          <Text accessibilityRole="alert" style={styles.error}>
-            {model.error}
-          </Text>
-        ) : null}
+            {model.file ? (
+              <>
+                <Text style={styles.heading}>
+                  {model.file.name}
+                </Text>
+                <Text style={styles.secondary}>
+                  {text.size(model.file.size)}
+                </Text>
+                <Text style={styles.text}>{text.selected}</Text>
 
-        {model.file ? (
-          <>
-            <Text style={styles.heading}>{model.file.name}</Text>
-            <Text style={styles.secondary}>
-              {text.size(model.file.size)}
+                <ActionButton
+                  label={
+                    model.busy === 'extracting'
+                      ? text.extracting
+                      : text.extract
+                  }
+                  disabled={model.busy !== null}
+                  onPress={model.extract}
+                />
+              </>
+            ) : null}
+
+            {model.error ? (
+              <Text accessibilityRole="alert" style={styles.error}>
+                {model.error}
+              </Text>
+            ) : null}
+
+            {model.pages.length > 0 ? (
+              <>
+                <Text accessibilityRole="header" style={styles.heading}>
+                  {text.preview}
+                </Text>
+                <Text style={styles.secondary}>{text.review}</Text>
+              </>
+            ) : null}
+          </View>
+        }
+        renderItem={({ item, index }) => (
+          <View style={styles.publisher}>
+            <Text accessibilityRole="header" style={styles.heading}>
+              {text.page(index + 1)}
             </Text>
-            <Text style={styles.text}>{text.selected}</Text>
-          </>
-        ) : null}
-      </ScrollView>
+            <Text selectable style={styles.text}>
+              {item || text.blankPage}
+            </Text>
+          </View>
+        )}
+      />
     </SafeAreaView>
   );
 }

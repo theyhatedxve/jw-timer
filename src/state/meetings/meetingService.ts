@@ -85,3 +85,7 @@ export function createMeetingService(
     },
   };
 }
+
+export type MeetingService = ReturnType<
+  typeof createMeetingService
+>;

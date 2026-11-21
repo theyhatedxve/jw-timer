@@ -7,6 +7,7 @@ import DiagnosticsScreen from '../screens/DiagnosticsScreen';
 import { runSqliteDiagnostics } from '../state/db/sqliteDiagnostics';
 import TabNavigator from './TabNavigator';
 import type { RootStackParamList } from './types';
+import MeetingEditorScreen from '../screens/MeetingEditorScreen';
 
 const Root = createNativeStackNavigator<RootStackParamList>();
 const getPracticeTimerId = () => 'local-practice-timer';
@@ -19,6 +20,11 @@ export default function AppNavigator() {
   return <Root.Navigator screenOptions={{ headerShown: false }}>
     {hasProfile ? <Root.Group navigationKey="configured">
       <Root.Screen name="Main" component={TabNavigator} />
+      <Root.Screen
+        name="MeetingEditor"
+        component={MeetingEditorScreen}
+        getId={({ params }) => params?.meetingId ?? 'new'}
+      />
       <Root.Screen name="EditProfile" component={ProfileScreen} />
       <Root.Screen name="PracticeTimer" component={TimerSessionScreen} getId={getPracticeTimerId} />
       <Root.Screen name="Diagnostics">{() => <DiagnosticsScreen runChecks={runSqliteDiagnostics} />}</Root.Screen>

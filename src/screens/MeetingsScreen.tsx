@@ -1,7 +1,9 @@
-import SectionView from '../components/common/SectionView';
-import { useSectionScreen } from '../hooks/useSectionScreen';
+import MeetingsListView from '../components/meetings/MeetingsListView';
+import { useMeetings } from '../hooks/useMeetings';
+import { meetingService } from '../state/meetings/meetingDependencies';
 
 export default function MeetingsScreen() {
-  const model = useSectionScreen('meetings');
-  return <SectionView {...model} />;
+  const model = useMeetings(meetingService);
+
+  return <MeetingsListView {...model} />;
 }

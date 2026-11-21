@@ -136,19 +136,28 @@ export function getAppDatabase(): SQLiteDatabase {
         'SELECT version, checksum FROM schema_migrations ORDER BY version',
       );
 
-      if (applied.length > MIGRATIONS.length) {
-        throw new AppDatabaseError('corrupt');
-      }
-
       for (let index = 0; index < applied.length; index += 1) {
         const actual = applied[index];
         const expected = MIGRATIONS[index];
+
+        const checksumMatches =
+          actual !== undefined &&
+          expected !== undefined &&
+          (
+            actual.checksum === checksum(expected.sql) ||
+            (
+              expected.version === 1 &&
+              actual.checksum === checksum(
+                expected.sql.replace(/\r\n/g, '\n'),
+              )
+            )
+          );
 
         if (
           !actual ||
           !expected ||
           actual.version !== expected.version ||
-          actual.checksum !== checksum(expected.sql)
+          !checksumMatches
         ) {
           throw new AppDatabaseError('corrupt');
         }

@@ -14,6 +14,7 @@ export type RootStackParamList = {
   EditProfile: undefined;
   PracticeTimer: undefined;
   Diagnostics: undefined;
+  MeetingEditor: { meetingId?: string } | undefined;
 };
 
 declare global {

@@ -1,160 +1,195 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import { AppState } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { MEETING_DUTY_SLOTS } from '../../backend/domain/assignments/meetingDuty';
+import { meetingWeek } from '../../backend/domain/assignments/assignment';
+import { isCalendarDate } from '../../backend/domain/meetings/meetingValidation';
 
-import {
-  reviewMeetingDuty,
-  type DutyReviewIssue,
-  type ReviewMeeting,
-} from '../../backend/domain/assignments/dutyReview';
-
+import type { ReviewMeeting } from '../../backend/domain/assignments/dutyReview';
 import type { MeetingService } from '../../backend/services/meetingService';
 import type { PublisherService } from '../../backend/services/publisherService';
 import type { MeetingDutyService } from '../../backend/services/meetingDutyService';
 
 import { meetingDutyEn as text } from '../../constants/strings/meetingDutyEn';
-import { dutyReviewEn as reviewText } from '../../constants/strings/dutyReviewEn';
+import { dutyOverviewEn } from '../../constants/strings/dutyOverviewEn';
 
-interface Entry {
-  readonly id: string;
-  readonly title: string;
-  readonly date: string;
-  readonly rows: readonly {
-    readonly key: string;
-    readonly label: string;
-    readonly name: string;
-    readonly notices: readonly string[];
-  }[];
-}
+import { useLocalProfile } from './useLocalProfile';
+import {
+  currentMeetingWeek,
+  shiftMeetingWeek,
+} from '../utils/meetingCalendar';
 
-function reviewMessage(
-  issue: DutyReviewIssue,
-  meetings: readonly ReviewMeeting[],
-): string {
-  switch (issue.kind) {
-    case 'publisher':
-      return reviewText.publisher;
-    case 'duplicate':
-      return reviewText.duplicate;
-    case 'conflict':
-    case 'unverified': {
-      const title = meetings.find(
-        meeting => meeting.schedule.id === issue.meetingId,
-      )?.schedule.title ?? text.unavailable;
+import {
+  buildDutyOverview,
+  dutyEntriesForWeek,
+  type DutyOverviewEntry,
+} from '../utils/dutyOverview';
 
-      return issue.kind === 'conflict'
-        ? reviewText.conflict(title)
-        : reviewText.unverified(title);
-    }
-  }
-}
+type State =
+  | { readonly status: 'loading' }
+  | { readonly status: 'error'; readonly message: string }
+  | {
+      readonly status: 'ready';
+      readonly entries: readonly DutyOverviewEntry[];
+      readonly selectedId: string | null;
+    };
 
 export function useDutyOverview(
   meetings: MeetingService,
   publishers: PublisherService,
   duties: MeetingDutyService,
 ) {
-  const [entries, setEntries] = useState<readonly Entry[]>([]);
-  const [ready, setReady] = useState(false);
-  const [error, setError] = useState('');
+  const { state: profileState } = useLocalProfile();
+
+  const timezone = profileState.status === 'ready'
+    ? profileState.profile?.timezone
+    : undefined;
+
+  const selection = useRef<{
+    week: string | null;
+    meetingId: string | null;
+  }>({ week: null, meetingId: null });
+
+  const [state, setState] = useState<State>({ status: 'loading' });
 
   const reload = useCallback(() => {
-    setReady(false);
-    setError('');
-
-    function failed(message: string) {
-      setEntries([]);
-      setError(message);
-      setReady(true);
+    function failed(message: string): void {
+      setState({ status: 'error', message });
     }
 
-    const programs = meetings.list();
-
-    if (!programs.ok) {
-      failed(programs.error.message);
-      return;
-    }
-
-    const people = publishers.list();
-
-    if (!people.ok) {
-      failed(people.error.message);
-      return;
-    }
-
-    const loaded: ReviewMeeting[] = [];
-
-    for (const summary of programs.value) {
-      const meeting = meetings.get(summary.id);
-
-      if (!meeting.ok || !meeting.value) {
-        failed(
-          meeting.ok ? text.unavailable : meeting.error.message,
-        );
+    try {
+      if (!timezone) {
+        failed(dutyOverviewEn.profileError);
         return;
       }
 
-      const saved = duties.list(summary.id);
+      const week = selection.current.week ?? currentMeetingWeek(timezone);
+      selection.current.week = week;
 
-      if (!saved.ok) {
-        failed(saved.error.message);
+      const programs = meetings.list();
+
+      if (!programs.ok) {
+        failed(programs.error.message);
         return;
       }
 
-      loaded.push({
-        schedule: {
-          ...meeting.value.draft,
-          id: meeting.value.id,
-        },
-        duties: saved.value,
+      const people = publishers.list();
+
+      if (!people.ok) {
+        failed(people.error.message);
+        return;
+      }
+
+      const loaded: ReviewMeeting[] = [];
+
+      for (const summary of programs.value) {
+        const meeting = meetings.get(summary.id);
+
+        if (!meeting.ok || !meeting.value) {
+          failed(meeting.ok ? text.unavailable : meeting.error.message);
+          return;
+        }
+
+        const saved = duties.list(summary.id);
+
+        if (!saved.ok) {
+          failed(saved.error.message);
+          return;
+        }
+
+        loaded.push({
+          schedule: {
+            ...meeting.value.draft,
+            id: meeting.value.id,
+          },
+          duties: saved.value,
+        });
+      }
+
+      const reviewed = buildDutyOverview(loaded, people.value);
+      const entries = dutyEntriesForWeek(reviewed, week);
+
+      const chosen =
+        entries.find(entry => entry.id === selection.current.meetingId) ??
+        entries[0];
+
+      selection.current.meetingId = chosen?.id ?? null;
+
+      setState({
+        status: 'ready',
+        entries,
+        selectedId: selection.current.meetingId,
       });
+    } catch {
+      failed(dutyOverviewEn.error);
+    }
+  }, [meetings, publishers, duties, timezone]);
+
+  useFocusEffect(
+    useCallback(() => {
+      reload();
+
+      const subscription = AppState.addEventListener('change', next => {
+        if (next === 'active') reload();
+      });
+
+      return () => subscription.remove();
+    }, [reload]),
+  );
+
+  function moveWeek(direction: -1 | 1): void {
+    const week = selection.current.week;
+    if (!week) return;
+
+    const next = shiftMeetingWeek(week, direction);
+    if (!next) return;
+
+    selection.current.week = next;
+    selection.current.meetingId = null;
+    reload();
+  }
+
+  function selectDate(input: string): boolean {
+    const date = input.trim();
+    if (!isCalendarDate(date)) return false;
+
+    selection.current.week = meetingWeek(date);
+    selection.current.meetingId = null;
+    reload();
+    return true;
+  }
+
+  function selectMeeting(id: string): void {
+    if (
+      state.status !== 'ready' ||
+      !state.entries.some(entry => entry.id === id)
+    ) {
+      return;
     }
 
-    const peopleById = new Map(
-      people.value.map(person => [person.id, person]),
-    );
+    selection.current.meetingId = id;
+    setState({ ...state, selectedId: id });
+  }
 
-    const result: Entry[] = loaded.map(meeting => ({
-      id: meeting.schedule.id,
-      title: meeting.schedule.title,
-      date: meeting.schedule.meetingDate,
-      rows: MEETING_DUTY_SLOTS.map(slot => {
-        const assignment = meeting.duties.find(
-          duty => duty.key === slot.key,
-        );
+  const week = selection.current.week;
+  const entries = state.status === 'ready' ? state.entries : [];
 
-        const person = assignment?.publisherId
-          ? peopleById.get(assignment.publisherId)
-          : undefined;
+  const selectedMeeting = state.status === 'ready'
+    ? entries.find(entry => entry.id === state.selectedId) ?? null
+    : null;
 
-        const issues = reviewMeetingDuty(
-          meeting,
-          slot.key,
-          person ?? null,
-          loaded,
-        );
-
-        return {
-          key: slot.key,
-          label: text.labels[slot.key],
-          name: assignment?.publisherId
-            ? person?.displayName ?? text.review
-            : text.notAssigned,
-          notices: issues.map(issue =>
-            reviewMessage(issue, loaded),
-          ),
-        };
-      }),
-    }));
-
-    setEntries(result);
-    setReady(true);
-  }, [meetings, publishers, duties]);
-
-  useFocusEffect(useCallback(() => {
-    reload();
-  }, [reload]));
-
-  return { entries, ready, error, reload };
+  return {
+    entries,
+    selectedMeeting,
+    ready: state.status !== 'loading',
+    error: state.status === 'error' ? state.message : '',
+    week,
+    reload,
+    selectDate,
+    selectMeeting,
+    canPrevious: week !== null && shiftMeetingWeek(week, -1) !== null,
+    canNext: week !== null && shiftMeetingWeek(week, 1) !== null,
+    previousWeek: () => moveWeek(-1),
+    nextWeek: () => moveWeek(1),
+  };
 }

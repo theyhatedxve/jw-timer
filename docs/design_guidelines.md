@@ -531,3 +531,15 @@ reachable at large text sizes.
 
 Device verification is required for both themes, long overtime values,
 large text, TalkBack, fullscreen, recovery, and screen-awake behavior.
+
+## Assignment cards — 2026-11-22
+
+Assignment cards use shared appearance palettes and card spacing.
+The four technical duties have distinct vector icons in AppIcon.
+
+Role labels, publisher names, unassigned text, and review notices remain
+visible text. Icons do not replace labels or communicate permission.
+
+Large text wraps without fixed card heights. The read-only Assignments
+tab has no per-card editing controls. Management retains its existing
+explicit editing route.

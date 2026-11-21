@@ -588,3 +588,26 @@ Recovery choices remain explicit. Backgrounding and navigation keep
 their existing pause/checkpoint behavior. No timer state is synchronized.
 
 Source applied; owner typecheck, tests, and device verification pending.
+
+## Assignments presentation redesign — 2026-11-22
+
+Assignments and Manage assignments share meeting-week navigation and
+single-meeting selection. Initial week selection uses the congregation
+profile time zone. Multiple meetings remain individually selectable.
+
+Each selected meeting displays exactly four cards: Mic Server,
+Sound Operator, Laptop Operator, and Microphone Adjuster.
+
+The Assignments tab remains read-only. Edit and publisher-management
+actions remain exclusive to Manage assignments. Received schedules
+retain their separate trusted-reader entry.
+
+All meetings and publishers are loaded and reviewed before display-week
+filtering. Filtering must never hide cross-week overlap, missing or
+inactive publisher, eligibility, duplicate-duty, or unverifiable-time
+warnings.
+
+Meetings and Assignments share the existing validated date dialog through
+MeetingWeekPicker. Data refreshes on focus, foreground, and explicit retry.
+
+Source applied; owner typecheck, tests, and device verification pending.

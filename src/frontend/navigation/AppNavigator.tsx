@@ -26,6 +26,9 @@ import { scheduleEn } from '../../constants/strings/scheduleEn';
 import PublisherEditorScreen from '../screens/PublisherEditorScreen';
 import { publisherEn } from '../../constants/strings/publisherEn';
 
+import MeetingDutiesScreen from '../screens/MeetingDutiesScreen';
+import { meetingDutyEn } from '../../constants/strings/meetingDutyEn';
+
 import type {
   RootStackParamList,
 } from './types';
@@ -129,6 +132,16 @@ export default function AppNavigator() {
             options={{
               headerShown: true,
               title: publisherEn.editorTitle,
+            }}
+          />
+
+          <Root.Screen
+            name="MeetingDuties"
+            component={MeetingDutiesScreen}
+            getId={({ params }) => params.meetingId}
+            options={{
+              headerShown: true,
+              title: meetingDutyEn.title,
             }}
           />
         </Root.Group>

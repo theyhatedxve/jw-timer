@@ -23,6 +23,7 @@ export type RootStackParamList = {
   PracticeTimer: TimerProgramRequest | undefined;
   Diagnostics: undefined;
   MeetingEditor: { meetingId?: string } | undefined;
+  MeetingDuties: { meetingId: string };
   PublisherEditor: { publisherId?: string } | undefined;
   AssignmentEditor: {
     meetingId: string;

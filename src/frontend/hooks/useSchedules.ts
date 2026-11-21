@@ -23,6 +23,7 @@ interface Row {
     readonly label: string;
     readonly needsReview: boolean;
   }[];
+  readonly meetingOnly?: boolean;
 }
 
 type State =
@@ -38,6 +39,25 @@ function rowsFrom(data: WeekSchedule): Row[] {
     entry.meeting.draft.sections.forEach((section, sectionIndex) => {
       let startsSection = true;
       for (const part of section.parts) {
+
+        if (startsMeeting) {
+          rows.push({
+            id: `meeting:${entry.meeting.id}`,
+            meetingId: entry.meeting.id,
+            meetingTitle: entry.meeting.draft.title,
+            date: entry.meeting.draft.meetingDate,
+            timezone: entry.meeting.draft.timezone,
+            startsMeeting: true,
+            startsSection: false,
+            sectionTitle: '',
+            sectionIndex: 0,
+            title: '',
+            duration: '',
+            slots: [],
+            meetingOnly: true,
+          });
+        }
+        
         // The service rejects programs with missing saved IDs.
         if (!part.id) continue;
         const seconds = part.durationSeconds;
@@ -113,5 +133,8 @@ export function useSchedules(service: ScheduleService) {
     openPrograms: () => navigation.navigate('MeetingPrograms'),
     openAssignment: (meetingId: string, partId: string, role?: PublisherRole) =>
       navigation.navigate('AssignmentEditor', { meetingId, partId, role }),
+
+    openDuties: (meetingId: string) =>
+      navigation.navigate('MeetingDuties', { meetingId }),
   };
 }

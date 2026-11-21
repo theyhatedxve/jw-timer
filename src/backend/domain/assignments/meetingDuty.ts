@@ -3,6 +3,7 @@ import type { PublisherRole } from '../publishers/publisher';
 import { validPublisherId } from '../publishers/publisher';
 import type { ScheduleResult } from './assignment';
 
+
 export const MEETING_DUTY_SLOTS = [
   { key: 'sound', role: 'sound' },
   { key: 'timer', role: 'timer' },

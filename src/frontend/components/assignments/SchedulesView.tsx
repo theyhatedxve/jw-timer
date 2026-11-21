@@ -5,6 +5,9 @@ import { scheduleEn as text } from '../../../constants/strings/scheduleEn';
 import { styles as base } from '../../styles/publishers/publishers.styles';
 import { sectionBackground, styles } from '../../styles/assignments/schedules.styles';
 import type { useSchedules } from '../../hooks/useSchedules';
+import {
+  meetingDutyEn,
+} from '../../../constants/strings/meetingDutyEn';
 
 type Props = ReturnType<typeof useSchedules>;
 
@@ -43,6 +46,10 @@ export default function SchedulesView(model: Props) {
             {item.startsMeeting ? <View style={styles.meeting}>
               <Text accessibilityRole="header" style={base.title}>{item.meetingTitle}</Text>
               <Text style={base.secondary}>{item.date} · {item.timezone}</Text>
+              <ActionButton
+                label={meetingDutyEn.title}
+                onPress={() => model.openDuties(item.meetingId)}
+              />
             </View> : null}
             {item.startsSection ? <View style={[styles.section, sectionBackground(item.sectionIndex)]}>
               <Text accessibilityRole="header" style={styles.sectionText}>{item.sectionTitle}</Text>
@@ -50,6 +57,13 @@ export default function SchedulesView(model: Props) {
             <View style={styles.part}>
               <Text style={base.heading}>{item.title}</Text>
               <Text style={base.secondary}>{item.duration}</Text>
+              {item.meetingOnly ? (
+                <Text style={base.secondary}>{meetingDutyEn.noParts}</Text>
+              ) : (
+                <View style={styles.part}>
+                  {/* Keep the existing part contents here. */}
+                </View>
+              )}
               {item.slots.length === 0 ? <Text style={base.secondary}>{text.notAssigned}</Text> : null}
               {item.slots.map(slot => <View key={slot.assignment.role} style={base.group}>
                 <Text style={base.text}>{model.roleLabel[slot.assignment.role]}: {slot.label}</Text>

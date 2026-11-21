@@ -1,0 +1,21 @@
+export const meetingDutyEn = {
+  title: 'Meeting duties',
+  loading: 'Loading duties…',
+  reload: 'Reload',
+  back: 'Back to duties',
+  notAssigned: 'Not assigned',
+  assign: 'Assign',
+  current: 'Current',
+  review: 'Needs review',
+  noEligible: 'No active, eligible publishers are available.',
+  unavailable: 'This meeting is no longer available.',
+  saveError: 'The duty could not be saved. Reload and try again.',
+  noParts: 'No program parts yet.',
+  labels: {
+    sound: 'Sound',
+    timer: 'Timer',
+    attendant: 'Attendant',
+    'microphone-left': 'Microphone left',
+    'microphone-right': 'Microphone right',
+  },
+} as const;

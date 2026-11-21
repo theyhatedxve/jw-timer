@@ -3,6 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import {
   MEETING_DUTY_SLOTS,
+  hasDutyConflict,
   type MeetingDuty,
   type MeetingDutyKey,
 } from '../../backend/domain/assignments/meetingDuty';
@@ -106,10 +107,18 @@ export function useMeetingDuties(
     duty => duty.key === selected,
   );
 
-  const eligible = definition
+  const savedDuties = data?.duties ?? [];
+
+    const eligible = definition
     ? data?.publishers.filter(person =>
-        canAssign(person, definition.role),
-      ) ?? []
+        canAssign(person, definition.role) &&
+        !hasDutyConflict(
+            savedDuties,
+            meetingId,
+            definition.key,
+            person.id,
+        ),
+        ) ?? []
     : [];
 
   function assign(publisherId: string | null) {

@@ -4,6 +4,8 @@ import { test } from 'node:test';
 import {
   MEETING_DUTY_SLOTS,
   validateMeetingDuty,
+  hasDutyConflict,
+  type MeetingDuty,
 } from '../src/backend/domain/assignments/meetingDuty';
 
 const command = {
@@ -32,4 +34,45 @@ test('old duty keys are rejected for new assignments', () => {
 test('assignments can be cleared and invalid revisions rejected', () => {
   assert.equal(validateMeetingDuty({ ...command, key: 'mic-server', publisherId: null }).ok, true);
   assert.equal(validateMeetingDuty({ ...command, key: 'mic-server', expectedRevision: -1 }).ok, false);
+});
+
+const assigned: MeetingDuty[] = [{
+  meetingId: 'a'.repeat(32),
+  key: 'sound-operator',
+  publisherId: 'b'.repeat(32),
+  revision: 1,
+}];
+
+test('another duty in the same meeting conflicts', () => {
+  assert.equal(hasDutyConflict(
+    assigned,
+    'a'.repeat(32),
+    'laptop-operator',
+    'b'.repeat(32),
+  ), true);
+});
+
+test('the current duty and another meeting do not conflict', () => {
+  assert.equal(hasDutyConflict(
+    assigned,
+    'a'.repeat(32),
+    'sound-operator',
+    'b'.repeat(32),
+  ), false);
+
+  assert.equal(hasDutyConflict(
+    assigned,
+    'c'.repeat(32),
+    'laptop-operator',
+    'b'.repeat(32),
+  ), false);
+});
+
+test('clearing a duty never creates a conflict', () => {
+  assert.equal(hasDutyConflict(
+    assigned,
+    'a'.repeat(32),
+    'laptop-operator',
+    null,
+  ), false);
 });

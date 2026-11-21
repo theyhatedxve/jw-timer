@@ -82,3 +82,18 @@ export function validateMeetingDuty(
     },
   };
 }
+
+export function hasDutyConflict(
+  duties: readonly MeetingDuty[],
+  meetingId: string,
+  key: MeetingDutyKey,
+  publisherId: string | null,
+): boolean {
+  if (publisherId === null) return false;
+
+  return duties.some(duty =>
+    duty.meetingId === meetingId &&
+    duty.key !== key &&
+    duty.publisherId === publisherId,
+  );
+}

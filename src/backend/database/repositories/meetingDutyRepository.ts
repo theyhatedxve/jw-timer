@@ -4,6 +4,7 @@ import {
   isMeetingDutyKey,
   MEETING_DUTY_SLOTS,
   validateMeetingDuty,
+  hasDutyConflict,
   type MeetingDuty,
 } from '../../domain/assignments/meetingDuty';
 
@@ -130,6 +131,27 @@ export const localMeetingDutyRepository:
           }
 
           if (command.publisherId !== null) {
+
+            const occupied = db.getAllSync<DutyRow>(
+                `SELECT meeting_id, duty_key, publisher_id, revision
+                FROM local_technical_duties
+                WHERE meeting_id = ? AND publisher_id = ?`,
+                command.meetingId,
+                command.publisherId,
+                ).map(decode);
+
+                if (hasDutyConflict(
+                occupied,
+                command.meetingId,
+                command.key,
+                command.publisherId,
+                )) {
+                fail(
+                    'conflict',
+                    'This publisher already has another duty in this meeting. Clear that assignment first.',
+                );
+            }
+            
             const publisher = db.getFirstSync<{
               is_active: number;
               eligible: number;

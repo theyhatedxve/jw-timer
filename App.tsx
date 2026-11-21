@@ -2,10 +2,10 @@ import { DarkTheme, NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { colors } from './src/constants/theme';
-import { ProfileProvider } from './src/context/ProfileContext';
-import AppNavigator from './src/navigation/AppNavigator';
-import { linking } from './src/navigation/linking';
-import { profileService } from './src/state/profile/profileDependencies';
+import { ProfileProvider } from './src/frontend/context/ProfileContext';
+import AppNavigator from './src/frontend/navigation/AppNavigator';
+import { linking } from './src/frontend/navigation/linking';
+import { profileService } from './src/bootstrap/profileDependencies';
 
 const navigationTheme = {
   ...DarkTheme,

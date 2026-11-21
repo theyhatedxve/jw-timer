@@ -1,83 +1,96 @@
-# JW-Timer source layout and naming
+﻿# JW-Timer source layout and naming
 
-Current source organization: ADR 0003, approved 2026-11-21. Implementation is source-reviewed; runtime verification is pending.
+Frontend and backend are folder groups inside the Android app.
+Both run locally on the device. No backend server is introduced.
+
+## Structure
 
 ```text
-JW-Timer/
-  App.tsx                         Provider/navigation composition
-  index.ts                        Expo root registration
-  app.config.ts                   Android/native configuration
-  src/
+src/
+  frontend/
     components/
-      common/                     ActionButton, SectionView, ProfileBoundary
-      profile/                    ProfileForm
-      timer/                      TimerSessionView and presentation wake-lock primitive
-      diagnostics/                DiagnosticsView
-    constants/
-      theme.ts                    Existing color/spacing/type/layout tokens
-      strings/                    en.ts, profileEn.ts
-    context/
-      ProfileContext.tsx          Profile snapshot and injected service
+    screens/
     hooks/
-      useLocalProfile.ts
-      useProfileForm.ts
-      useTimerSession.ts
-      useSqliteChecks.ts
-      useSectionScreen.ts
-    maps/                         Reserved reference category; no map feature
+    styles/
     navigation/
-      types.ts                    Root/tab route parameter lists
-      tabs.ts                     Tab definitions
-      linking.ts                  Existing scheme/path compatibility
-      TabNavigator.tsx
-      AppNavigator.tsx
-    screens/                      Home, Meetings, Assignments, Timer, Settings,
-                                  Profile, TimerSession, Diagnostics
-    state/
+    context/
+
+  backend/
+    domain/
+      meetings/
       profile/
-        profile.ts                Pure types/validation
-        profileService.ts         Application use case and repository port
-        profileRepository.ts      SQLite implementation
-        profileDependencies.ts    Concrete composition
-      timer/timer.ts              Pure monotonic countdown engine
-      db/
-        timerStorage.ts           Private checkpoint database connection
-        sqliteDiagnostics.ts      Manually triggered scratch-database checks
+      timer/
+    services/
+      diagnostics.types.ts
+      meetingService.ts
+      profileService.ts
+    database/
+      appDatabase.ts
       diagnostics/
-        diagnostics.types.ts      Diagnostic runner/result boundary
-    utils/                        Reserved shared pure helpers
-  tests/timer.test.ts              Existing deterministic timer cases
-  docs/                           Specs, ADRs, plans and owner evidence
-  android/                        Generated native project; owner regenerates/builds
-  .refactor-backups/               Ignored local rollback ZIP, manifest, legacy source
+      repositories/
+
+  bootstrap/
+    meetingDependencies.ts
+    profileDependencies.ts
+
+  constants/
+    theme.ts
+    strings/
+
+  maps/
+  utils/
 ```
 
-## Naming conventions
+## Responsibilities
 
-| Purpose | Convention | Example |
-|---|---|---|
-| App page | PascalCase + Screen.tsx | ProfileScreen.tsx |
-| UI component | PascalCase.tsx, optionally Form/View | ProfileForm.tsx, TimerSessionView.tsx |
-| React hook/controller | use + camelCase.ts | useProfileForm.ts |
-| Context | PascalCase + Context.tsx | ProfileContext.tsx |
-| Business service | camelCase + Service.ts | profileService.ts |
-| SQLite adapter | camelCase + Repository/Storage.ts | profileRepository.ts, timerStorage.ts |
-| Pure domain module | camelCase.ts | profile.ts, timer.ts |
-| Types-only contract | camelCase.types.ts | diagnostics.types.ts |
-| Navigation config | camelCase.ts / PascalCase navigator | tabs.ts, AppNavigator.tsx |
-| Documentation | Existing project MD convention | CODING_PRINCIPLES.md, ADR files |
+- frontend/components: render UI and forward callbacks.
+- frontend/screens: assemble views, hooks and dependencies.
+- frontend/hooks: editing state, interaction flow and lifecycle.
+- frontend/styles: static styles grouped by feature.
+- frontend/navigation: typed routes, navigators and links.
+- frontend/context: shared React projections and operations.
+- backend/domain: pure types, validation and timer rules.
+- backend/services: application operations and repository contracts.
+- backend/database: SQLite initialization, migrations and adapters.
+- bootstrap: connect services to concrete repositories.
+- constants: shared tokens and interface text.
+- maps: reserved reference category.
+- utils: shared pure helpers when needed.
 
-Folders use lowercase names. Functions/variables/hooks use camelCase; components/types use PascalCase; immutable configuration catalogs may use UPPER_SNAKE_CASE. Do not create duplicate case-only filenames on Windows.
+## Dependency rules
 
-## Dependency boundaries
+1. UI components receive data and callbacks.
+2. Hooks invoke services rather than writing SQL.
+3. Services depend on domain rules and repository contracts.
+4. SQLite adapters implement repository contracts.
+5. Domain modules import no React, Expo, navigation or SQLite.
+6. Backend modules must not import frontend modules.
+7. Bootstrap connects concrete implementations.
+8. SQLite owns durable data; form drafts remain temporary state.
 
-1. Screens assemble view components and hooks. Views consume data/callbacks; no SQL, business validation or navigation state mutations in JSX.
-2. Hooks call application services or a deliberately injected diagnostic runner. Context exposes read-only committed projections plus service operations.
-3. Pure domain files import no React, Expo, navigation or SQLite. Do not move business rules into utility dumping grounds.
-4. Repository adapters validate stored data and perform transactions. Preserve SQLite as durable authority; form drafts remain transient.
-5. Navigation and dependency composition wire concrete implementations. Folder names do not change the existing privacy, authorization or transaction contracts.
-6. Do not preserve obsolete file-based route folders inside active source. Keep rollback material outside TypeScript includes.
+## Naming
 
-## Refactor boundary
+- Screens: PascalCase + Screen.tsx.
+- Components: PascalCase.tsx, optionally Form or View.
+- Hooks: use + camelCase.ts.
+- Services: camelCase + Service.ts.
+- Repositories: camelCase + Repository.ts.
+- Storage adapters: camelCase + Storage.ts.
+- Types: camelCase.types.ts.
+- Stylesheets: camelCase.styles.ts.
+- Folders: lowercase.
 
-No schema change, data reset, app ID change, automatic timer start, hosted service, AsyncStorage migration, travel feature or new publishing authority is part of this directory change. Source layouts in older spec sections are historical baselines superseded by ADR 0003; the business rules still apply.
+## Preservation boundary
+
+This grouping changes folder locations and import paths only.
+It preserves styles, business logic, database filenames,
+migration SQL, checksums, saved-data formats and timer rules.
+
+Source backups are stored under .refactor-backups/.
+They do not include the installed phone database.
+
+Verification remains owner-run. Earlier checks do not
+automatically verify this rearranged source.
+
+This layout extends ADR 0003. Older folder diagrams are
+historical; their business and privacy requirements still apply.

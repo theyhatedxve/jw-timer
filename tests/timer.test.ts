@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import {
   checkpoint, createTimer, elapsed, formatTime, isCheckpoint,
   next, pause, recover, restart, start,
-} from '../src/state/timer/timer';
+} from '../src/backend/domain/timer/timer';
 
 test('a loaded part stays ready until Start', () => {
   const ready = createTimer();

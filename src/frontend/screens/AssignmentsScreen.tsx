@@ -1,7 +1,9 @@
-import SectionView from '../components/common/SectionView';
-import { useSectionScreen } from '../hooks/useSectionScreen';
+import PublishersListView from '../components/publishers/PublishersListView';
+import { usePublishers } from '../hooks/usePublishers';
+import { publisherService } from '../../bootstrap/publisherDependencies';
 
 export default function AssignmentsScreen() {
-  const model = useSectionScreen('assignments');
-  return <SectionView {...model} />;
+  const model = usePublishers(publisherService);
+
+  return <PublishersListView {...model} />;
 }

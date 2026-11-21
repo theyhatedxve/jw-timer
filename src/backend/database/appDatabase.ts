@@ -3,6 +3,8 @@ import {
   type SQLiteDatabase,
 } from 'expo-sqlite';
 
+import { PUBLISHER_SQL } from './migrations/003_publishers';
+
 export class AppDatabaseError extends Error {
   constructor(readonly code: 'corrupt') {
     super(code);
@@ -79,6 +81,7 @@ CREATE INDEX idx_local_meeting_parts_meeting
 const MIGRATIONS = [
   { version: 1, sql: PROFILE_SQL },
   { version: 2, sql: MEETING_SQL },
+  { version: 3, sql: PUBLISHER_SQL },
 ] as const;
 
 let connection: SQLiteDatabase | null = null;

@@ -1,0 +1,51 @@
+import type {
+  PublisherRole,
+} from '../../backend/domain/publishers/publisher';
+
+export const publisherEn = {
+  title: 'Publishers list',
+  editorTitle: 'Publisher',
+  add: 'Add publisher',
+  edit: 'Edit publisher',
+  name: 'Name',
+  filter: 'Filter publishers',
+  responsibilities: 'Assignable parts and privileges',
+  responsibilitiesHint:
+    'Select the responsibilities this person can be assigned.',
+  active: 'Active publisher',
+  activeHint:
+    'Keep inactive records for reference and future reactivation.',
+  inactive: 'Inactive',
+  noRoles: 'No responsibilities selected',
+  empty: 'No publishers yet. Add your first publisher.',
+  noMatches: 'No publishers match this filter.',
+  loading: 'Loading publishers…',
+  loadingEditor: 'Loading publisher…',
+  save: 'Save publisher',
+  saving: 'Saving…',
+  retry: 'Retry loading',
+  reload: 'Reload saved publisher',
+  cancel: 'Cancel',
+  discardTitle: 'Discard changes?',
+  discardMessage: 'Your unsaved publisher changes will be lost.',
+  keepEditing: 'Keep editing',
+  discard: 'Discard',
+  reloadTitle: 'Reload saved publisher?',
+  reloadMessage: 'Your unsaved changes will be discarded.',
+  unavailable: 'This publisher is no longer available.',
+
+  roles: {
+    prayer: 'Prayer',
+    chairperson: 'Chairperson',
+    'bible-reading': 'Bible reading',
+    demonstration: 'Demonstration',
+    assistant: 'Demonstration assistant',
+    talk: 'Talk',
+    study: 'Conduct a study',
+    reader: 'Reader',
+    sound: 'Sound',
+    microphones: 'Microphones',
+    timer: 'Timer',
+    attendant: 'Attendant',
+  } satisfies Record<PublisherRole, string>,
+} as const;

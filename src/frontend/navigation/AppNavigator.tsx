@@ -21,6 +21,9 @@ import TimerSessionScreen from '../screens/TimerSessionScreen';
 
 import TabNavigator from './TabNavigator';
 
+import PublisherEditorScreen from '../screens/PublisherEditorScreen';
+import { publisherEn } from '../../constants/strings/publisherEn';
+
 import type {
   RootStackParamList,
 } from './types';
@@ -108,6 +111,16 @@ export default function AppNavigator() {
               />
             )}
           </Root.Screen>
+
+          <Root.Screen
+            name="PublisherEditor"
+            component={PublisherEditorScreen}
+            getId={({ params }) => params?.publisherId ?? 'new'}
+            options={{
+              headerShown: true,
+              title: publisherEn.editorTitle,
+            }}
+          />
         </Root.Group>
       ) : (
         <Root.Screen

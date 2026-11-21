@@ -16,6 +16,8 @@ export interface TimerProgramRequest {
 }
 
 export type RootStackParamList = {
+  Appearance: undefined;
+  NativewindPreview: undefined;
   SetupProfile: undefined;
   Main: NavigatorScreenParams<MainTabParamList> | undefined;
   Sync: undefined;

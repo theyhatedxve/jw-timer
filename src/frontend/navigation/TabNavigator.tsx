@@ -1,3 +1,4 @@
+import { useAppTheme } from '../context/AppearanceContext';
 import { Text, useWindowDimensions } from 'react-native';
 
 import {
@@ -13,7 +14,6 @@ import {
 } from 'react-native-safe-area-context';
 
 import {
-  colors,
   dimensions,
   spacing,
   typography,
@@ -31,6 +31,7 @@ import type {
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export default function TabNavigator() {
+  const { palette: colors } = useAppTheme();
   const navigation = useNavigation();
   const { width, fontScale } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -70,6 +71,10 @@ export default function TabNavigator() {
         tabBarItemStyle: styles.item,
         tabBarStyle: [
           styles.bar,
+          {
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
+          },
           useRail
             ? { width: dimensions.navigationRailWidth }
             : { height: bottomBarHeight },

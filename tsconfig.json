@@ -16,7 +16,14 @@
     "app.config.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
-    "tests/**/*.ts"
+    "tests/**/*.ts",
+    "nativewind-env.d.ts"
   ],
-  "exclude": ["node_modules", "android", "ios", ".expo", ".refactor-backups"]
+  "exclude": [
+    "node_modules",
+    "android",
+    "ios",
+    ".expo",
+    ".refactor-backups"
+  ]
 }

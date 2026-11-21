@@ -1,3 +1,4 @@
+import { useAppTheme } from '../../context/AppearanceContext';
 import { Pressable, Text } from 'react-native';
 
 import { en } from '../../../constants/strings/en';
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function SettingsButton({ onPress }: Props) {
+  const { palette } = useAppTheme();
   return (
     <Pressable
       accessibilityRole="button"
@@ -15,13 +17,13 @@ export default function SettingsButton({ onPress }: Props) {
       onPress={onPress}
       style={({ pressed }) => [
         styles.settingsButton,
-        pressed && styles.settingsPressed,
+        pressed && { backgroundColor: palette.surface },
       ]}
     >
       <Text
         accessible={false}
         allowFontScaling={false}
-        style={styles.settingsGlyph}
+        style={[styles.settingsGlyph, { color: palette.text }]}
       >
         ⚙
       </Text>

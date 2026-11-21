@@ -1,3 +1,5 @@
+import { appearanceEn } from '../../constants/strings/appearanceEn';
+import { nativewindPreviewEn } from '../../constants/strings/nativewindPreviewEn';
 import { useCallback } from 'react';
 import { AccessibilityInfo } from 'react-native';
 import { meetingDutyEn } from '../../constants/strings/meetingDutyEn';
@@ -88,6 +90,16 @@ export function useSectionScreen(section: MainSection) {
     ],
 
     settings: [
+      {
+        id: 'appearance',
+        label: appearanceEn.title,
+        onPress: () => navigation.navigate('Appearance'),
+      },
+      ...(__DEV__ ? [{
+        id: 'nativewind-preview',
+        label: nativewindPreviewEn.title,
+        onPress: () => navigation.navigate('NativewindPreview'),
+      }] : []),
       { id: 'sync-checks', label: syncChecksEn.title, onPress: () => navigation.navigate('SyncChecks') },
       { id: 'sync', label: syncEn.title, onPress: () => navigation.navigate('Sync') },
       {

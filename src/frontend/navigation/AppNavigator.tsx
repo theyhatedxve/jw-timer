@@ -1,8 +1,13 @@
+import AppearanceScreen from '../screens/AppearanceScreen';
+import { appearanceEn } from '../../constants/strings/appearanceEn';
+import NativewindPreviewScreen from '../screens/NativewindPreviewScreen';
+import { nativewindPreviewEn } from '../../constants/strings/nativewindPreviewEn';
+
 import {
   createNativeStackNavigator,
 } from '@react-navigation/native-stack';
 
-import { colors } from '../../constants/theme';
+import { useAppTheme } from '../context/AppearanceContext';
 import { en } from '../../constants/strings/en';
 
 import {
@@ -62,6 +67,7 @@ const Root = createNativeStackNavigator<RootStackParamList>();
 const getPracticeTimerId = () => 'local-practice-timer';
 
 export default function AppNavigator() {
+  const { palette: colors } = useAppTheme();
   const { state, reload } = useLocalProfile();
 
   if (state.status !== 'ready') {
@@ -91,9 +97,28 @@ export default function AppNavigator() {
     >
       {hasProfile ? (
         <Root.Group navigationKey="configured">
+
           <Root.Screen
             name="Main"
             component={TabNavigator}
+          />
+          {__DEV__ ? (
+            <Root.Screen
+              name="NativewindPreview"
+              component={NativewindPreviewScreen}
+              options={{
+                headerShown: true,
+                title: nativewindPreviewEn.title,
+              }}
+            />
+          ) : null}
+          <Root.Screen
+            name="Appearance"
+            component={AppearanceScreen}
+            options={{
+              headerShown: true,
+              title: appearanceEn.title,
+            }}
           />
           <Root.Screen name="Sync" component={SyncScreen} options={{ headerShown: true, title: syncEn.title }} />
           <Root.Screen name="SyncChecks" component={SyncChecksScreen} options={{ headerShown: true, title: syncChecksEn.title }} />

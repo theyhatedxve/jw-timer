@@ -463,3 +463,24 @@ A screen or component is ready for implementation review when it uses semantic t
 ---
 
 **Next possible artifact:** Screen wireframes and component inventory keyed to the route map in `SCREEN_FLOWS.md`, after these proposed tokens and navigation adaptations are approved.
+
+## Appearance foundation update — 2026-11-22
+
+The owner-approved redesign uses shared dark and light palettes in
+`src/constants/appearanceTheme.ts`. These palettes govern migrated
+components and navigation; they supersede earlier proposed values for
+those surfaces.
+
+Appearance supports System, Light, and Dark. System is the default.
+The preference is device-local and stored under the `appearance` key
+in the existing `app_preferences` table. It is not synchronized.
+
+NativeWind components consume semantic `app` color variables.
+React Navigation consumes the same resolved palette. Legacy screens
+retain their existing styles until their scheduled redesign batch.
+
+Current backup export and restore remain content-only: appearance is
+not exported, and restoring content preserves the receiving device's
+appearance preference.
+
+Source application and owner verification must be reported separately.

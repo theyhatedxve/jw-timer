@@ -40,6 +40,9 @@ import { backupChecksEn } from '../../constants/strings/backupChecksEn';
 import DeviceIdentityScreen from '../screens/DeviceIdentityScreen';
 import { deviceIdentityEn } from '../../constants/strings/deviceIdentityEn';
 
+import DeviceRequestsScreen from '../screens/DeviceRequestsScreen';
+import { deviceRequestsEn } from '../../constants/strings/deviceRequestsEn';
+
 import type {
   RootStackParamList,
 } from './types';
@@ -191,6 +194,14 @@ export default function AppNavigator() {
             options={{
               headerShown: true,
               title: deviceIdentityEn.title,
+            }}
+          />
+          <Root.Screen
+            name="DeviceRequests"
+            component={DeviceRequestsScreen}
+            options={{
+              headerShown: true,
+              title: deviceRequestsEn.title,
             }}
           />
         </Root.Group>

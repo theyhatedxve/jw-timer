@@ -15,6 +15,7 @@ import {
 import { deviceIdentityEn } from '../../constants/strings/deviceIdentityEn';
 
 import { backupChecksEn } from '../../constants/strings/backupChecksEn';
+import { deviceRequestsEn } from '../../constants/strings/deviceRequestsEn';
 
 import { backupEn } from '../../constants/strings/backupEn';
 
@@ -114,6 +115,11 @@ export function useSectionScreen(section: MainSection) {
         id: 'device-identity',
         label: deviceIdentityEn.title,
         onPress: () => navigation.navigate('DeviceIdentity'),
+      },
+      {
+        id: 'device-requests',
+        label: deviceRequestsEn.title,
+        onPress: () => navigation.navigate('DeviceRequests'),
       },
     ],
   };

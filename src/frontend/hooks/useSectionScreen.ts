@@ -6,7 +6,7 @@ import {
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
-
+import { workbookImportEn } from '../../constants/strings/workbookImportEn';
 import {
   en,
   type MainSection,
@@ -88,6 +88,11 @@ export function useSectionScreen(section: MainSection) {
         label: en.actions.openDiagnostics,
         onPress: () =>
           navigation.navigate('Diagnostics'),
+      },
+      {
+        id: 'workbook-import',
+        label: workbookImportEn.title,
+        onPress: () => navigation.navigate('WorkbookImport'),
       },
     ],
   };

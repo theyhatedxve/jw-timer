@@ -26,6 +26,7 @@ export type RootStackParamList = {
   Diagnostics: undefined;
   MeetingEditor: { meetingId?: string } | undefined;
   MeetingDuties: { meetingId: string };
+  WorkbookImport: undefined;
   PublisherEditor: { publisherId?: string } | undefined;
   AssignmentEditor: {
     meetingId: string;

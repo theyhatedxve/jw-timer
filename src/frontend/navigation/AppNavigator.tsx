@@ -29,6 +29,9 @@ import { publisherEn } from '../../constants/strings/publisherEn';
 import MeetingDutiesScreen from '../screens/MeetingDutiesScreen';
 import { meetingDutyEn } from '../../constants/strings/meetingDutyEn';
 
+import WorkbookImportScreen from '../screens/WorkbookImportScreen';
+import { workbookImportEn } from '../../constants/strings/workbookImportEn';
+
 import type {
   RootStackParamList,
 } from './types';
@@ -144,6 +147,14 @@ export default function AppNavigator() {
             options={{
               headerShown: true,
               title: meetingDutyEn.title,
+            }}
+          />
+          <Root.Screen
+            name="WorkbookImport"
+            component={WorkbookImportScreen}
+            options={{
+              headerShown: true,
+              title: workbookImportEn.title,
             }}
           />
         </Root.Group>

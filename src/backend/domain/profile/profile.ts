@@ -10,6 +10,12 @@ export interface LocalProfile extends ProfileDraft {
   readonly recordVersion: 1;
   readonly interfaceLanguage: 'en';
   readonly revision: number;
+  readonly congregationId?: string;
+}
+
+export function isCongregationId(value: unknown): value is string {
+  return typeof value === 'string' &&
+    /^[a-f0-9]{32}$/.test(value);
 }
 
 export type ProfileErrorCode =
@@ -103,7 +109,11 @@ export function parseStoredProfile(
     value.interfaceLanguage !== 'en' ||
     typeof value.revision !== 'number' ||
     !Number.isSafeInteger(value.revision) ||
-    value.revision < 1
+    value.revision < 1 ||
+    (
+      value.congregationId !== undefined &&
+      !isCongregationId(value.congregationId)
+    )
   ) {
     return { ok: false, code: 'corrupt' };
   }
@@ -115,6 +125,9 @@ export function parseStoredProfile(
       recordVersion: 1,
       interfaceLanguage: 'en',
       revision: value.revision,
+      ...(value.congregationId === undefined
+        ? {}
+        : { congregationId: value.congregationId }),
     },
   };
 }

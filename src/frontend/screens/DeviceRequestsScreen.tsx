@@ -10,8 +10,15 @@ export default function DeviceRequestsScreen() {
   return (
     <DeviceRequestsView
       {...model}
+      onLan={fingerprint =>
+        navigation.navigate('LanProbe', { fingerprint })
+      }
       onPair={fingerprint =>
         navigation.navigate('SignedPairing', { fingerprint })
+      }
+
+         onPermissions={fingerprint =>
+        navigation.navigate('DevicePermissions', { fingerprint })
       }
     />
   );

@@ -44,6 +44,8 @@ export type RootStackParamList = {
   DeviceIdentity: undefined;
   DeviceRequests: undefined;
   SignedPairing: { fingerprint: string };
+  DevicePermissions: { fingerprint: string };
+  LanProbe: { fingerprint: string };
 
 };
 

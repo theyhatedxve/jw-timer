@@ -26,7 +26,12 @@ function database(localFingerprint: string): SQLiteDatabase {
         'PRAGMA user_version',
       )?.user_version;
 
-    if (version !== 0 && version !== 1 && version !== 2) {
+    if (
+        version !== 0 &&
+        version !== 1 &&
+        version !== 2 &&
+        version !== 3
+      ) {
         throw new PairingFailure('storage');
       }
 
@@ -111,6 +116,52 @@ function database(localFingerprint: string): SQLiteDatabase {
             );
 
             PRAGMA user_version = 2;
+          `);
+        });
+      }
+
+            const permissionVersion = db.getFirstSync<{
+        user_version: number;
+      }>('PRAGMA user_version')?.user_version;
+
+      if (permissionVersion === 2) {
+        db.withTransactionSync(() => {
+          db.execSync(`
+            CREATE TABLE device_grants (
+              congregation_id TEXT NOT NULL,
+              peer_fingerprint TEXT NOT NULL
+                REFERENCES device_requests(fingerprint),
+              permission TEXT NOT NULL
+                CHECK (permission = 'schedule.read'),
+              issuer_fingerprint TEXT NOT NULL,
+              peer_revision INTEGER NOT NULL CHECK (peer_revision >= 1),
+              enabled INTEGER NOT NULL CHECK (enabled IN (0, 1)),
+              revision INTEGER NOT NULL CHECK (revision >= 1),
+              expires_at INTEGER,
+              updated_at INTEGER NOT NULL,
+              PRIMARY KEY (
+                congregation_id, peer_fingerprint, permission
+              )
+            );
+
+            CREATE INDEX idx_device_grants_peer
+              ON device_grants(peer_fingerprint);
+
+            CREATE TABLE grant_events (
+              id INTEGER PRIMARY KEY,
+              congregation_id TEXT NOT NULL,
+              peer_fingerprint TEXT NOT NULL,
+              permission TEXT NOT NULL
+                CHECK (permission = 'schedule.read'),
+              action TEXT NOT NULL
+                CHECK (action IN (
+                  'enabled', 'disabled', 'peer-revoked'
+                )),
+              grant_revision INTEGER NOT NULL,
+              created_at INTEGER NOT NULL
+            );
+
+            PRAGMA user_version = 3;
           `);
         });
       }
@@ -222,9 +273,33 @@ export const deviceRequestRepository = {
   },
 
   revoke(localFingerprint: string, fingerprint: string): void {
+    
     const db = database(localFingerprint);
 
     db.withTransactionSync(() => {
+              const revokedAt = Date.now();
+
+      db.runSync(
+        `INSERT INTO grant_events
+         (congregation_id, peer_fingerprint, permission,
+          action, grant_revision, created_at)
+         SELECT congregation_id, peer_fingerprint, permission,
+                'peer-revoked', revision + 1, ?
+         FROM device_grants
+         WHERE peer_fingerprint = ? AND enabled = 1`,
+        revokedAt,
+        fingerprint,
+      );
+
+      db.runSync(
+        `UPDATE device_grants
+         SET enabled = 0, revision = revision + 1,
+             updated_at = ?
+         WHERE peer_fingerprint = ? AND enabled = 1`,
+        revokedAt,
+        fingerprint,
+      );
+      
       const changed = db.runSync(
         `UPDATE device_requests
          SET state = 'revoked', revision = revision + 1

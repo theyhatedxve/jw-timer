@@ -9,6 +9,7 @@ import type { ProfileRepository } from '../../services/profileService';
 import {
   parseStoredProfile,
   PROFILE_LIMITS,
+  isCongregationId,
   type LocalProfile,
   type ProfileErrorCode,
   type ProfileResult,
@@ -73,9 +74,62 @@ function readProfile(
   return parsed.value;
 }
 
+function newCongregationId(db: SQLiteDatabase): string {
+  const row = db.getFirstSync<{ id: string }>(
+    'SELECT lower(hex(randomblob(16))) AS id',
+  );
+
+  if (!isCongregationId(row?.id)) {
+    throw new ProfileRepositoryError('storage');
+  }
+
+  return row.id;
+}
+
 export const localProfileRepository: ProfileRepository = {
-  read() {
-    return safely(() => readProfile(database()));
+    read() {
+    return safely<LocalProfile | null>(() => {
+      const db = database();
+      const outcome: { value: LocalProfile | null } = {
+        value: null,
+      };
+
+      db.withTransactionSync(() => {
+        const current = readProfile(db);
+
+        if (!current || current.congregationId) {
+          outcome.value = current;
+          return;
+        }
+
+        const upgraded = parseStoredProfile({
+          ...current,
+          congregationId: newCongregationId(db),
+          revision: current.revision + 1,
+        });
+
+        if (!upgraded.ok) {
+          throw new ProfileRepositoryError('corrupt');
+        }
+
+        const changed = db.runSync(
+          `UPDATE app_preferences
+           SET value_json = ?, updated_at = ?
+           WHERE key = ?`,
+          JSON.stringify(upgraded.value),
+          Date.now(),
+          PROFILE_KEY,
+        );
+
+        if (changed.changes !== 1) {
+          throw new ProfileRepositoryError('storage');
+        }
+
+        outcome.value = upgraded.value;
+      });
+
+      return outcome.value;
+    });
   },
 
   save(draft, expectedRevision) {
@@ -97,6 +151,8 @@ export const localProfileRepository: ProfileRepository = {
           recordVersion: 1,
           interfaceLanguage: 'en',
           revision: (current?.revision ?? 0) + 1,
+          congregationId:
+            current?.congregationId ?? newCongregationId(db),
         };
 
         const validated = parseStoredProfile(profile);

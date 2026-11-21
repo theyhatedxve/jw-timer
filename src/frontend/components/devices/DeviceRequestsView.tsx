@@ -10,6 +10,8 @@ import type { useDeviceRequests } from '../../hooks/useDeviceRequests';
 export default function DeviceRequestsView(
   model: ReturnType<typeof useDeviceRequests> & {
     readonly onPair: (fingerprint: string) => void;
+    readonly onPermissions: (fingerprint: string) => void;
+    readonly onLan: (fingerprint: string) => void;
   },
 ) {
   return (
@@ -83,11 +85,29 @@ export default function DeviceRequestsView(
                   : text.revoked}
             </Text>
 
+            {request.state === 'trusted' ? (
+              <ActionButton
+                label={text.permissions}
+                disabled={model.busy}
+                onPress={() =>
+                  model.onPermissions(request.fingerprint)
+                }
+              />
+            ) : null}
+
             {request.state === 'pending' ? (
               <ActionButton
                 label={text.pair}
                 disabled={model.busy}
                 onPress={() => model.onPair(request.fingerprint)}
+              />
+            ) : null}
+
+            {request.state === 'trusted' ? (
+              <ActionButton
+                label={text.lan}
+                disabled={model.busy}
+                onPress={() => model.onLan(request.fingerprint)}
               />
             ) : null}
 

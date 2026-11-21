@@ -44,7 +44,10 @@ import DeviceRequestsScreen from '../screens/DeviceRequestsScreen';
 import { deviceRequestsEn } from '../../constants/strings/deviceRequestsEn';
 import SignedPairingScreen from '../screens/SignedPairingScreen';
 import { signedPairingEn } from '../../constants/strings/signedPairingEn';
-
+import DevicePermissionsScreen from '../screens/DevicePermissionsScreen';
+import LanProbeScreen from '../screens/LanProbeScreen';
+import { lanProbeEn } from '../../constants/strings/lanProbeEn';
+import { devicePermissionsEn } from '../../constants/strings/devicePermissionsEn';
 import type {
   RootStackParamList,
 } from './types';
@@ -95,6 +98,12 @@ export default function AppNavigator() {
               headerShown: true,
               title: signedPairingEn.title,
             }}
+          />
+          <Root.Screen
+            name="LanProbe"
+            component={LanProbeScreen}
+            getId={({ params }) => params.fingerprint}
+            options={{ headerShown: true, title: lanProbeEn.title }}
           />
           <Root.Screen
             name="ManageAssignments"
@@ -213,6 +222,15 @@ export default function AppNavigator() {
             options={{
               headerShown: true,
               title: deviceRequestsEn.title,
+            }}
+          />
+          <Root.Screen
+            name="DevicePermissions"
+            component={DevicePermissionsScreen}
+            getId={({ params }) => params.fingerprint}
+            options={{
+              headerShown: true,
+              title: devicePermissionsEn.title,
             }}
           />
         </Root.Group>

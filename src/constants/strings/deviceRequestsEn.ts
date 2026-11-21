@@ -3,7 +3,7 @@ export const deviceRequestsEn = {
   description:
     'Add a request, then exchange signed proofs on both phones. Identity trust grants no schedule permissions.',
   pair: 'Start signed pairing',
-  trusted: 'Trusted identity — no schedule permissions',
+  trusted: 'Trusted identity',
   requestAgain: 'Create a new pending request',
   own: 'This device’s public invitation',
   label: 'Other device’s label',
@@ -14,6 +14,8 @@ export const deviceRequestsEn = {
   pending: 'Pending — not trusted',
   revoked: 'Revoked',
   wait: 'Wait for the current operation to finish.',
+  permissions: 'Schedule permissions',
+  lan: 'LAN session check',
   errors: {
     invalid: 'Check the device label and invitation.',
     identity:

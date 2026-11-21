@@ -30,6 +30,7 @@ export interface MeetingDraft {
   readonly meetingType: MeetingType;
   readonly meetingDate: string;
   readonly startLocalTime: string | null;
+  readonly endLocalTime?: string | null;
   readonly timezone: string;
   readonly programLanguage: MeetingLanguage;
   readonly sections: readonly MeetingSectionDraft[];

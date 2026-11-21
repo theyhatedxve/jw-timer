@@ -1,4 +1,5 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
+import { checkPublisherMeeting } from './meetingConflictCheck';
 
 import {
   AppDatabaseError,
@@ -26,6 +27,7 @@ interface MeetingRow {
   meeting_type: string;
   meeting_date: string;
   start_local_time: string | null;
+  end_local_time: string | null;
   timezone: string;
   program_language: string;
   revision: number;
@@ -140,6 +142,7 @@ function decodeHeader(
     meetingType: row.meeting_type,
     meetingDate: row.meeting_date,
     startLocalTime: row.start_local_time,
+    endLocalTime: row.end_local_time,
     timezone: row.timezone,
     programLanguage: row.program_language,
     sections,
@@ -429,17 +432,53 @@ export const localMeetingRepository: MeetingRepository = {
         const id = current?.id ?? newId(db);
         const now = Date.now();
 
+        const scheduleChanged = current !== null && (
+          current.draft.meetingDate !== draft.meetingDate ||
+          current.draft.startLocalTime !== draft.startLocalTime ||
+          (current.draft.endLocalTime ?? null) !==
+            (draft.endLocalTime ?? null) ||
+          current.draft.timezone !== draft.timezone
+        );
+
+        if (scheduleChanged) {
+          const publishers = db.getAllSync<{
+            publisher_id: string;
+          }>(
+            `SELECT DISTINCT publisher_id
+             FROM local_technical_duties
+             WHERE meeting_id = ? AND publisher_id IS NOT NULL`,
+            id,
+          );
+
+          for (const publisher of publishers) {
+            const issue = checkPublisherMeeting(
+              db,
+              publisher.publisher_id,
+              { ...draft, id },
+            );
+
+            if (issue) {
+              throw new MeetingStorageError(
+                issue.field,
+                issue.message,
+              );
+            }
+          }
+        }
+
         if (current) {
-          const update = db.runSync(
+                    const update = db.runSync(
             `UPDATE local_meeting_drafts
              SET title = ?, meeting_type = ?, meeting_date = ?,
-                 start_local_time = ?, timezone = ?,
-                 program_language = ?, revision = ?, updated_at = ?
+                 start_local_time = ?, end_local_time = ?,
+                 timezone = ?, program_language = ?,
+                 revision = ?, updated_at = ?
              WHERE id = ? AND revision = ?`,
             draft.title,
             draft.meetingType,
             draft.meetingDate,
             draft.startLocalTime,
+            draft.endLocalTime ?? null,
             draft.timezone,
             draft.programLanguage,
             revision,
@@ -455,17 +494,19 @@ export const localMeetingRepository: MeetingRepository = {
             );
           }
         } else {
-          db.runSync(
+                    db.runSync(
             `INSERT INTO local_meeting_drafts
              (id, title, meeting_type, meeting_date,
-              start_local_time, timezone, program_language,
+              start_local_time, end_local_time,
+              timezone, program_language,
               revision, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             id,
             draft.title,
             draft.meetingType,
             draft.meetingDate,
             draft.startLocalTime,
+            draft.endLocalTime ?? null,
             draft.timezone,
             draft.programLanguage,
             revision,

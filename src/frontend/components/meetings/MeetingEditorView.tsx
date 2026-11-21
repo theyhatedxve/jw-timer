@@ -14,6 +14,8 @@ import ActionButton from '../common/ActionButton';
 import { MeetingChoices, MeetingField } from './MeetingControls';
 import { meetingStyles as styles } from '../../styles/meetings/meetings.styles';
 
+import { MEETING_PLANNING_EN } from '../../../constants/strings/meetingPlanningEn';
+
 import { MEETING_LIMITS } from '../../../backend/domain/meetings/meetingValidation';
 
 import type {
@@ -149,6 +151,16 @@ export default function MeetingEditorView(model: Props) {
                 editable={!busy}
                 onChangeText={value =>
                   model.updateHeader('startLocalTime', value)
+                }
+              />
+
+              <MeetingField
+                label={MEETING_PLANNING_EN.endTimeLabel}
+                hint={MEETING_PLANNING_EN.endTimeHint}
+                value={form.endLocalTime}
+                editable={!busy}
+                onChangeText={value =>
+                  model.updateHeader('endLocalTime', value)
                 }
               />
 

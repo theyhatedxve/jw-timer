@@ -8,6 +8,8 @@ import { ASSIGNMENT_SQL } from './migrations/004_assignments';
 import {
   MEETING_DUTY_SQL,
 } from './migrations/005_meeting_duties';
+
+import { MEETING_END_TIME_SQL } from './migrations/007_meeting_end_time';
 import { TECHNICAL_ASSIGNMENT_SQL } from './migrations/006_technical_assignments';
 
 export class AppDatabaseError extends Error {
@@ -90,6 +92,7 @@ const MIGRATIONS = [
   { version: 4, sql: ASSIGNMENT_SQL },
   { version: 5, sql: MEETING_DUTY_SQL },
   { version: 6, sql: TECHNICAL_ASSIGNMENT_SQL },
+  { version: 7, sql: MEETING_END_TIME_SQL },
 ] as const;
 
 let connection: SQLiteDatabase | null = null;

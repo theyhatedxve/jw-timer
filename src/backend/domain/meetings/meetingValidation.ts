@@ -289,6 +289,36 @@ export function validateMeetingDraft(
     );
   }
 
+    const endLocalTime = input.endLocalTime === undefined
+    ? null
+    : input.endLocalTime;
+
+  if (
+    endLocalTime !== null &&
+    (
+      typeof endLocalTime !== 'string' ||
+      !/^([01]\d|2[0-3]):[0-5]\d$/.test(endLocalTime)
+    )
+  ) {
+    return failure(
+      'endLocalTime',
+      'Enter a valid HH:mm end time or leave it unset.',
+    );
+  }
+
+  if (
+    endLocalTime !== null &&
+    (
+      startLocalTime === null ||
+      endLocalTime <= startLocalTime
+    )
+  ) {
+    return failure(
+      'endLocalTime',
+      'Set a start time and an end time later on the same date.',
+    );
+  }
+
   const timezone = input.timezone;
 
   if (!isTimezone(timezone)) {
@@ -334,6 +364,7 @@ export function validateMeetingDraft(
       meetingType,
       meetingDate,
       startLocalTime,
+      endLocalTime,
       timezone,
       programLanguage,
       sections,

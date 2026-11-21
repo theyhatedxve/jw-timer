@@ -52,6 +52,7 @@ interface EditorForm {
   readonly meetingType: MeetingDraft['meetingType'];
   readonly meetingDate: string;
   readonly startLocalTime: string;
+  readonly endLocalTime: string;
   readonly timezone: string;
   readonly programLanguage: MeetingDraft['programLanguage'];
   readonly sections: readonly EditorSection[];
@@ -83,6 +84,7 @@ function toForm(
   return {
     ...draft,
     startLocalTime: draft.startLocalTime ?? '',
+    endLocalTime: draft.endLocalTime ?? '',
     sections: draft.sections.map(section => ({
       key: nextKey(),
       id: section.id,
@@ -105,6 +107,7 @@ function toDraft(form: EditorForm): MeetingDraft {
     meetingType: form.meetingType,
     meetingDate: form.meetingDate,
     startLocalTime: form.startLocalTime.trim() || null,
+    endLocalTime: form.endLocalTime.trim() || null,
     timezone: form.timezone.trim(),
     programLanguage: form.programLanguage,
     sections: form.sections.map(section => ({

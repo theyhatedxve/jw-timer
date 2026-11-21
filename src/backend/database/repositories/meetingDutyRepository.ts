@@ -1,4 +1,5 @@
 import { getAppDatabase } from '../appDatabase';
+import { checkPublisherMeeting } from './meetingConflictCheck';
 
 import {
   isMeetingDutyKey,
@@ -103,12 +104,24 @@ export const localMeetingDutyRepository:
         const outcome: { value?: MeetingDuty } = {};
 
         db.withTransactionSync(() => {
-          const meeting = db.getFirstSync<{ revision: number }>(
-            'SELECT revision FROM local_meeting_drafts WHERE id = ?',
+          const meeting = db.getFirstSync<{
+            revision: number;
+            title: string;
+            meeting_date: string;
+            start_local_time: string | null;
+            end_local_time: string | null;
+            timezone: string;
+          }>(
+            `SELECT revision, title, meeting_date,
+                    start_local_time, end_local_time, timezone
+             FROM local_meeting_drafts WHERE id = ?`,
             command.meetingId,
           );
 
-          if (meeting?.revision !== command.meetingRevision) {
+          if (
+            !meeting ||
+            meeting.revision !== command.meetingRevision
+          ) {
             fail('conflict', 'The meeting changed. Reload first.');
           }
 
@@ -131,6 +144,20 @@ export const localMeetingDutyRepository:
           }
 
           if (command.publisherId !== null) {
+            const issue = checkPublisherMeeting(
+              db,
+              command.publisherId,
+              {
+                id: command.meetingId,
+                title: meeting.title,
+                meetingDate: meeting.meeting_date,
+                startLocalTime: meeting.start_local_time,
+                endLocalTime: meeting.end_local_time,
+                timezone: meeting.timezone,
+              },
+            );
+
+            if (issue) fail(issue.field, issue.message);
 
             const occupied = db.getAllSync<DutyRow>(
                 `SELECT meeting_id, duty_key, publisher_id, revision

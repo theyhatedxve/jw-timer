@@ -38,6 +38,8 @@ export type RootStackParamList = {
     partId: string;
     role?: PublisherRole;
   };
+
+  Backups: undefined;
 };
 
 declare global {

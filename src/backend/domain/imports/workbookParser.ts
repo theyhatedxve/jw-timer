@@ -193,14 +193,8 @@ export function buildWorkbookCandidates(
       warnings.add(text.numbering);
     }
 
-    const sections = [0, 1, 2, 3].flatMap(group => {
+        const sections = [0, 1, 2, 3].flatMap(group => {
       const grouped = parts.filter(part => part.group === group);
-
-    const arrangedSections = arrangeWorkbookExtras(
-      extras,
-      sections,
-      warnings,
-    );
 
       if (grouped.length === 0) return [];
 
@@ -210,6 +204,12 @@ export function buildWorkbookCandidates(
         parts: grouped.map(part => part.part),
       }];
     });
+
+    const arrangedSections = arrangeWorkbookExtras(
+      extras,
+      sections,
+      warnings,
+    );
 
     const result = validateMeetingDraft({
       title: text.meeting(date),

@@ -31,6 +31,8 @@ import { meetingDutyEn } from '../../constants/strings/meetingDutyEn';
 
 import WorkbookImportScreen from '../screens/WorkbookImportScreen';
 import { workbookImportEn } from '../../constants/strings/workbookImportEn';
+import BackupsScreen from '../screens/BackupsScreen';
+import { backupEn } from '../../constants/strings/backupEn';
 
 import type {
   RootStackParamList,
@@ -155,6 +157,14 @@ export default function AppNavigator() {
             options={{
               headerShown: true,
               title: workbookImportEn.title,
+            }}
+          />
+                    <Root.Screen
+            name="Backups"
+            component={BackupsScreen}
+            options={{
+              headerShown: true,
+              title: backupEn.title,
             }}
           />
         </Root.Group>

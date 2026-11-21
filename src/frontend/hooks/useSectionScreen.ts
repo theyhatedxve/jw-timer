@@ -12,6 +12,8 @@ import {
   type MainSection,
 } from '../../constants/strings/en';
 
+import { backupEn } from '../../constants/strings/backupEn';
+
 interface SectionAction {
   readonly id: string;
   readonly label: string;
@@ -93,6 +95,11 @@ export function useSectionScreen(section: MainSection) {
         id: 'workbook-import',
         label: workbookImportEn.title,
         onPress: () => navigation.navigate('WorkbookImport'),
+      },
+      {
+        id: 'backups',
+        label: backupEn.title,
+        onPress: () => navigation.navigate('Backups'),
       },
     ],
   };

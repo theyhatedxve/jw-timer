@@ -245,3 +245,6 @@ export const localMeetingDutyRepository:
       });
     },
   };
+
+  export { decode as decodeDutyForBackup };
+  

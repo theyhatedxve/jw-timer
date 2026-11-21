@@ -327,3 +327,5 @@ export const localPublisherRepository:
       });
     },
   };
+
+  export { readPublisher as readPublisherForBackup };

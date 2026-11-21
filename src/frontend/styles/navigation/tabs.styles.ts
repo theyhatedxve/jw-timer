@@ -17,6 +17,7 @@ export const styles = StyleSheet.create({
     minHeight: dimensions.minimumTouchTarget,
     paddingHorizontal: spacing.small,
     paddingVertical: spacing.small,
+    borderRadius: dimensions.cardRadius,
   },
   label: {
     fontSize: typography.supporting,

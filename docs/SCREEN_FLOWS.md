@@ -524,3 +524,44 @@ These must be decided before their dependent screens are considered final. They 
 - [ ] Wireframes and component interaction prototypes validated on Android devices.
 
 **Next design deliverable:** Wireframes and UI component specification, using these navigation and action contracts. Application coding should begin only after Phase 0 feasibility decisions and relevant security constraints are validated.
+
+
+## Home and navigation redesign — 2026-11-22
+
+The approved redesign adds Home, Meetings, Assignments, Timer, and Settings
+tabs. Internal tab names are Home, Meetings, Assignments, Timer, and
+SettingsTab. Existing root Settings and MeetingPrograms routes remain
+available for compatibility.
+
+Home selects the earliest local program dated today or later using the
+congregation profile time zone. Programs sharing a date use an identifier
+tie-break. Selection refreshes on focus, foreground, and local midnight.
+
+Home shows actual part count, timed duration, and filled technical-duty
+slots for that program. Filled slots do not imply eligibility approval.
+Received schedules remain separate and open through their existing reader.
+
+Opening a program opens its existing editor. No timer starts automatically.
+Sync, backup, trust, and publication rules are unchanged.
+
+Source application and owner verification must be reported separately.
+
+## Meetings redesign — 2026-11-22
+
+Meetings supports Midweek/Weekend filtering and Monday-based week
+navigation. Initial week selection uses the congregation profile time
+zone. A validated YYYY-MM-DD date selects its containing week.
+
+Every matching local program remains selectable. Selection survives
+editor visits. Data reloads on focus, foreground, and explicit retry.
+Empty weeks remain visible instead of silently jumping to another week.
+
+Program sections retain saved titles and part order. Expandable cards
+show every part and identify untimed items. Program totals include every
+part but sum duration only for timed parts.
+
+Create and Edit retain their existing editor behavior. Open timer retains
+the existing timer-loading and recovery flow; it never starts timing
+automatically. Received schedules remain separate.
+
+Source applied; owner typecheck, tests, and device verification pending.

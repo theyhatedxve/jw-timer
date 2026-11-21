@@ -21,6 +21,8 @@ export const linking:
             Home: '',
             Assignments: 'assignments',
             Timer: 'timer',
+            Meetings: 'programs',
+            SettingsTab: 'preferences',
           },
         },
 

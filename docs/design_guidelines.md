@@ -484,3 +484,30 @@ not exported, and restoring content preserves the receiving device's
 appearance preference.
 
 Source application and owner verification must be reported separately.
+
+
+## Home navigation tokens — 2026-11-22
+
+Selected navigation backgrounds use the selection palette role:
+dark #093C3F and light #D9EFF0.
+
+Dashboard statistic cells use a 96dp minimum width and wrap when needed.
+Bottom navigation retains scaled labels and uses existing layout tokens.
+Icons use the installed react-native-svg dependency.
+
+Only Home and navigation receive this batch's redesign. Remaining screen
+bodies keep their existing appearance until their scheduled batches.
+
+## Meeting section presentation — 2026-11-22
+
+Section tokens are centralized in `src/constants/meetingProgramTheme.ts`.
+Recognized English and Waray Treasures, Ministry, and Christian Living
+headings receive teal, amber, and red presentation respectively.
+
+Custom, opening, closing, and other headings use neutral surfaces.
+Color mapping never renames sections or changes saved content.
+
+Section controls expose expanded state and preserve 48dp touch targets.
+Date selection uses a validated date-entry dialog without a new dependency.
+Both themes, large text, TalkBack, and keyboard behavior require owner
+device verification.

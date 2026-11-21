@@ -1,6 +1,8 @@
 import { colors as legacyColors } from './theme';
 
-export type AppPalette = Record<keyof typeof legacyColors, string>;
+export type AppPalette = Record<keyof typeof legacyColors, string> & {
+  readonly selection: string;
+};
 
 export const appearancePalettes: Record<'light' | 'dark', AppPalette> = {
   dark: {
@@ -9,6 +11,7 @@ export const appearancePalettes: Record<'light' | 'dark', AppPalette> = {
     surface: '#1D2528',
     brand: '#00C2C7',
     onBrand: '#042E30',
+    selection: '#093C3F',
   },
   light: {
     canvas: '#F5F7F8',
@@ -22,5 +25,6 @@ export const appearancePalettes: Record<'light' | 'dark', AppPalette> = {
     warning: '#7C4A00',
     warningBackground: '#FFF2D6',
     disabled: '#61717A',
+    selection: '#D9EFF0',
   },
 };

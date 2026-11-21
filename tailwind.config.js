@@ -45,6 +45,7 @@ module.exports = {
       minWidth: {
         'app-touch': '48px',
         'preview-touch': '48px',
+        'app-stat': '96px',
       },
       maxWidth: {
         'app-content': '640px',

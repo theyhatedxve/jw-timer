@@ -1,17 +1,6 @@
-import { useAppTheme } from '../context/AppearanceContext';
 import { Text, useWindowDimensions } from 'react-native';
-
-import {
-  useNavigation,
-} from '@react-navigation/native';
-
-import {
-  createBottomTabNavigator,
-} from '@react-navigation/bottom-tabs';
-
-import {
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   dimensions,
@@ -19,28 +8,24 @@ import {
   typography,
 } from '../../constants/theme';
 
-import SettingsButton from '../components/common/SettingsButton';
+import AppIcon from '../components/common/AppIcon';
+import { useAppTheme } from '../context/AppearanceContext';
 import { styles } from '../styles/navigation/tabs.styles';
-
 import { TABS } from './tabs';
-
-import type {
-  MainTabParamList,
-} from './types';
+import type { MainTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export default function TabNavigator() {
-  const { palette: colors } = useAppTheme();
-  const navigation = useNavigation();
+  const { palette } = useAppTheme();
   const { width, fontScale } = useWindowDimensions();
   const insets = useSafeAreaInsets();
 
-  const useRail =
-    width >= dimensions.navigationRailBreakpoint;
+  const useRail = width >= dimensions.navigationRailBreakpoint;
 
   const bottomBarHeight =
     typography.navigationLineHeight * fontScale * 3 +
+    spacing.large +
     spacing.medium +
     insets.bottom;
 
@@ -50,41 +35,32 @@ export default function TabNavigator() {
       backBehavior="initialRoute"
       screenOptions={{
         headerShown: true,
-        headerStyle: {
-          backgroundColor: colors.canvas,
-        },
-        headerTintColor: colors.text,
+        headerStyle: { backgroundColor: palette.canvas },
+        headerTintColor: palette.text,
         headerShadowVisible: false,
-        headerRight: () => (
-          <SettingsButton
-            onPress={() => navigation.navigate('Settings')}
-          />
-        ),
         tabBarPosition: useRail ? 'left' : 'bottom',
         tabBarVariant: useRail ? 'material' : 'uikit',
-        tabBarActiveTintColor: colors.brand,
-        tabBarInactiveTintColor: colors.secondary,
+        tabBarLabelPosition: 'below-icon',
+        tabBarActiveTintColor: palette.brand,
+        tabBarInactiveTintColor: palette.secondary,
+        tabBarActiveBackgroundColor: palette.selection,
         tabBarHideOnKeyboard: true,
         tabBarAllowFontScaling: true,
-        tabBarIcon: () => null,
-        tabBarIconStyle: styles.hiddenIcon,
         tabBarItemStyle: styles.item,
         tabBarStyle: [
           styles.bar,
           {
-            backgroundColor: colors.surface,
-            borderColor: colors.border,
+            backgroundColor: palette.surface,
+            borderColor: palette.border,
           },
           useRail
             ? { width: dimensions.navigationRailWidth }
             : { height: bottomBarHeight },
         ],
-        sceneStyle: {
-          backgroundColor: colors.canvas,
-        },
+        sceneStyle: { backgroundColor: palette.canvas },
       }}
     >
-      {TABS.map(({ name, label, component }) => (
+      {TABS.map(({ name, label, icon, component }) => (
         <Tab.Screen
           key={name}
           name={name}
@@ -92,6 +68,9 @@ export default function TabNavigator() {
           options={{
             title: label,
             tabBarAccessibilityLabel: label,
+            tabBarIcon: ({ color, size }) => (
+              <AppIcon name={icon} color={color} size={size} />
+            ),
             tabBarLabel: ({ color }) => (
               <Text style={[styles.label, { color }]}>
                 {label}

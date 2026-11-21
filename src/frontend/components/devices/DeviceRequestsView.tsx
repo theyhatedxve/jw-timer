@@ -2,6 +2,7 @@ import { ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ActionButton from '../common/ActionButton';
+import CodeExchange from './CodeExchange';
 import { styles } from '../../styles/publishers/publishers.styles';
 import { deviceRequestsEn as text } from '../../../constants/strings/deviceRequestsEn';
 
@@ -35,6 +36,7 @@ export default function DeviceRequestsView(
         <Text selectable style={styles.text}>
           {model.ownInvitation}
         </Text>
+        <CodeExchange value={model.ownInvitation} maxLength={1024} disabled={model.busy} />
 
         <Text style={styles.secondary}>{text.label}</Text>
         <TextInput
@@ -59,6 +61,7 @@ export default function DeviceRequestsView(
           style={styles.input}
         />
 
+        <CodeExchange onChange={model.setInvitation} maxLength={1024} disabled={model.busy} />
         <ActionButton
           label={text.add}
           disabled={model.busy || !model.ownInvitation}

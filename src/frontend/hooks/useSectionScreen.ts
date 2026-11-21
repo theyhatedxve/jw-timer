@@ -13,11 +13,13 @@ import {
 } from '../../constants/strings/en';
 
 import { deviceIdentityEn } from '../../constants/strings/deviceIdentityEn';
-
+import { receivedSchedulesEn } from '../../constants/strings/receivedSchedulesEn';
 import { backupChecksEn } from '../../constants/strings/backupChecksEn';
 import { deviceRequestsEn } from '../../constants/strings/deviceRequestsEn';
 
 import { backupEn } from '../../constants/strings/backupEn';
+import { syncEn } from '../../constants/strings/syncEn';
+import { syncChecksEn } from '../../constants/strings/syncChecksEn';
 
 interface SectionAction {
   readonly id: string;
@@ -42,6 +44,7 @@ export function useSectionScreen(section: MainSection) {
     readonly SectionAction[]
   > = {
     home: [
+      { id: 'sync', label: syncEn.title, onPress: () => navigation.navigate('Sync') },
       {
         id: 'timer',
         label: en.actions.openTimer,
@@ -57,6 +60,12 @@ export function useSectionScreen(section: MainSection) {
           'Main',
           { screen: 'Assignments' },
         ),
+      },
+      {
+        id: 'received-schedules',
+        label: receivedSchedulesEn.open,
+        onPress: () =>
+          navigation.navigate('ReceivedSchedules'),
       },
     ],
 
@@ -79,6 +88,8 @@ export function useSectionScreen(section: MainSection) {
     ],
 
     settings: [
+      { id: 'sync-checks', label: syncChecksEn.title, onPress: () => navigation.navigate('SyncChecks') },
+      { id: 'sync', label: syncEn.title, onPress: () => navigation.navigate('Sync') },
       {
         id: 'manage-assignments',
         label: meetingDutyEn.title,

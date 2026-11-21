@@ -5,10 +5,19 @@ import { lanProbeNative } from '../backend/network/lanProbeNative';
 import { deviceIdentityService } from './deviceIdentityDependencies';
 import { devicePermissionService } from './devicePermissionDependencies';
 import { profileService } from './profileDependencies';
+import { exportSchedule } from '../backend/database/repositories/scheduleShareRepository';
+import { receivedScheduleRepository } from '../backend/database/repositories/receivedScheduleRepository';
+import { createSyncService } from './syncDependencies';
 
 export function createLanService() {
   return createLanProbeService(
     deviceIdentityService, profileService, deviceRequestRepository,
     peerIdentityNative, devicePermissionService, lanProbeNative,
+    {
+      exportSchedule,
+      read: receivedScheduleRepository.read,
+      save: receivedScheduleRepository.save,
+    },
+    createSyncService(),
   );
 }

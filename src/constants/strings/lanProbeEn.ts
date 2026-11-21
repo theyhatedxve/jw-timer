@@ -18,5 +18,17 @@ export const lanProbeEn = {
   failed:
     'The connection could not be checked. Verify pairing, read permissions, Wi-Fi, and the pasted code. Rebuild if native methods are unavailable.',
   scope:
-    'This checks one authenticated connection. It does not transfer schedules. Hosting stops when you leave this screen or background the app.',
+    'Download programs and the four duty assignments. Preview before saving a separate read-only copy. Local programs and publishers remain unchanged. Hosting stops when you leave this screen or background the app.',
+  download: 'Download schedule preview',
+  saveReceived: 'Save received copy',
+  loadReceived: 'Open saved received copy',
+  preview: 'Received schedule',
+  previewReady: 'Downloaded for review. Nothing has been saved.',
+  saved: 'Received copy saved locally.',
+  savedCopy: 'Showing the saved offline copy.',
+  noSavedCopy: 'No received copy has been saved for this device.',
+  emptySchedule: 'This received schedule contains no meetings.',
+  saveQuestion:
+    'Save this preview? It replaces the previously received copy from this device for your current local profile.',
+  cancel: 'Cancel',
 } as const;

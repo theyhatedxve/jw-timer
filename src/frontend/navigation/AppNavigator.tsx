@@ -39,7 +39,8 @@ import { backupChecksEn } from '../../constants/strings/backupChecksEn';
 
 import DeviceIdentityScreen from '../screens/DeviceIdentityScreen';
 import { deviceIdentityEn } from '../../constants/strings/deviceIdentityEn';
-
+import ReceivedSchedulesScreen from '../screens/ReceivedSchedulesScreen';
+import { receivedSchedulesEn } from '../../constants/strings/receivedSchedulesEn';
 import DeviceRequestsScreen from '../screens/DeviceRequestsScreen';
 import { deviceRequestsEn } from '../../constants/strings/deviceRequestsEn';
 import SignedPairingScreen from '../screens/SignedPairingScreen';
@@ -48,6 +49,10 @@ import DevicePermissionsScreen from '../screens/DevicePermissionsScreen';
 import LanProbeScreen from '../screens/LanProbeScreen';
 import { lanProbeEn } from '../../constants/strings/lanProbeEn';
 import { devicePermissionsEn } from '../../constants/strings/devicePermissionsEn';
+import SyncScreen from '../screens/SyncScreen';
+import SyncChecksScreen from '../screens/SyncChecksScreen';
+import { syncChecksEn } from '../../constants/strings/syncChecksEn';
+import { syncEn } from '../../constants/strings/syncEn';
 import type {
   RootStackParamList,
 } from './types';
@@ -90,6 +95,8 @@ export default function AppNavigator() {
             name="Main"
             component={TabNavigator}
           />
+          <Root.Screen name="Sync" component={SyncScreen} options={{ headerShown: true, title: syncEn.title }} />
+          <Root.Screen name="SyncChecks" component={SyncChecksScreen} options={{ headerShown: true, title: syncChecksEn.title }} />
           <Root.Screen
             name="SignedPairing"
             component={SignedPairingScreen}
@@ -231,6 +238,14 @@ export default function AppNavigator() {
             options={{
               headerShown: true,
               title: devicePermissionsEn.title,
+            }}
+          />
+          <Root.Screen
+            name="ReceivedSchedules"
+            component={ReceivedSchedulesScreen}
+            options={{
+              headerShown: true,
+              title: receivedSchedulesEn.title,
             }}
           />
         </Root.Group>

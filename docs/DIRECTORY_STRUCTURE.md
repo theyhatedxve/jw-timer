@@ -3,6 +3,8 @@
 Frontend and backend are folder groups inside the Android app.
 Both run locally on the device. No backend server is introduced.
 
+Phase 6 additions: `backend/domain/sync` owns wire validation and pure acceptance/queue rules; `backend/services/syncService.ts` orchestrates scoped use cases; main-database `syncRepository` owns atomic aggregate persistence; `syncSourceRepository` captures stable-ID draft content; `syncBackup` handles draft-only recovery. `backend/security/syncCryptoNative` and `backend/network/lanDiscoveryNative` adapt the Keystore and NSD module. `frontend/components/sync`, `useSync` and `SyncScreen` remain separate. Native sources live under `modules/device-identity/android`; only the generated root `/android/` directory is ignored.
+
 ## Structure
 
 ```text

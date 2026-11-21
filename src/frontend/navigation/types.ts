@@ -18,6 +18,8 @@ export interface TimerProgramRequest {
 export type RootStackParamList = {
   SetupProfile: undefined;
   Main: NavigatorScreenParams<MainTabParamList> | undefined;
+  Sync: undefined;
+  SyncChecks: undefined;
   Settings: undefined;
   ManageAssignments: undefined;
   Publishers: undefined;
@@ -46,6 +48,7 @@ export type RootStackParamList = {
   SignedPairing: { fingerprint: string };
   DevicePermissions: { fingerprint: string };
   LanProbe: { fingerprint: string };
+  ReceivedSchedules: undefined;
 
 };
 

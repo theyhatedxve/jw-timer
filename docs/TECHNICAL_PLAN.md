@@ -395,6 +395,8 @@ Phases are ordered by dependency, not fixed calendar time. Every phase has a com
 
 ### Phase 6 — Trusted devices and LAN schedule sync
 
+**Implementation status (2026-11-21):** The owner approved and applied the bounded [ADR 0005](adr/0005-trusted-publishing-and-phase-6.md) batch, resolving D-05 through D-08 for same-Wi-Fi, explicit fixed leader, reviewed follower proposals and content-only restore with fresh authority approval. QR/NSD, signed stable-ID snapshots, queues/receipts and conflict preservation are implemented in source. [Owner checks](PHASE_6_OWNER_CHECKS.md) remain pending; this is not verified Phase 6 completion. Phase 7 is on hold for owner redesign.
+
 - Keystore device keys, QR-assisted pairing, verified trust, grants/revocation.
 - LAN discovery/session authentication, protocol versioning, snapshots and change log.
 - Single leader publishing, follower drafts, signed revisions, conflict quarantine.

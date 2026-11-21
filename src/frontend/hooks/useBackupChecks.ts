@@ -7,9 +7,9 @@ import type {
   RunBackupChecks,
 } from '../../backend/services/diagnostics.types';
 
-import { backupChecksEn as text } from '../../constants/strings/backupChecksEn';
+import { backupChecksEn } from '../../constants/strings/backupChecksEn';
 
-export function useBackupChecks(runChecks: RunBackupChecks) {
+export function useBackupChecks(runChecks: RunBackupChecks, text: { readonly title: string; readonly wait: string; readonly failed: string } = backupChecksEn) {
   const [results, setResults] =
     useState<readonly DiagnosticResult[] | null>(null);
   const [busy, setBusy] = useState(false);

@@ -10,6 +10,8 @@
 
 ## 1. Purpose and boundaries
 
+**Phase 6 source update (2026-11-21):** [ADR 0005](adr/0005-trusted-publishing-and-phase-6.md) records approved fixed authority, stable-ID datasets, preserved proposals/conflicts and draft-only restore in fresh scopes. Migration 9 adds bounded `local_sync_documents` aggregates: one SQLite CAS transaction commits accepted snapshot, signed ancestry, journal and receipt work. Legacy draft tables/v1 copies remain preserved. The normalized sync catalog below remains a proposed expansion of this bounded implementation. Owner runtime verification is pending.
+
 **Owner decision update (2026-11-20):** [ADR 0001](adr/0001-timer-operation-and-test-device.md) resolves Q-03, the overtime portion of Q-04 and the confirmation requirement in Q-05. Every part needs Start; zero retains the current part in overtime until operator advance; process-death recovery requires confirmation. This supersedes conflicting provisional timer defaults below. Exact checkpoint mechanics and other open questions remain pending.
 
 This design describes the real-world workflows, target offline Android workflows, data model, business invariants, transaction and authorization boundaries, and unresolved decisions for **JW Meeting Timer**.

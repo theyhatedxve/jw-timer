@@ -10,6 +10,8 @@
 
 ## 1. Scope and architectural boundaries
 
+**Phase 6 implementation update (2026-11-21):** [ADR 0005](adr/0005-trusted-publishing-and-phase-6.md) specifies protocol-v2 signed complete datasets, proposals and receipts over pinned TLS `sync.exchange`, with stable publisher IDs, explicit fixed authority and transactional acceptance. Earlier REST-like paths remain proposals, not implemented HTTP endpoints. [Owner verification](PHASE_6_OWNER_CHECKS.md) is pending.
+
 This specification distinguishes **three interfaces**:
 
 1. **In-process application API:** React Native screens invoke typed TypeScript use cases. This is the *primary* API for local meeting, timer, people, import, and backup operations. These are **not HTTP endpoints**.

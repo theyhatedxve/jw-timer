@@ -2,8 +2,12 @@ node_modules/
 .refactor-backups/
 .npm-cache/
 .expo/
-android/
-ios/
+/android/
+/ios/
+modules/**/android/build/
+modules/**/android/.gradle/
+modules/**/android/.kotlin/
+modules/**/android/local.properties
 dist/
 *.tsbuildinfo
 .env

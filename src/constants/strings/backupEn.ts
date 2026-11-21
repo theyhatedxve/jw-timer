@@ -14,7 +14,7 @@ export const backupEn = {
   guidance:
     'Use a long, unique password of 12–128 characters. Lost passwords cannot be recovered. Choose local storage; selected storage apps may sync files online.',
   replacement:
-    'Restore replaces the current profile, meetings, publishers, and assignments. Current records absent from the backup will be removed.',
+    'Restore replaces the current profile, meetings, publishers, and assignments. Current records absent from the backup will be removed. Published sync content returns as drafts in a fresh congregation scope. Publishing and device permissions need explicit reapproval.',
   summary: (
     meetings: number,
     publishers: number,

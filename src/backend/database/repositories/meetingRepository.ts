@@ -572,3 +572,4 @@ export const localMeetingRepository: MeetingRepository = {
 };
 
 export { readMeeting as readMeetingForBackup };
+export { readMeeting as readMeetingForShare };

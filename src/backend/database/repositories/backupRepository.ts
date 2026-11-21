@@ -9,6 +9,7 @@ import { readMeetingForBackup } from './meetingRepository';
 import { readPublisherForBackup } from './publisherRepository';
 import { decodeDutyForBackup } from './meetingDutyRepository';
 import { parseStoredProfile } from '../../domain/profile/profile';
+import { captureSyncDrafts, restoreSyncDrafts, syncRestoreToken } from './syncBackup';
 
 import {
   BACKUP_TABLES,
@@ -32,7 +33,7 @@ function migrationRows(db: SQLiteDatabase) {
     version: number;
     checksum: string;
   }>(
-    'SELECT version, checksum FROM schema_migrations ORDER BY version',
+    'SELECT version, checksum FROM schema_migrations WHERE version <= 8 ORDER BY version',
   );
 
   if (
@@ -138,6 +139,10 @@ function validateData(db: SQLiteDatabase): void {
   duties.forEach(decodeDutyForBackup);
 }
 
+function restoreToken(db: SQLiteDatabase): string {
+  return JSON.stringify({ tables: readTables(db), sync: syncRestoreToken(db) });
+}
+
 function replaceRows(
   db: SQLiteDatabase,
   archive: BackupArchive,
@@ -200,11 +205,12 @@ export function createBackupRepository(
 
       archive = decodeBackup(JSON.stringify({
         format: 'jw-timer-backup',
-        version: 1,
+        version: 2,
         schema: 8,
         createdAt: Date.now(),
         migrations: migrationRows(db),
         tables: readTables(db),
+        syncDrafts: captureSyncDrafts(db),
       }));
     });
 
@@ -217,7 +223,7 @@ export function createBackupRepository(
     let token = '';
 
     db.withTransactionSync(() => {
-      token = JSON.stringify(readTables(db));
+      token = restoreToken(db);
     });
 
     return token;
@@ -241,6 +247,7 @@ export function createBackupRepository(
 
       staged.withTransactionSync(() => {
         replaceRows(staged, archive);
+        restoreSyncDrafts(staged, archive.syncDrafts ?? []);
         validateData(staged);
       });
     } finally {
@@ -266,11 +273,12 @@ export function createBackupRepository(
     db.withTransactionSync(() => {
       checkMigrations(db, archive);
 
-      if (JSON.stringify(readTables(db)) !== expectedToken) {
+      if (restoreToken(db) !== expectedToken) {
         throw new BackupFailure('changed');
       }
 
       replaceRows(db, archive);
+      restoreSyncDrafts(db, archive.syncDrafts ?? []);
       validateData(db);
     });
   },

@@ -3,13 +3,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ActionButton from '../common/ActionButton';
 import { styles } from '../../styles/publishers/publishers.styles';
-import { backupChecksEn as text } from '../../../constants/strings/backupChecksEn';
+import { backupChecksEn } from '../../../constants/strings/backupChecksEn';
 
 import type { useBackupChecks } from '../../hooks/useBackupChecks';
 
 export default function BackupChecksView(
-  model: ReturnType<typeof useBackupChecks>,
+  model: ReturnType<typeof useBackupChecks> & { readonly copy?: {
+    readonly description: string; readonly run: string; readonly running: string;
+    readonly passed: string; readonly failed: string; readonly limitation: string;
+  } },
 ) {
+  const text = model.copy ?? backupChecksEn;
   return (
     <SafeAreaView
       style={styles.screen}

@@ -4,10 +4,12 @@ import ActionButton from '../common/ActionButton';
 import { meetingDutyEn as text } from '../../../constants/strings/meetingDutyEn';
 import { styles } from '../../styles/publishers/publishers.styles';
 import type { useDutyOverview } from '../../hooks/useDutyOverview';
+import { receivedSchedulesEn } from '../../../constants/strings/receivedSchedulesEn';
 
 type Props = ReturnType<typeof useDutyOverview> & {
   readonly onEdit?: (meetingId: string) => void;
   readonly onPublishers?: () => void;
+  readonly onReceived?: () => void;
 };
 
 export default function DutyOverviewView(model: Props) {
@@ -20,6 +22,12 @@ export default function DutyOverviewView(model: Props) {
         ListHeaderComponent={
           <View style={styles.group}>
             <Text accessibilityRole="header" style={styles.title}>
+              {model.onReceived ? (
+              <ActionButton
+                label={receivedSchedulesEn.open}
+                onPress={model.onReceived}
+              />
+            ) : null}
               {model.onEdit ? text.title : text.assignments}
             </Text>
             {model.onPublishers ? (

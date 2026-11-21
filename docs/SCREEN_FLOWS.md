@@ -3,6 +3,8 @@
 **Navigation/source update (2026-11-21):** [ADR 0003](adr/0003-react-navigation-and-source-layout.md) replaces Expo Router route files with typed React Navigation 7 stacks/tabs. Existing URL paths are retained through `src/navigation/linking.ts`; current files are mapped in [DIRECTORY_STRUCTURE.md](DIRECTORY_STRUCTURE.md). First-run guards are profile-based, not publishing/sharing authorization. Runtime verification is pending.
 
 **File:** `SCREEN_FLOWS.md`  
+
+**Phase 6 source update:** Home and Settings open `Sync`; Settings also opens explicit isolated `SyncChecks`. Device requests, signed pairing and LAN hosting add QR helpers; discovery only fills an unverified connection code. Sync requires fixed-leader adoption, separate draft grants and complete CURRENT/PROPOSED review before publish/submit. Received schedules prefer verified signed data and retain the legacy-copy fallback. See [ADR 0005](adr/0005-trusted-publishing-and-phase-6.md) and [owner checks](PHASE_6_OWNER_CHECKS.md). No new tabs or timer auto-start behavior are introduced. Phase 7 stays on hold.
 **Version:** 1.0 (proposed design baseline)  
 **Date:** 2026-11-20  
 **Status:** Draft for product and accessibility review  

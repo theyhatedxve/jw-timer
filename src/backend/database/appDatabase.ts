@@ -12,6 +12,7 @@ import { WORKBOOK_SOURCE_SQL } from './migrations/008_workbook_source';
 
 import { MEETING_END_TIME_SQL } from './migrations/007_meeting_end_time';
 import { TECHNICAL_ASSIGNMENT_SQL } from './migrations/006_technical_assignments';
+import { SYNC_DOCUMENT_SQL } from './migrations/009_sync_documents';
 
 export class AppDatabaseError extends Error {
   constructor(readonly code: 'corrupt') {
@@ -95,6 +96,7 @@ const MIGRATIONS = [
   { version: 6, sql: TECHNICAL_ASSIGNMENT_SQL },
   { version: 7, sql: MEETING_END_TIME_SQL },
   { version: 8, sql: WORKBOOK_SOURCE_SQL },
+  { version: 9, sql: SYNC_DOCUMENT_SQL },
 ] as const;
 
 let connection: SQLiteDatabase | null = null;

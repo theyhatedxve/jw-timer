@@ -2,6 +2,7 @@ import { ScrollView, Text, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ActionButton from '../common/ActionButton';
+import CodeExchange from './CodeExchange';
 import { styles } from '../../styles/publishers/publishers.styles';
 import { signedPairingEn as text } from '../../../constants/strings/signedPairingEn';
 
@@ -49,6 +50,7 @@ export default function SignedPairingView(
           <>
             <Text style={styles.heading}>{text.challenge}</Text>
             <Text selectable style={styles.text}>{state.challenge}</Text>
+            <CodeExchange value={state.challenge} disabled={model.busy} />
           </>
         ) : null}
 
@@ -56,6 +58,7 @@ export default function SignedPairingView(
           <>
             <Text style={styles.heading}>{text.approval}</Text>
             <Text selectable style={styles.text}>{state.approval}</Text>
+            <CodeExchange value={state.approval} disabled={model.busy} />
           </>
         ) : null}
 
@@ -72,6 +75,7 @@ export default function SignedPairingView(
           style={styles.input}
         />
 
+        <CodeExchange onChange={model.setIncoming} disabled={model.busy || state.phase === 'trusted'} />
         <ActionButton
           label={text.receive}
           disabled={

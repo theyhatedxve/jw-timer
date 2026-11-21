@@ -1,3 +1,6 @@
+import { parseSyncDataset } from '../sync/syncCodec';
+import type { SyncDataset } from '../sync/syncTypes';
+
 export const MAX_BACKUP_BYTES = 8 * 1024 * 1024;
 
 export const BACKUP_TABLES = [
@@ -19,7 +22,8 @@ export type BackupRow = Record<string, BackupValue>;
 
 export interface BackupArchive {
   readonly format: 'jw-timer-backup';
-  readonly version: 1;
+  readonly version: 1 | 2;
+  // Content tables and checksums stay at schema 8 independently of the live DB.
   readonly schema: 8;
   readonly createdAt: number;
   readonly migrations: readonly {
@@ -27,6 +31,7 @@ export interface BackupArchive {
     readonly checksum: string;
   }[];
   readonly tables: Record<BackupTable, readonly BackupRow[]>;
+  readonly syncDrafts?: readonly SyncDataset[];
 }
 
 export interface BackupSummary {
@@ -69,7 +74,7 @@ export function decodeBackup(serialized: string): BackupArchive {
   if (
     !record(input) ||
     input.format !== 'jw-timer-backup' ||
-    input.version !== 1 ||
+    (input.version !== 1 && input.version !== 2) ||
     input.schema !== 8 ||
     typeof input.createdAt !== 'number' ||
     !Number.isSafeInteger(input.createdAt) ||
@@ -79,6 +84,24 @@ export function decodeBackup(serialized: string): BackupArchive {
     !record(input.tables)
   ) {
     throw new BackupFailure('invalid');
+  }
+
+  let syncDrafts: readonly SyncDataset[] | undefined;
+
+  if (input.version === 1) {
+    if (input.syncDrafts !== undefined) {
+      throw new BackupFailure('invalid');
+    }
+  } else {
+    if (!Array.isArray(input.syncDrafts) || input.syncDrafts.length > 256) {
+      throw new BackupFailure('invalid');
+    }
+
+    try {
+      syncDrafts = input.syncDrafts.map(dataset => parseSyncDataset(dataset));
+    } catch {
+      throw new BackupFailure('invalid');
+    }
   }
 
   input.migrations.forEach((migration, index) => {
@@ -132,5 +155,8 @@ export function decodeBackup(serialized: string): BackupArchive {
     }
   }
 
-  return input as unknown as BackupArchive;
+  return {
+    ...input,
+    ...(syncDrafts === undefined ? {} : { syncDrafts }),
+  } as unknown as BackupArchive;
 }

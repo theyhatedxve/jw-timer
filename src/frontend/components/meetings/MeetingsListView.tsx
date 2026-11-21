@@ -13,6 +13,7 @@ export default function MeetingsListView({
   reload,
   createMeeting,
   openMeeting,
+  openTimer,
 }: Props) {
   const meetings =
     state.status === 'ready' ? state.meetings : [];
@@ -95,6 +96,11 @@ export default function MeetingsListView({
             <ActionButton
               label={`Edit ${item.title}`}
               onPress={() => openMeeting(item.id)}
+            />
+
+            <ActionButton
+              label={`Open timer for ${item.title}`}
+              onPress={() => openTimer(item.id)}
             />
           </View>
         )}

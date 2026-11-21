@@ -1,4 +1,8 @@
-import { useCallback, useState } from 'react';
+import {
+  useCallback,
+  useRef,
+  useState,
+} from 'react';
 import { AccessibilityInfo } from 'react-native';
 import {
   useFocusEffect,
@@ -23,6 +27,7 @@ type ListState =
 
 export function useMeetings(service: MeetingService) {
   const navigation = useNavigation();
+  const timerRequest = useRef(0);
 
   const [state, setState] = useState<ListState>({
     status: 'loading',
@@ -53,6 +58,15 @@ export function useMeetings(service: MeetingService) {
     },
     openMeeting: (meetingId: string) => {
       navigation.navigate('MeetingEditor', { meetingId });
+    },
+
+    openTimer: (meetingId: string) => {
+      timerRequest.current += 1;
+
+      navigation.navigate('PracticeTimer', {
+        meetingId,
+        requestId: `${Date.now()}-${timerRequest.current}`,
+      });
     },
   };
 }

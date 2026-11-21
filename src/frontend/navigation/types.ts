@@ -12,10 +12,15 @@ export type RootStackParamList = {
   SetupProfile: undefined;
   Main: NavigatorScreenParams<MainTabParamList> | undefined;
   EditProfile: undefined;
-  PracticeTimer: undefined;
+  PracticeTimer: TimerProgramRequest | undefined;
   Diagnostics: undefined;
   MeetingEditor: { meetingId?: string } | undefined;
 };
+
+export interface TimerProgramRequest {
+  readonly meetingId: string;
+  readonly requestId: string;
+}
 
 declare global {
   namespace ReactNavigation {

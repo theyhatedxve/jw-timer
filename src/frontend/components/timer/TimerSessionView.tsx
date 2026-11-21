@@ -1,80 +1,299 @@
-import { styles } from '../../styles/timer/timerSession.styles';
-import { ScrollView, Switch, Text, View } from 'react-native';
+import {
+  ScrollView,
+  Switch,
+  Text,
+  View,
+} from 'react-native';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useKeepAwake } from 'expo-keep-awake';
-import Action from '../common/ActionButton';
 
-import { PART_TITLES } from '../../../backend/domain/timer/timer';
+import Action from '../common/ActionButton';
+import { styles } from '../../styles/timer/timerSession.styles';
+
 import type { useTimerSession } from '../../hooks/useTimerSession';
 
 function AwakeWhilePresented() {
-  useKeepAwake('jw-timer-presentation', { suppressDeactivateWarnings: true });
+  useKeepAwake('jw-timer-presentation', {
+    suppressDeactivateWarnings: true,
+  });
+
   return null;
 }
 
-export default function TimerSessionView({ timer, pendingRecovery, ready, error, dbInfo, savedAt, fullscreen, active, keepAwake, setKeepAwake, overtime, stateLabel, locked, digits, displaySize, confirmReset, restoreCheckpoint, restartRecoveredPart, toggleRunning, advancePart, retrySaving, toggleFullscreen, loadShortParts, loadLongParts, openDiagnostics }: ReturnType<typeof useTimerSession>) {
+export default function TimerSessionView(
+  model: ReturnType<typeof useTimerSession>,
+) {
+  const { program, timer, pendingRecovery } = model;
+
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar style="light" hidden={fullscreen && active} />
-      {fullscreen && active && keepAwake && <AwakeWhilePresented />}
-      <ScrollView contentContainerStyle={[styles.content, fullscreen && styles.presentation]}>
-        {!fullscreen && <>
-          <Text accessibilityRole="header" style={styles.heading}>JW Timer</Text>
-          <Text style={styles.secondary}>Phase 0 · Native feasibility prototype</Text>
-          <Text style={styles.secondary}>Synthetic parts only · Everything stays on this device</Text>
-        </>}
+      <StatusBar
+        style="light"
+        hidden={model.fullscreen && model.active}
+      />
 
-        {error !== '' && <View style={styles.notice}>
-          <Text accessibilityRole="alert" style={styles.text}>{error}</Text>
-          {ready && !pendingRecovery && <Action label="Retry saving" onPress={retrySaving} />}
-        </View>}
+      {model.fullscreen && model.active && model.keepAwake ? (
+        <AwakeWhilePresented />
+      ) : null}
 
-        {pendingRecovery && <View style={styles.notice}>
-          <Text accessibilityRole="header" style={styles.subheading}>Recover saved timer?</Text>
-          <Text style={styles.text}>{PART_TITLES[pendingRecovery.partIndex]} · {pendingRecovery.durationMs / 1000} seconds allotted</Text>
-          <Text style={styles.text}>Checkpoint: {new Date(pendingRecovery.savedAtMs).toLocaleString()}</Text>
-          <Text style={styles.text}>Saved elapsed: {Math.floor(pendingRecovery.elapsedMs / 1000)} seconds. This may be older than the interruption. Time while closed is excluded.</Text>
-          <Action label={pendingRecovery.status === 'ready' ? 'Restore part ready' : 'Restore checkpoint paused'} onPress={restoreCheckpoint} />
-          <Action label="Restart part and wait" onPress={restartRecoveredPart} />
-        </View>}
+      <ScrollView
+        contentContainerStyle={[
+          styles.content,
+          model.fullscreen && styles.presentation,
+        ]}
+      >
+        {!model.fullscreen ? (
+          <>
+            <Text
+              accessibilityRole="header"
+              style={styles.heading}
+            >
+              {program.title}
+            </Text>
 
-        {!pendingRecovery && <View style={styles.timerCard}>
-          <Text style={styles.subheading}>{PART_TITLES[timer.partIndex]}</Text>
-          <Text style={[styles.status, overtime && styles.overtime]}>{stateLabel}</Text>
-          <Text accessibilityLabel={`${stateLabel}: ${digits}`} accessibilityLiveRegion="none"
-            style={[styles.digits, { fontSize: displaySize }, overtime && styles.overtime]}>{digits}</Text>
-          <Text style={styles.secondary}>{overtime ? 'Overtime · advance when the part ends' : 'Every part waits for Start'}</Text>
-          <View style={styles.actions}>
-            <Action label={timer.status === 'running' ? 'Pause' : timer.status === 'paused' ? 'Resume' : 'Start'}
-              disabled={locked || timer.status === 'completed'} onPress={toggleRunning} />
-            <Action label={timer.partIndex === PART_TITLES.length - 1 ? 'Finish program' : 'Next part'}
-              disabled={locked || timer.status === 'completed'} onPress={advancePart} />
-            <Action label="Restart part" disabled={locked} onPress={confirmReset} />
+            <Text style={styles.secondary}>
+              {program.meetingId
+                ? `Saved meeting · revision ${program.revision}`
+                : 'Practice program'}
+            </Text>
+
+            <Text style={styles.secondary}>
+              {program.parts.length} timed parts.
+              {' '}Every part waits for Start.
+            </Text>
+          </>
+        ) : null}
+
+        {model.notice ? (
+          <View style={styles.notice}>
+            <Text
+              accessibilityRole="alert"
+              style={styles.text}
+            >
+              {model.notice}
+            </Text>
           </View>
-          <Action label={fullscreen ? 'Exit fullscreen' : 'Enter fullscreen'} disabled={!fullscreen && locked}
-            onPress={toggleFullscreen} />
-        </View>}
+        ) : null}
 
-        {!fullscreen && <>
-          <View style={styles.row}>
-            <Text style={[styles.text, styles.flex]}>Keep screen awake in fullscreen</Text>
-            <Switch accessibilityLabel="Keep screen awake in fullscreen" value={keepAwake} onValueChange={setKeepAwake} />
+        {model.error ? (
+          <View style={styles.notice}>
+            <Text
+              accessibilityRole="alert"
+              style={styles.text}
+            >
+              {model.error}
+            </Text>
+
+            {model.ready && !pendingRecovery ? (
+              <Action
+                label="Retry saving"
+                onPress={model.retrySaving}
+              />
+            ) : null}
           </View>
-          <Text style={styles.secondary}>Leaving the app pauses timing. Returning never starts it. Rotate the phone to check both layouts.</Text>
-          <View style={styles.actions}>
-            <Action label="Load 10-second parts" disabled={locked || timer.status === 'running'} onPress={loadShortParts} />
-            <Action label="Load 60-minute parts" disabled={locked || timer.status === 'running'} onPress={loadLongParts} />
+        ) : null}
+
+        {pendingRecovery ? (
+          <View style={styles.notice}>
+            <Text
+              accessibilityRole="header"
+              style={styles.subheading}
+            >
+              Recover saved timer?
+            </Text>
+
+            <Text style={styles.text}>
+              {pendingRecovery.program.title}
+              {' · '}
+              {model.recoveryTitle}
+            </Text>
+
+            <Text style={styles.text}>
+              Checkpoint:{' '}
+              {new Date(
+                pendingRecovery.savedAtMs,
+              ).toLocaleString()}
+            </Text>
+
+            <Text style={styles.text}>
+              Saved elapsed:{' '}
+              {Math.floor(pendingRecovery.elapsedMs / 1000)}
+              {' '}seconds. This may be older than the
+              interruption. Time while closed is excluded.
+            </Text>
+
+            <Action
+              label={
+                pendingRecovery.status === 'ready'
+                  ? 'Restore part ready'
+                  : 'Restore checkpoint paused'
+              }
+              onPress={model.restoreCheckpoint}
+            />
+
+            <Action
+              label="Restart part and wait"
+              onPress={model.restartRecoveredPart}
+            />
           </View>
-          <Text style={styles.secondary}>{dbInfo}</Text>
-          <Action label="Open SQLite checks" disabled={locked || timer.status === 'running'}
-            onPress={openDiagnostics} />
-          <Text style={styles.secondary}>{savedAt ? `Last checkpoint: ${new Date(savedAt).toLocaleTimeString()}` : 'No checkpoint saved yet'}</Text>
-          <Text style={styles.secondary}>Phase 0 is pending hardware checks. No PDF import, schedule sharing or production data.</Text>
-        </>}
+        ) : (
+          <View style={styles.timerCard}>
+            <Text style={styles.subheading}>
+              {model.partTitle}
+            </Text>
+
+            <Text style={styles.secondary}>
+              Part {timer.partIndex + 1} of {program.parts.length}
+              {' · '}
+              {timer.durationMs / 1000} seconds allotted
+            </Text>
+
+            <Text
+              style={[
+                styles.status,
+                model.overtime && styles.overtime,
+              ]}
+            >
+              {model.stateLabel}
+            </Text>
+
+            <Text
+              accessibilityLabel={
+                `${model.stateLabel}: ${model.digits}`
+              }
+              accessibilityLiveRegion="none"
+              style={[
+                styles.digits,
+                { fontSize: model.displaySize },
+                model.overtime && styles.overtime,
+              ]}
+            >
+              {model.digits}
+            </Text>
+
+            <Text style={styles.secondary}>
+              {model.overtime
+                ? 'Overtime · advance when the part ends'
+                : 'Press Start to begin this part'}
+            </Text>
+
+            <View style={styles.actions}>
+              <Action
+                label={
+                  timer.status === 'running'
+                    ? 'Pause'
+                    : timer.status === 'paused'
+                      ? 'Resume'
+                      : 'Start'
+                }
+                disabled={
+                  model.locked ||
+                  timer.status === 'completed'
+                }
+                onPress={model.toggleRunning}
+              />
+
+              <Action
+                label={
+                  model.isLastPart
+                    ? 'Finish program'
+                    : 'Next part'
+                }
+                disabled={
+                  model.locked ||
+                  timer.status === 'completed'
+                }
+                onPress={model.advancePart}
+              />
+
+              <Action
+                label="Restart part"
+                disabled={model.locked}
+                onPress={model.confirmReset}
+              />
+            </View>
+
+            <Action
+              label={
+                model.fullscreen
+                  ? 'Exit fullscreen'
+                  : 'Enter fullscreen'
+              }
+              disabled={!model.fullscreen && model.locked}
+              onPress={model.toggleFullscreen}
+            />
+          </View>
+        )}
+
+        {!model.fullscreen ? (
+          <>
+            <View style={styles.row}>
+              <Text style={[styles.text, styles.flex]}>
+                Keep screen awake in fullscreen
+              </Text>
+
+              <Switch
+                accessibilityLabel="Keep screen awake in fullscreen"
+                value={model.keepAwake}
+                onValueChange={model.setKeepAwake}
+              />
+            </View>
+
+            <Text style={styles.secondary}>
+              Leaving this screen or backgrounding the app
+              pauses timing. Returning never starts it.
+            </Text>
+
+            <Text style={styles.secondary}>
+              Meeting edits do not change the loaded program.
+              Open it again from Meetings to load a newer version.
+            </Text>
+
+            <View style={styles.actions}>
+              <Action
+                label="Load 10-second practice program"
+                disabled={
+                  model.locked ||
+                  timer.status === 'running'
+                }
+                onPress={model.loadShortParts}
+              />
+
+              <Action
+                label="Load 60-minute practice program"
+                disabled={
+                  model.locked ||
+                  timer.status === 'running'
+                }
+                onPress={model.loadLongParts}
+              />
+            </View>
+
+            <Text style={styles.secondary}>
+              {model.dbInfo}
+            </Text>
+
+            <Action
+              label="Open SQLite checks"
+              disabled={
+                model.locked ||
+                timer.status === 'running'
+              }
+              onPress={model.openDiagnostics}
+            />
+
+            <Text style={styles.secondary}>
+              {model.savedAt
+                ? `Last checkpoint: ${
+                    new Date(model.savedAt).toLocaleTimeString()
+                  }`
+                : 'No checkpoint saved yet'}
+            </Text>
+          </>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-

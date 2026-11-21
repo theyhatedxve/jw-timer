@@ -19,11 +19,26 @@ export interface TimerCheckpoint {
 
 export const PART_TITLES = ['Synthetic part 1', 'Synthetic part 2'] as const;
 
+export const MAX_TIMER_DURATION_MS = 86_400_000;
+
 export function createTimer(durationMs = 10_000): TimerState {
-  if (!Number.isSafeInteger(durationMs) || durationMs <= 0 || durationMs > 3_600_000) {
-    throw new Error('Prototype duration must be between 1 ms and 60 minutes.');
+  if (
+    !Number.isSafeInteger(durationMs) ||
+    durationMs <= 0 ||
+    durationMs > MAX_TIMER_DURATION_MS
+  ) {
+    throw new Error(
+      'Timer duration must be between 1 ms and 24 hours.',
+    );
   }
-  return { partIndex: 0, durationMs, elapsedBeforeMs: 0, startedAtMs: null, status: 'ready' };
+
+  return {
+    partIndex: 0,
+    durationMs,
+    elapsedBeforeMs: 0,
+    startedAtMs: null,
+    status: 'ready',
+  };
 }
 
 export function elapsed(state: TimerState, nowMs: number): number {
@@ -47,12 +62,49 @@ export function restart(state: TimerState): TimerState {
   return { ...state, status: 'ready', elapsedBeforeMs: 0, startedAtMs: null };
 }
 
-export function next(state: TimerState, nowMs: number): TimerState {
+export function next(
+  state: TimerState,
+  nowMs: number,
+  durations: readonly number[] =
+    PART_TITLES.map(() => state.durationMs),
+): TimerState {
   if (state.status === 'completed') return state;
-  if (state.partIndex === PART_TITLES.length - 1) {
-    return { ...state, status: 'completed', elapsedBeforeMs: elapsed(state, nowMs), startedAtMs: null };
+
+  if (
+    durations.length === 0 ||
+    durations.some(duration =>
+      !Number.isSafeInteger(duration) ||
+      duration <= 0 ||
+      duration > MAX_TIMER_DURATION_MS
+    ) ||
+    !Number.isInteger(state.partIndex) ||
+    state.partIndex < 0 ||
+    state.partIndex >= durations.length
+  ) {
+    throw new Error('Invalid timer program.');
   }
-  return { ...restart(state), partIndex: state.partIndex + 1 };
+
+  if (state.partIndex === durations.length - 1) {
+    return {
+      ...state,
+      status: 'completed',
+      elapsedBeforeMs: elapsed(state, nowMs),
+      startedAtMs: null,
+    };
+  }
+
+  const partIndex = state.partIndex + 1;
+  const durationMs = durations[partIndex];
+
+  if (durationMs === undefined) {
+    throw new Error('The next part is unavailable.');
+  }
+
+  return {
+    ...restart(state),
+    partIndex,
+    durationMs,
+  };
 }
 
 export function checkpoint(state: TimerState, nowMs: number, savedAtMs: number): TimerCheckpoint {

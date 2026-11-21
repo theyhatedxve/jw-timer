@@ -42,6 +42,7 @@ export function validPublisherId(
   );
 }
 
+
 function isRecord(
   input: unknown,
 ): input is Record<string, unknown> {
@@ -52,7 +53,7 @@ function isRecord(
   );
 }
 
-function isPublisherRole(
+export function isPublisherRole(
   input: unknown,
 ): input is PublisherRole {
   return PUBLISHER_ROLE_CODES.some(code => code === input);

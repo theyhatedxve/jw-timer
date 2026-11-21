@@ -265,6 +265,90 @@ function assignIds(
   };
 }
 
+function saveMeetingChildren(
+  db: SQLiteDatabase,
+  meetingId: string,
+  draft: MeetingDraft,
+): void {
+  const partIds = new Set(draft.sections.flatMap(section => section.parts.map(part => part.id)));
+  const sectionIds = new Set(draft.sections.map(section => section.id));
+  const oldParts = db.getAllSync<{ id: string }>(
+    'SELECT id FROM local_meeting_parts WHERE meeting_id = ?', meetingId,
+  );
+  const oldSections = db.getAllSync<{ id: string }>(
+    'SELECT id FROM local_meeting_sections WHERE meeting_id = ?', meetingId,
+  );
+  for (const part of oldParts) {
+    if (partIds.has(part.id)) continue;
+    const assigned = db.getFirstSync<{ present: number }>(
+      `SELECT 1 AS present FROM local_part_assignments
+       WHERE meeting_id = ? AND part_id = ? AND publisher_id IS NOT NULL LIMIT 1`,
+      meetingId, part.id,
+    );
+    if (assigned) {
+      throw new MeetingStorageError('assignments', 'Clear this part’s assignments before removing it.');
+    }
+    db.runSync('DELETE FROM local_part_assignments WHERE meeting_id = ? AND part_id = ?', meetingId, part.id);
+    db.runSync('DELETE FROM local_meeting_parts WHERE meeting_id = ? AND id = ?', meetingId, part.id);
+  }
+
+  function stagePositions(
+    table: 'local_meeting_parts' | 'local_meeting_sections',
+    finalMaximum: number,
+  ) {
+    // Private fixed identifiers only; values remain parameterized.
+    const maximum = db.getFirstSync<{ maximum: number }>(
+      `SELECT COALESCE(MAX(position), -1) AS maximum FROM ${table} WHERE meeting_id = ?`, meetingId,
+    )?.maximum;
+    if (maximum === undefined || !Number.isSafeInteger(maximum) || maximum < -1) corrupt();
+    if (maximum === -1) return;
+    // Staged rows must sit above both old and newly inserted positions.
+    const offset = Math.max(maximum, finalMaximum) + 1;
+    if (!Number.isSafeInteger(maximum + offset)) corrupt();
+    db.runSync(`UPDATE ${table} SET position = position + ? WHERE meeting_id = ?`, offset, meetingId);
+  }
+
+  const finalPartMaximum = draft.sections.reduce(
+    (maximum, section) => Math.max(maximum, section.parts.length - 1), -1,
+  );
+  stagePositions('local_meeting_parts', finalPartMaximum);
+  stagePositions('local_meeting_sections', draft.sections.length - 1);
+
+  draft.sections.forEach((section, sectionIndex) => {
+    const sectionId = section.id;
+    if (!sectionId) corrupt();
+    const savedSection = db.runSync(
+      `INSERT INTO local_meeting_sections (id, meeting_id, position, title) VALUES (?, ?, ?, ?)
+       ON CONFLICT(id) DO UPDATE SET position = excluded.position, title = excluded.title
+       WHERE local_meeting_sections.meeting_id = excluded.meeting_id`,
+      sectionId, meetingId, sectionIndex, section.title,
+    );
+    if (savedSection.changes !== 1) corrupt();
+    section.parts.forEach((part, partIndex) => {
+      if (!part.id) corrupt();
+      const savedPart = db.runSync(
+        `INSERT INTO local_meeting_parts
+         (id, meeting_id, section_id, position, title, kind, duration_seconds, is_timed)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET
+           section_id = excluded.section_id, position = excluded.position,
+           title = excluded.title, kind = excluded.kind,
+           duration_seconds = excluded.duration_seconds, is_timed = excluded.is_timed
+         WHERE local_meeting_parts.meeting_id = excluded.meeting_id`,
+        part.id, meetingId, sectionId, partIndex, part.title,
+        part.kind, part.durationSeconds, part.isTimed ? 1 : 0,
+      );
+      if (savedPart.changes !== 1) corrupt();
+    });
+  });
+
+  for (const section of oldSections) {
+    if (!sectionIds.has(section.id)) {
+      db.runSync('DELETE FROM local_meeting_sections WHERE meeting_id = ? AND id = ?', meetingId, section.id);
+    }
+  }
+}
+
 export const localMeetingRepository: MeetingRepository = {
   list() {
     return safely(() => {
@@ -346,16 +430,6 @@ export const localMeetingRepository: MeetingRepository = {
         const now = Date.now();
 
         if (current) {
-          db.runSync(
-            'DELETE FROM local_meeting_parts WHERE meeting_id = ?',
-            id,
-          );
-
-          db.runSync(
-            'DELETE FROM local_meeting_sections WHERE meeting_id = ?',
-            id,
-          );
-
           const update = db.runSync(
             `UPDATE local_meeting_drafts
              SET title = ?, meeting_type = ?, meeting_date = ?,
@@ -400,38 +474,7 @@ export const localMeetingRepository: MeetingRepository = {
           );
         }
 
-        draft.sections.forEach((section, sectionIndex) => {
-          if (!section.id) corrupt();
-
-          db.runSync(
-            `INSERT INTO local_meeting_sections
-             (id, meeting_id, position, title)
-             VALUES (?, ?, ?, ?)`,
-            section.id,
-            id,
-            sectionIndex,
-            section.title,
-          );
-
-          section.parts.forEach((part, partIndex) => {
-            if (!part.id) corrupt();
-
-            db.runSync(
-              `INSERT INTO local_meeting_parts
-               (id, meeting_id, section_id, position,
-                title, kind, duration_seconds, is_timed)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-              part.id,
-              id,
-              section.id!,
-              partIndex,
-              part.title,
-              part.kind,
-              part.durationSeconds,
-              part.isTimed ? 1 : 0,
-            );
-          });
-        });
+        saveMeetingChildren(db, id, draft);
 
         saved = readMeeting(db, id);
 

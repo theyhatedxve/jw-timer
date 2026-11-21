@@ -4,6 +4,7 @@ import {
 } from 'expo-sqlite';
 
 import { PUBLISHER_SQL } from './migrations/003_publishers';
+import { ASSIGNMENT_SQL } from './migrations/004_assignments';
 
 export class AppDatabaseError extends Error {
   constructor(readonly code: 'corrupt') {
@@ -82,6 +83,7 @@ const MIGRATIONS = [
   { version: 1, sql: PROFILE_SQL },
   { version: 2, sql: MEETING_SQL },
   { version: 3, sql: PUBLISHER_SQL },
+  { version: 4, sql: ASSIGNMENT_SQL },
 ] as const;
 
 let connection: SQLiteDatabase | null = null;

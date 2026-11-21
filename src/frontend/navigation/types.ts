@@ -1,6 +1,7 @@
 import type {
   NavigatorScreenParams,
 } from '@react-navigation/native';
+import type { PublisherRole } from '../../backend/domain/publishers/publisher';
 
 export type MainTabParamList = {
   Home: undefined;
@@ -23,6 +24,11 @@ export type RootStackParamList = {
   Diagnostics: undefined;
   MeetingEditor: { meetingId?: string } | undefined;
   PublisherEditor: { publisherId?: string } | undefined;
+  AssignmentEditor: {
+    meetingId: string;
+    partId: string;
+    role?: PublisherRole;
+  };
 };
 
 declare global {

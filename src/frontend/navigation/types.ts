@@ -41,6 +41,7 @@ export type RootStackParamList = {
 
   Backups: undefined;
   BackupChecks: undefined;
+  DeviceIdentity: undefined;
 
 };
 

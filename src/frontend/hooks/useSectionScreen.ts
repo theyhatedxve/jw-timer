@@ -12,6 +12,8 @@ import {
   type MainSection,
 } from '../../constants/strings/en';
 
+import { deviceIdentityEn } from '../../constants/strings/deviceIdentityEn';
+
 import { backupChecksEn } from '../../constants/strings/backupChecksEn';
 
 import { backupEn } from '../../constants/strings/backupEn';
@@ -107,6 +109,11 @@ export function useSectionScreen(section: MainSection) {
         id: 'backup-checks',
         label: backupChecksEn.title,
         onPress: () => navigation.navigate('BackupChecks'),
+      },
+      {
+        id: 'device-identity',
+        label: deviceIdentityEn.title,
+        onPress: () => navigation.navigate('DeviceIdentity'),
       },
     ],
   };

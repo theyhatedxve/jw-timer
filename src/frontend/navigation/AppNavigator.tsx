@@ -37,6 +37,9 @@ import BackupChecksScreen from '../screens/BackupChecksScreen';
 import { runBackupChecks } from '../../backend/database/diagnostics/backupDiagnostics';
 import { backupChecksEn } from '../../constants/strings/backupChecksEn';
 
+import DeviceIdentityScreen from '../screens/DeviceIdentityScreen';
+import { deviceIdentityEn } from '../../constants/strings/deviceIdentityEn';
+
 import type {
   RootStackParamList,
 } from './types';
@@ -181,6 +184,15 @@ export default function AppNavigator() {
               <BackupChecksScreen runChecks={runBackupChecks} />
             )}
           </Root.Screen>
+
+                    <Root.Screen
+            name="DeviceIdentity"
+            component={DeviceIdentityScreen}
+            options={{
+              headerShown: true,
+              title: deviceIdentityEn.title,
+            }}
+          />
         </Root.Group>
       ) : (
         <Root.Screen

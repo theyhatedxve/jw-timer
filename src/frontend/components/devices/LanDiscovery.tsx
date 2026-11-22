@@ -1,11 +1,12 @@
 import { Text, View } from 'react-native';
-import ActionButton from '../common/ActionButton';
+import ActionButton from '../common/AppButton';
 import { useLanDiscovery } from '../../hooks/useLanDiscovery';
 import { codeExchangeEn as text } from '../../../constants/strings/codeExchangeEn';
-import { styles } from '../../styles/publishers/publishers.styles';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
 
 interface Props { readonly fingerprint?: string; readonly disabled?: boolean; readonly onChange: (code: string) => void }
 export default function LanDiscovery({ fingerprint, disabled = false, onChange }: Props) {
+  const styles = useDocumentStyles();
   const model = useLanDiscovery(fingerprint);
   return <View style={styles.group}>
     <Text style={styles.secondary}>{text.discovered}</Text>

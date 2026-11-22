@@ -1,9 +1,9 @@
 import { ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ActionButton from '../common/ActionButton';
+import ActionButton from '../common/AppButton';
 import CodeExchange from './CodeExchange';
-import { styles } from '../../styles/publishers/publishers.styles';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
 import { deviceRequestsEn as text } from '../../../constants/strings/deviceRequestsEn';
 
 import type { useDeviceRequests } from '../../hooks/useDeviceRequests';
@@ -15,6 +15,7 @@ export default function DeviceRequestsView(
     readonly onLan: (fingerprint: string) => void;
   },
 ) {
+  const styles = useDocumentStyles();
   return (
     <SafeAreaView
       style={styles.screen}

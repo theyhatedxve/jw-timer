@@ -1,7 +1,7 @@
 import { ScrollView, Text, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ActionButton from '../common/ActionButton';
-import { styles } from '../../styles/publishers/publishers.styles';
+import ActionButton from '../common/AppButton';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
 import { lanProbeEn as text } from '../../../constants/strings/lanProbeEn';
 import type { useLanProbe } from '../../hooks/useLanProbe';
 import ReceivedScheduleView from './ReceivedScheduleView';
@@ -9,6 +9,7 @@ import CodeExchange from './CodeExchange';
 import LanDiscovery from './LanDiscovery';
 
 export default function LanProbeView(model: ReturnType<typeof useLanProbe>) {
+  const styles = useDocumentStyles();
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">

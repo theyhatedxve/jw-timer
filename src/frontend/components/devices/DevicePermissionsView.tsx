@@ -1,8 +1,8 @@
 import { ScrollView, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ActionButton from '../common/ActionButton';
-import { styles } from '../../styles/publishers/publishers.styles';
+import ActionButton from '../common/AppButton';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
 import { devicePermissionsEn as text } from '../../../constants/strings/devicePermissionsEn';
 
 import type { useDevicePermissions } from '../../hooks/useDevicePermissions';
@@ -10,12 +10,13 @@ import type { useDevicePermissions } from '../../hooks/useDevicePermissions';
 export default function DevicePermissionsView(
   model: ReturnType<typeof useDevicePermissions>,
 ) {
+  const styles = useDocumentStyles();
   return (
     <SafeAreaView
       style={styles.screen}
       edges={['left', 'right', 'bottom']}
     >
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <ActionButton
           label={text.refresh}
           disabled={model.busy}

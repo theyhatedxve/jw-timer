@@ -1,9 +1,9 @@
 import { ScrollView, Text, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ActionButton from '../common/ActionButton';
+import ActionButton from '../common/AppButton';
 import CodeExchange from './CodeExchange';
-import { styles } from '../../styles/publishers/publishers.styles';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
 import { signedPairingEn as text } from '../../../constants/strings/signedPairingEn';
 
 import type { useSignedPairing } from '../../hooks/useSignedPairing';
@@ -11,6 +11,7 @@ import type { useSignedPairing } from '../../hooks/useSignedPairing';
 export default function SignedPairingView(
   model: ReturnType<typeof useSignedPairing>,
 ) {
+  const styles = useDocumentStyles();
   const state = model.snapshot;
 
   return (

@@ -77,7 +77,7 @@ export default function PublishersListView(model: Props) {
                 {model.state.publishers.length === 0 ? text.empty : text.noMatches}
               </Text>
             </AppCard>
-          ) : null
+          ) : undefined
         }
         renderItem={({ item }) => {
           const roles = TECHNICAL_ROLE_CODES.filter(role => item.roles.includes(role));

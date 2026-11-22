@@ -662,3 +662,52 @@ The shared MeetingField also themes workbook-import fields.
 The separate legacy part-assignment editor is not changed by this batch.
 
 Source applied; owner typecheck, tests, and device verification pending.
+
+## Import and received-schedule presentation — 2026-11-22
+
+Workbook selection, extraction, candidate review, and extracted-page
+previews use themed presentation. PDF limits, warnings, candidate
+confirmation, and editor navigation retain their existing handlers.
+
+Received-device lists and schedule details use themed cards.
+Trust checks and separate read-only received copies remain unchanged.
+
+The shared received-schedule preview also updates within LAN and Sync
+screens. Their surrounding screens remain scheduled for later redesign.
+
+Source applied; owner typecheck, tests, and device verification pending.
+
+## Device and Sync presentation — 2026-11-22
+
+Device identity, pairing, permissions, LAN, discovery, and Sync views
+use shared themed document styles and buttons.
+
+Existing trust checks, full fingerprint comparison, grants, fixed-leader
+adoption, proposal review, publishing confirmations, and cancellation
+handlers remain unchanged.
+
+QR helpers retain existing scan bounds and camera lifecycle behavior.
+Opening a screen never grants trust or initiates publishing.
+
+Source applied; owner typecheck, tests, and device verification pending.
+
+## Backup and diagnostic presentation — 2026-11-22
+
+Backup forms and backup/sync storage-check results use themed document
+styles and buttons. SQLite diagnostics use shared themed cards.
+
+Password masking, preview, restore confirmation, post-restore restart,
+and explicit diagnostic execution retain their existing handlers.
+
+Source applied; owner typecheck and device verification pending.
+
+## Remaining presentation states — 2026-11-22
+
+Profile loading and error states follow the resolved appearance palette.
+Retry retains its existing handler.
+
+The legacy part-assignment editor receives themed presentation only.
+No route, supported duty, or permission is added. Existing selection,
+validation, save, and discard handlers remain unchanged.
+
+Source applied; owner typecheck, tests, and device verification pending.

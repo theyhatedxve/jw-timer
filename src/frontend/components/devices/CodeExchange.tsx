@@ -2,11 +2,12 @@ import { Text, View } from 'react-native';
 import { CameraView } from 'expo-camera';
 import QRCode from 'react-native-qrcode-svg';
 import { useIsFocused } from '@react-navigation/native';
-import ActionButton from '../common/ActionButton';
+import ActionButton from '../common/AppButton';
 import { useCodeExchange } from '../../hooks/useCodeExchange';
 import { codeExchangeEn as text } from '../../../constants/strings/codeExchangeEn';
 import { styles } from '../../styles/devices/codeExchange.styles';
-import { styles as common, publisherColors } from '../../styles/publishers/publishers.styles';
+import { publisherColors } from '../../styles/publishers/publishers.styles';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
 
 export interface CodeExchangeProps {
   readonly value?: string;
@@ -25,6 +26,7 @@ function isBoundedQr(value: string | undefined, maxLength: number): value is str
   return true;
 }
 export default function CodeExchange({ value, onChange, maxLength = 2048, disabled = false }: CodeExchangeProps) {
+  const common = useDocumentStyles();
   const model = useCodeExchange(onChange, maxLength, disabled);
   const focused = useIsFocused();
   const canDisplay = isBoundedQr(value, maxLength);

@@ -1,8 +1,8 @@
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ActionButton from '../common/ActionButton';
-import { styles } from '../../styles/publishers/publishers.styles';
+import ActionButton from '../common/AppButton';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
 import { backupChecksEn } from '../../../constants/strings/backupChecksEn';
 
 import type { useBackupChecks } from '../../hooks/useBackupChecks';
@@ -13,6 +13,7 @@ export default function BackupChecksView(
     readonly passed: string; readonly failed: string; readonly limitation: string;
   } },
 ) {
+  const styles = useDocumentStyles();
   const text = model.copy ?? backupChecksEn;
   return (
     <SafeAreaView

@@ -3,14 +3,17 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PUBLISHER_ROLE_CODES } from '../../../backend/domain/publishers/publisher';
 import { publisherEn } from '../../../constants/strings/publisherEn';
 import { scheduleEn as text } from '../../../constants/strings/scheduleEn';
-import ActionButton from '../common/ActionButton';
-import { styles as base } from '../../styles/publishers/publishers.styles';
-import { styles } from '../../styles/assignments/schedules.styles';
+import ActionButton from '../common/AppButton';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
+import { useAssignmentEditorStyles } from '../../styles/assignments/useAssignmentEditorStyles';
 import type { useAssignmentEditor } from '../../hooks/useAssignmentEditor';
 
 type Props = ReturnType<typeof useAssignmentEditor>;
 
 export default function AssignmentEditorView(model: Props) {
+  const documentStyles = useDocumentStyles();
+  const base = { ...documentStyles, title: documentStyles.heading };
+  const styles = useAssignmentEditorStyles();
   const busy = model.saving || model.completed;
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>
@@ -37,7 +40,7 @@ export default function AssignmentEditorView(model: Props) {
                 <Text style={base.text}>{text.choosePublisher}</Text>
                 <Pressable
                   accessibilityRole="radio"
-                  accessibilityState={{ selected: model.publisherId === null, disabled: busy }}
+                  accessibilityState={{ checked: model.publisherId === null, disabled: busy }}
                   disabled={busy} onPress={() => model.choosePublisher(null)}
                   style={[styles.option, model.publisherId === null && styles.selected]}
                 >
@@ -58,7 +61,7 @@ export default function AssignmentEditorView(model: Props) {
         }
         renderItem={({ item }) => <Pressable
           accessibilityRole="radio" accessibilityLabel={item.displayName}
-          accessibilityState={{ selected: model.publisherId === item.id, disabled: busy || model.loadError !== null }}
+          accessibilityState={{ checked: model.publisherId === item.id, disabled: busy || model.loadError !== null }}
           disabled={busy || model.loadError !== null}
           onPress={() => model.choosePublisher(item.id)}
           style={[styles.option, model.publisherId === item.id && styles.selected]}

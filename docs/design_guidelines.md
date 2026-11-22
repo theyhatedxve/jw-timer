@@ -579,3 +579,39 @@ Eligible publishers remain in a virtualized list.
 Existing layout tokens, font scaling, keyboard avoidance, and minimum
 touch targets remain applicable. Both themes and large-text keyboard
 flows require owner device verification.
+
+## Document and received-schedule surfaces — 2026-11-22
+
+useDocumentStyles centralizes themed document text, cards, and spacing.
+Import pages retain virtualization and selectable extracted text.
+Full device fingerprints remain selectable and are not truncated.
+
+Controls use AppButton. Cards have no fixed height and preserve text
+scaling. Both themes and TalkBack require owner device verification.
+
+## Device and Sync surfaces — 2026-11-22
+
+Device and Sync views use useDocumentStyles and AppButton.
+Shared input styling resolves the current appearance palette.
+
+Fingerprints, connection codes, review details, errors, and disabled states
+remain visible. QR codes preserve dark modules on a light background.
+
+Both themes, large text, TalkBack, and two-device flows require owner
+verification.
+
+## Backup and diagnostic surfaces — 2026-11-22
+
+Backup inputs resolve shared appearance colors and retain password masking.
+Diagnostic results include visible PASS/FAIL text and selectable details.
+
+Both themes, large text, keyboard access, and TalkBack require owner
+verification. Styling changes do not establish backup or recovery safety.
+
+## Remaining state presentation — 2026-11-22
+
+Profile loading/error content uses shared themed components.
+Legacy assignment choices use themed surfaces and checked radio states.
+
+Unreferenced legacy views are not evidence of active-screen coverage.
+Final completion requires owner verification of registered screens.

@@ -1,7 +1,7 @@
 import { Text, View } from 'react-native';
 
 import type { SharedSchedule } from '../../../backend/domain/devices/sharedSchedule';
-import { styles } from '../../styles/publishers/publishers.styles';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
 import { meetingDutyEn } from '../../../constants/strings/meetingDutyEn';
 import { lanProbeEn } from '../../../constants/strings/lanProbeEn';
 
@@ -10,6 +10,8 @@ interface Props {
 }
 
 export default function ReceivedScheduleView({ schedule }: Props) {
+  const styles = useDocumentStyles();
+
   return (
     <View style={styles.group}>
       <Text style={styles.heading}>{lanProbeEn.preview}</Text>

@@ -1,21 +1,26 @@
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ActionButton from '../common/ActionButton';
+import ActionButton from '../common/AppButton';
 import ReceivedScheduleView from './ReceivedScheduleView';
-import { styles } from '../../styles/publishers/publishers.styles';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
 import { receivedSchedulesEn as text } from '../../../constants/strings/receivedSchedulesEn';
 import type { useReceivedSchedules } from '../../hooks/useReceivedSchedules';
 
 export default function ReceivedSchedulesView(
   model: ReturnType<typeof useReceivedSchedules>,
 ) {
+  const styles = useDocumentStyles();
+
   return (
     <SafeAreaView
       style={styles.screen}
       edges={['left', 'right', 'bottom']}
     >
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.text}>{text.description}</Text>
         <Text style={styles.secondary}>{text.readOnly}</Text>
 

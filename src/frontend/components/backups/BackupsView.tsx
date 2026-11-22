@@ -1,8 +1,8 @@
 import { ScrollView, Text, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ActionButton from '../common/ActionButton';
-import { styles } from '../../styles/publishers/publishers.styles';
+import ActionButton from '../common/AppButton';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
 import { backupEn as text } from '../../../constants/strings/backupEn';
 
 import type { useBackups } from '../../hooks/useBackups';
@@ -10,6 +10,7 @@ import type { useBackups } from '../../hooks/useBackups';
 type Props = ReturnType<typeof useBackups>;
 
 export default function BackupsView(model: Props) {
+  const styles = useDocumentStyles();
   const disabled = model.busy || model.restored;
 
   return (

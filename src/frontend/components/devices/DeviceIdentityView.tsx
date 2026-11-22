@@ -1,8 +1,8 @@
 import { ScrollView, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ActionButton from '../common/ActionButton';
-import { styles } from '../../styles/publishers/publishers.styles';
+import ActionButton from '../common/AppButton';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
 import { deviceIdentityEn as text } from '../../../constants/strings/deviceIdentityEn';
 
 import type { useDeviceIdentity } from '../../hooks/useDeviceIdentity';
@@ -10,12 +10,13 @@ import type { useDeviceIdentity } from '../../hooks/useDeviceIdentity';
 export default function DeviceIdentityView(
   model: ReturnType<typeof useDeviceIdentity>,
 ) {
+  const styles = useDocumentStyles();
   return (
     <SafeAreaView
       style={styles.screen}
       edges={['left', 'right', 'bottom']}
     >
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.text}>{text.description}</Text>
 
         <ActionButton

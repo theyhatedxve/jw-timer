@@ -1,35 +1,78 @@
-import { styles } from '../../styles/diagnostics/diagnostics.styles';
-import { ActivityIndicator, Pressable, ScrollView, Text } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '../../../constants/theme';
+import { ActivityIndicator, Text } from 'react-native';
+
+import { diagnosticsEn as text } from '../../../constants/strings/diagnosticsEn';
+
+import { useAppTheme } from '../../context/AppearanceContext';
 import type { useSqliteChecks } from '../../hooks/useSqliteChecks';
 
-export default function DiagnosticsView({ results, busy, run, onBack }: ReturnType<typeof useSqliteChecks>) {
-  return <SafeAreaView style={styles.safe}>
-    <ScrollView contentContainerStyle={styles.content}>
-      <Text accessibilityRole="header" style={styles.title}>SQLite checks</Text>
-      <Text style={styles.text}>Phase 0 diagnostic tools. Runs only when you press the button. Uses synthetic records in a separate disposable database; the saved timer checkpoint is not opened.</Text>
-      <Pressable accessibilityRole="button" accessibilityState={{ disabled: busy }}
-        disabled={busy} onPress={run} style={[styles.button, busy && styles.disabled]}>
-        <Text style={styles.buttonText}>{busy ? 'Running checks…' : 'Run SQLite checks'}</Text>
-      </Pressable>
-      {busy && <ActivityIndicator accessibilityLabel="Running SQLite checks" color={colors.brand} />}
-      {results && <>
-        <Text accessibilityLiveRegion="polite" style={styles.text}>
-          {results.every(result => result.passed) ? 'All reported checks passed.' : 'A check failed. Report the details below.'}
-        </Text>
-        {results.map((result, index) => <Text key={`${index}-${result.name}`}
-          selectable style={[styles.result, !result.passed && styles.failed]}>
-          {result.passed ? 'PASS' : 'FAIL'} · {result.name}{'\n'}{result.detail}
-        </Text>)}
-      </>}
-      <Text style={styles.text}>These checks exercise native SQLite behavior. They do not prove production migrations, power-loss recovery, disk-full handling or encrypted backups.</Text>
-      <Pressable accessibilityRole="button" accessibilityState={{ disabled: busy }}
-        disabled={busy} style={styles.button} onPress={onBack}>
-        <Text style={styles.buttonText}>Back</Text>
-      </Pressable>
-    </ScrollView>
-  </SafeAreaView>;
+import AppButton from '../common/AppButton';
+import AppCard from '../common/AppCard';
+import AppScreen from '../common/AppScreen';
+
+export default function DiagnosticsView({
+  results,
+  busy,
+  run,
+  onBack,
+}: ReturnType<typeof useSqliteChecks>) {
+  const { palette } = useAppTheme();
+
+  return (
+    <AppScreen>
+      <Text
+        accessibilityRole="header"
+        className="text-app-title font-bold text-app-text"
+      >
+        {text.title}
+      </Text>
+      <Text className="text-app-body text-app-secondary">
+        {text.description}
+      </Text>
+      <AppButton
+        label={busy ? text.running : text.run}
+        disabled={busy}
+        onPress={run}
+      />
+      {busy ? (
+        <ActivityIndicator
+          accessibilityLabel={text.running}
+          color={palette.brand}
+        />
+      ) : null}
+      {results ? (
+        <>
+          <Text
+            accessibilityLiveRegion="polite"
+            className="text-app-body font-bold text-app-text"
+          >
+            {results.length > 0 && results.every(result => result.passed)
+              ? text.passed
+              : text.failed}
+          </Text>
+          {results.map((result, index) => (
+            <AppCard key={`${index}:${result.name}`}>
+              <Text
+                selectable
+                className={
+                  result.passed
+                    ? 'text-app-body text-app-text'
+                    : 'text-app-body text-app-danger'
+                }
+              >
+                {result.passed ? text.pass : text.fail}
+                {': '}
+                {result.name}
+                {'\n'}
+                {result.detail}
+              </Text>
+            </AppCard>
+          ))}
+        </>
+      ) : null}
+      <Text className="text-app-body text-app-secondary">
+        {text.limitation}
+      </Text>
+      <AppButton label={text.back} disabled={busy} onPress={onBack} />
+    </AppScreen>
+  );
 }
-
-

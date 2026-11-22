@@ -2,10 +2,11 @@ import { Text, View } from 'react-native';
 import type { SyncDataset } from '../../../backend/domain/sync/syncTypes';
 import { syncEn as text } from '../../../constants/strings/syncEn';
 import { publisherEn } from '../../../constants/strings/publisherEn';
-import { styles } from '../../styles/publishers/publishers.styles';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
 import { meetingDutyEn } from '../../../constants/strings/meetingDutyEn';
 
 export default function SyncDatasetDetails({ dataset }: { readonly dataset: SyncDataset }) {
+  const styles = useDocumentStyles();
   const repeatedNames = new Set(dataset.publishers.filter(person => dataset.publishers.some(other => other.id !== person.id && other.displayName === person.displayName)).map(person => person.displayName));
   const people = new Map(dataset.publishers.map(person => [person.id, person]));
   return <View style={styles.group}>

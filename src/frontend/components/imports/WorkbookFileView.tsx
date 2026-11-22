@@ -1,8 +1,8 @@
 import { FlatList, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ActionButton from '../common/ActionButton';
-import { styles } from '../../styles/publishers/publishers.styles';
+import ActionButton from '../common/AppButton';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
 import { workbookImportEn as text } from '../../../constants/strings/workbookImportEn';
 
 import { MeetingField } from '../meetings/MeetingControls';
@@ -13,12 +13,15 @@ import type { useWorkbookFile } from '../../hooks/useWorkbookFile';
 type Props = ReturnType<typeof useWorkbookFile>;
 
 export default function WorkbookFileView(model: Props) {
+  const styles = useDocumentStyles();
+
   return (
     <SafeAreaView
       style={styles.screen}
       edges={['left', 'right', 'bottom']}
     >
       <FlatList
+        keyboardShouldPersistTaps="handled"
         data={model.pages}
         keyExtractor={(_, index) => String(index)}
         contentContainerStyle={styles.content}

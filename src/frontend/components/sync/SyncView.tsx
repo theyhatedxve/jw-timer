@@ -2,14 +2,15 @@ import { ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { useSync } from '../../hooks/useSync';
 import { syncEn as text } from '../../../constants/strings/syncEn';
-import { styles } from '../../styles/publishers/publishers.styles';
-import ActionButton from '../common/ActionButton';
+import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
+import ActionButton from '../common/AppButton';
 import CodeExchange from '../devices/CodeExchange';
 import LanDiscovery from '../devices/LanDiscovery';
 import SyncPreviewView from './SyncPreviewView';
 
 type Props = ReturnType<typeof useSync> & { readonly onDevices: () => void; readonly onHosting: (fingerprint: string) => void };
 export default function SyncView(model: Props) {
+  const styles = useDocumentStyles();
   const status = model.status;
   const frozen = !status?.binding || status.binding.frozen;
   return <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>

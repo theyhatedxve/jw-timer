@@ -611,3 +611,20 @@ Meetings and Assignments share the existing validated date dialog through
 MeetingWeekPicker. Data refreshes on focus, foreground, and explicit retry.
 
 Source applied; owner typecheck, tests, and device verification pending.
+
+## Settings presentation redesign — 2026-11-22
+
+Both Settings entry routes use the same grouped Settings view.
+
+Groups are General, Programs, Connections, Backups, and Diagnostics.
+Existing navigation callbacks remain owned by useSectionScreen.
+No setting changes, checks, transfers, or permission grants execute merely
+by opening Settings.
+
+Appearance displays the active preference: System, Light, or Dark.
+Existing development-only visibility for Design preview is preserved.
+
+Unrecognized actions remain accessible under Other tools rather than
+being silently omitted.
+
+Source applied; owner typecheck and device verification pending.

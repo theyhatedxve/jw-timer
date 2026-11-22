@@ -543,3 +543,14 @@ visible text. Icons do not replace labels or communicate permission.
 Large text wraps without fixed card heights. The read-only Assignments
 tab has no per-card editing controls. Management retains its existing
 explicit editing route.
+
+## Grouped Settings presentation — 2026-11-22
+
+Settings uses themed grouped surfaces, section icons, descriptive rows,
+and decorative chevrons. Appearance shows its current preference.
+
+Rows retain at least 48dp touch targets and have no fixed height.
+Labels, values, and descriptions wrap for large text. TalkBack receives
+one combined label for each actionable row.
+
+No placeholder switches or unsupported settings are introduced.

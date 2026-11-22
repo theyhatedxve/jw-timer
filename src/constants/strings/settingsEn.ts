@@ -1,0 +1,27 @@
+export const settingsEn = {
+  title: 'Settings',
+  description: 'Appearance, local programs, and trusted-device tools.',
+  chevron: '›',
+  groups: {
+    general: 'General',
+    programs: 'Programs',
+    connections: 'Connections',
+    backups: 'Backups',
+    diagnostics: 'Diagnostics',
+    other: 'Other tools',
+  },
+  descriptions: {
+    appearance: 'System, light, or dark appearance',
+    profile: 'Congregation name, time zone, and program language',
+    'manage-assignments': 'Manage technical duties and publishers',
+    'workbook-import': 'Import a workbook PDF stored on this device',
+    'device-identity': 'View this device’s security identity',
+    'device-requests': 'Pair devices and manage existing trust',
+    sync: 'Review and exchange authorized schedule revisions',
+    backups: 'Export or restore an encrypted local backup',
+    diagnostics: 'Run local SQLite storage checks',
+    'sync-checks': 'Check synchronization storage and recovery',
+    'backup-checks': 'Check backup recovery behavior',
+    'nativewind-preview': 'Preview development styling',
+  },
+} as const;

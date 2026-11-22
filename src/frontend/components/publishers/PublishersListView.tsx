@@ -1,143 +1,125 @@
-import {
-  FlatList,
-  Text,
-  TextInput,
-  View,
-  useWindowDimensions,
-} from 'react-native';
-
+import { FlatList, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { publisherEn as text } from '../../../constants/strings/publisherEn';
-
-import ActionButton from '../common/ActionButton';
-
-import {
-  publisherColors,
-  styles,
-} from '../../styles/publishers/publishers.styles';
-
-import type { usePublishers } from '../../hooks/usePublishers';
 import { TECHNICAL_ROLE_CODES } from '../../../backend/domain/publishers/publisher';
+import { publisherEn as text } from '../../../constants/strings/publisherEn';
+import { dimensions, spacing } from '../../../constants/theme';
+
+import { useAppTheme } from '../../context/AppearanceContext';
+import type { usePublishers } from '../../hooks/usePublishers';
+
+import AppButton from '../common/AppButton';
+import AppCard from '../common/AppCard';
+import AppInput from '../common/AppInput';
 
 type Props = ReturnType<typeof usePublishers>;
 
 export default function PublishersListView(model: Props) {
-  const { width, fontScale } = useWindowDimensions();
-  const wide = width >= 700 && fontScale <= 1.3;
-
-  const visiblePublishers = model.publishers.map(publisher => ({
-    ...publisher,
-    roles: publisher.roles.filter(role =>
-      TECHNICAL_ROLE_CODES.some(allowed => allowed === role),
-    ),
-  }));
+  const { palette } = useAppTheme();
 
   return (
     <SafeAreaView
-      style={styles.screen}
+      style={{ flex: 1, backgroundColor: palette.canvas }}
       edges={['left', 'right', 'bottom']}
     >
       <FlatList
-        data={visiblePublishers}
+        data={model.publishers}
         keyExtractor={publisher => publisher.id}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.content}
+        contentContainerStyle={{
+          width: '100%',
+          maxWidth: dimensions.contentWidth,
+          alignSelf: 'center',
+          padding: spacing.large,
+          gap: spacing.medium,
+        }}
         ListHeaderComponent={
-          <View style={styles.group}>
-            <Text accessibilityRole="header" style={styles.title}>
+          <View className="gap-app-medium">
+            <Text
+              accessibilityRole="header"
+              className="text-app-title font-bold text-app-text"
+            >
               {text.title}
             </Text>
-
-            <TextInput
+            <AppInput
               accessibilityLabel={text.filter}
               placeholder={text.filter}
-              placeholderTextColor={publisherColors.secondary}
               value={model.filter}
               onChangeText={model.setFilter}
               autoCapitalize="none"
               autoCorrect={false}
-              style={styles.input}
             />
-
-            <ActionButton
-              label={text.add}
-              onPress={model.addPublisher}
-            />
-
-            <Text style={styles.secondary}>
+            <AppButton label={text.add} onPress={model.addPublisher} />
+            <Text className="text-app-body text-app-secondary">
               {text.responsibilities}
             </Text>
-
             {model.state.status === 'error' ? (
-              <>
-                <Text
-                  accessibilityRole="alert"
-                  style={styles.error}
-                >
+              <AppCard>
+                <Text accessibilityRole="alert" className="text-app-body text-app-danger">
                   {model.state.message}
                 </Text>
-
-                <ActionButton
-                  label={text.retry}
-                  onPress={model.reload}
-                />
-              </>
+                <AppButton label={text.retry} onPress={model.reload} />
+              </AppCard>
             ) : null}
           </View>
         }
         ListEmptyComponent={
           model.state.status === 'loading' ? (
-            <Text style={styles.text}>{text.loading}</Text>
-          ) : model.state.status === 'ready' ? (
-            <Text style={styles.text}>
-              {model.state.publishers.length === 0
-                ? text.empty
-                : text.noMatches}
+            <Text
+              accessibilityLiveRegion="polite"
+              className="text-app-body text-app-secondary"
+            >
+              {text.loading}
             </Text>
-          ) : undefined
+          ) : model.state.status === 'ready' ? (
+            <AppCard>
+              <Text className="text-app-body text-app-secondary">
+                {model.state.publishers.length === 0 ? text.empty : text.noMatches}
+              </Text>
+            </AppCard>
+          ) : null
         }
-        renderItem={({ item }) => (
-          <View
-            style={[
-              styles.publisher,
-              wide && styles.wideRow,
-            ]}
-          >
-            <View style={styles.flexible}>
-              <Text style={styles.heading}>
+        renderItem={({ item }) => {
+          const roles = TECHNICAL_ROLE_CODES.filter(role => item.roles.includes(role));
+
+          return (
+            <AppCard>
+              <Text
+                accessibilityRole="header"
+                className="text-app-body font-bold text-app-text"
+              >
                 {item.displayName}
               </Text>
-
               {!item.isActive ? (
-                <Text style={styles.secondary}>
+                <Text className="text-app-body text-app-secondary">
                   {text.inactive}
                 </Text>
               ) : null}
-            </View>
-
-            <View style={styles.flexible}>
-              {item.roles.length === 0 ? (
-                <Text style={styles.secondary}>
+              {roles.length === 0 ? (
+                <Text className="text-app-body text-app-secondary">
                   {text.noRoles}
                 </Text>
               ) : (
-                <View style={styles.roles}>
-                  {item.roles.map(role => (
-                    <Text key={role} style={styles.badge}>
-                      {text.roles[role]}
-                    </Text>
+                <View className="gap-app-small">
+                  {roles.map(role => (
+                    <View
+                      key={role}
+                      className="self-start rounded-app-button border border-app-border px-app-small py-app-small"
+                    >
+                      <Text className="text-app-body text-app-text">
+                        {text.roles[role]}
+                      </Text>
+                    </View>
                   ))}
                 </View>
               )}
-
-              <ActionButton
+              <AppButton
                 label={`${text.edit}: ${item.displayName}`}
                 onPress={() => model.editPublisher(item.id)}
               />
-            </View>
-          </View>
-        )}
+            </AppCard>
+          );
+        }}
       />
     </SafeAreaView>
   );

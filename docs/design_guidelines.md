@@ -554,3 +554,28 @@ Labels, values, and descriptions wrap for large text. TalkBack receives
 one combined label for each actionable row.
 
 No placeholder switches or unsupported settings are introduced.
+
+## Profile and publisher forms — 2026-11-22
+
+AppInput and AppToggleRow provide shared themed form presentation.
+Fields and controls retain 48dp minimum touch targets and text scaling.
+
+Profile language choices announce radio selection. Publisher toggles
+announce their labels and checked state. Errors retain visible text
+and accessible announcements.
+
+Keyboard avoidance and scrolling keep form actions reachable.
+Publisher lists remain virtualized and cards have no fixed height.
+
+## Meeting and duty editor styling — 2026-11-22
+
+Meeting editor styles are generated from the resolved appearance palette.
+Fields use AppInput, timing controls use AppToggleRow, and buttons use
+AppButton. Radio choices expose checked and disabled states.
+
+Duty cards preserve visible role names, assigned names, and review notices.
+Eligible publishers remain in a virtualized list.
+
+Existing layout tokens, font scaling, keyboard avoidance, and minimum
+touch targets remain applicable. Both themes and large-text keyboard
+flows require owner device verification.

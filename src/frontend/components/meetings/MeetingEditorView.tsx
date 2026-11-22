@@ -2,17 +2,17 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Switch,
   Text,
   View,
 } from 'react-native';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ActionButton from '../common/ActionButton';
+import ActionButton from '../common/AppButton';
+import AppToggleRow from '../common/AppToggleRow';
 
 import { MeetingChoices, MeetingField } from './MeetingControls';
-import { meetingStyles as styles } from '../../styles/meetings/meetings.styles';
+import { useMeetingStyles } from '../../styles/meetings/useMeetingStyles';
 
 import { MEETING_PLANNING_EN } from '../../../constants/strings/meetingPlanningEn';
 
@@ -60,6 +60,7 @@ const PART_KINDS: readonly {
 type Props = ReturnType<typeof useMeetingEditor>;
 
 export default function MeetingEditorView(model: Props) {
+  const styles = useMeetingStyles();
   const { form } = model;
   const busy = model.saving || model.completed;
 
@@ -285,12 +286,8 @@ export default function MeetingEditorView(model: Props) {
                           }
                         />
 
-                        <Text style={styles.label}>
-                          Include this part in timing
-                        </Text>
-
-                        <Switch
-                          accessibilityLabel={`${partLabel}: include in timing`}
+                        <AppToggleRow
+                          label={`${partLabel}: include in timing`}
                           value={part.isTimed}
                           disabled={busy}
                           onValueChange={value =>

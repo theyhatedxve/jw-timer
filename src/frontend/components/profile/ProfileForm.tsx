@@ -1,178 +1,173 @@
-import { styles } from '../../styles/profile/profileForm.styles';
-import { KeyboardAvoidingView, Pressable, ScrollView, Text, TextInput } from 'react-native';
+import { KeyboardAvoidingView, Pressable, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import ActionButton from '../common/ActionButton';
 
-import { PROFILE_TEXT } from '../../../constants/strings/profileEn';
+import { PROFILE_TEXT as text } from '../../../constants/strings/profileEn';
 import { PROFILE_LIMITS } from '../../../backend/domain/profile/profile';
+
 import type { useProfileForm } from '../../hooks/useProfileForm';
 
-export default function ProfileForm({ original, draft, setDraft, reviewing, setReviewing, saving, error, review, confirmSave, leave, languageLabel }: ReturnType<typeof useProfileForm>) {
+import AppButton from '../common/AppButton';
+import AppCard from '../common/AppCard';
+import AppInput from '../common/AppInput';
+import AppScreen from '../common/AppScreen';
+
+export default function ProfileForm(
+  model: ReturnType<typeof useProfileForm>,
+) {
+  const { draft, saving } = model;
+
   return (
-    <SafeAreaView style={styles.screen}>
-      <KeyboardAvoidingView
-        style={styles.fill}
-        behavior="height"
-      >
-        <ScrollView
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={styles.content}
-        >
-          <Text accessibilityRole="header" style={styles.title}>
-            {reviewing
-              ? PROFILE_TEXT.reviewTitle
-              : PROFILE_TEXT.title}
+    <SafeAreaView
+      className="flex-1 bg-app-canvas"
+      edges={['top', 'left', 'right', 'bottom']}
+    >
+      <KeyboardAvoidingView className="flex-1" behavior="height">
+        <AppScreen>
+          <Text
+            accessibilityRole="header"
+            className="text-app-title font-bold text-app-text"
+          >
+            {model.reviewing ? text.reviewTitle : text.title}
           </Text>
-
-          <Text style={styles.body}>
-            {PROFILE_TEXT.introduction}
+          <Text className="text-app-body text-app-secondary">
+            {text.introduction}
           </Text>
-
-          <Text style={styles.body}>
-            {PROFILE_TEXT.interfaceLanguage}
+          <Text className="text-app-body text-app-secondary">
+            {text.interfaceLanguage}
           </Text>
-
-          {error && (
-            <Text accessibilityRole="alert" style={styles.error}>
-              {PROFILE_TEXT.errors[error]}
+          {model.error ? (
+            <Text
+              accessibilityRole="alert"
+              accessibilityLiveRegion="polite"
+              className="text-app-body text-app-danger"
+            >
+              {text.errors[model.error]}
             </Text>
-          )}
-
-          {reviewing ? (
+          ) : null}
+          {model.reviewing ? (
             <>
-              <Text style={styles.label}>
-                {PROFILE_TEXT.name}
-              </Text>
-              <Text style={styles.body}>{draft.name}</Text>
-
-              <Text style={styles.label}>
-                {PROFILE_TEXT.timezone}
-              </Text>
-              <Text style={styles.body}>{draft.timezone}</Text>
-
-              <Text style={styles.label}>
-                {PROFILE_TEXT.meetingLanguage}
-              </Text>
-              <Text style={styles.body}>{languageLabel}</Text>
-
-              <ActionButton
-                label={
-                  saving
-                    ? PROFILE_TEXT.saving
-                    : PROFILE_TEXT.save
-                }
+              <AppCard>
+                <Text className="text-app-body font-bold text-app-text">
+                  {text.name}
+                </Text>
+                <Text className="text-app-body text-app-text">{draft.name}</Text>
+                <Text className="text-app-body font-bold text-app-text">
+                  {text.timezone}
+                </Text>
+                <Text className="text-app-body text-app-text">{draft.timezone}</Text>
+                <Text className="text-app-body font-bold text-app-text">
+                  {text.meetingLanguage}
+                </Text>
+                <Text className="text-app-body text-app-text">
+                  {model.languageLabel}
+                </Text>
+              </AppCard>
+              <AppButton
+                label={saving ? text.saving : text.save}
                 disabled={saving}
-                onPress={confirmSave}
+                onPress={model.confirmSave}
               />
-
-              <ActionButton
-                label={PROFILE_TEXT.edit}
+              <AppButton
+                label={text.edit}
                 disabled={saving}
-                onPress={() => setReviewing(false)}
+                onPress={() => model.setReviewing(false)}
               />
             </>
           ) : (
             <>
-              <Text style={styles.label}>
-                {PROFILE_TEXT.name}
-              </Text>
+              <AppCard>
+                <Text className="text-app-body font-bold text-app-text">
+                  {text.name}
+                </Text>
+                <AppInput
+                  accessibilityLabel={text.name}
+                  value={draft.name}
+                  onChangeText={name =>
+                    model.setDraft(current => ({ ...current, name }))
+                  }
+                  maxLength={PROFILE_LIMITS.name}
+                  autoCapitalize="words"
+                  editable={!saving}
+                />
+                <Text className="text-app-body font-bold text-app-text">
+                  {text.timezone}
+                </Text>
+                <AppInput
+                  accessibilityLabel={text.timezone}
+                  accessibilityHint={text.timezoneHint}
+                  value={draft.timezone}
+                  onChangeText={timezone =>
+                    model.setDraft(current => ({ ...current, timezone }))
+                  }
+                  maxLength={PROFILE_LIMITS.timezone}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!saving}
+                />
+                <Text className="text-app-body text-app-secondary">
+                  {text.timezoneHint}
+                </Text>
+              </AppCard>
+              <AppCard>
+                <Text
+                  accessibilityRole="header"
+                  className="text-app-body font-bold text-app-text"
+                >
+                  {text.meetingLanguage}
+                </Text>
+                {(['war', 'en'] as const).map(language => {
+                  const selected = draft.programLanguage === language;
+                  const label = language === 'war' ? text.waray : text.english;
 
-              <TextInput
-                accessibilityLabel={PROFILE_TEXT.name}
-                value={draft.name}
-                onChangeText={(name) =>
-                  setDraft((current) => ({
-                    ...current,
-                    name,
-                  }))
-                }
-                maxLength={PROFILE_LIMITS.name}
-                autoCapitalize="words"
-                style={styles.input}
-              />
-
-              <Text style={styles.label}>
-                {PROFILE_TEXT.timezone}
-              </Text>
-
-              <TextInput
-                accessibilityLabel={PROFILE_TEXT.timezone}
-                accessibilityHint={PROFILE_TEXT.timezoneHint}
-                value={draft.timezone}
-                onChangeText={(timezone) =>
-                  setDraft((current) => ({
-                    ...current,
-                    timezone,
-                  }))
-                }
-                maxLength={PROFILE_LIMITS.timezone}
-                autoCapitalize="none"
-                autoCorrect={false}
-                style={styles.input}
-              />
-
-              <Text style={styles.body}>
-                {PROFILE_TEXT.timezoneHint}
-              </Text>
-
-              <Text style={styles.label}>
-                {PROFILE_TEXT.meetingLanguage}
-              </Text>
-
-              {(['war', 'en'] as const).map((language) => {
-                const selected =
-                  draft.programLanguage === language;
-
-                const label =
-                  language === 'war'
-                    ? PROFILE_TEXT.waray
-                    : PROFILE_TEXT.english;
-
-                return (
-                  <Pressable
-                    key={language}
-                    accessibilityRole="radio"
-                    accessibilityLabel={label}
-                    accessibilityState={{ checked: selected }}
-                    onPress={() =>
-                      setDraft((current) => ({
-                        ...current,
-                        programLanguage: language,
-                      }))
-                    }
-                    style={[
-                      styles.option,
-                      selected && styles.selectedOption,
-                    ]}
-                  >
-                    <Text style={styles.body}>
-                      {label}
-                      {selected
-                        ? ` — ${PROFILE_TEXT.selected}`
-                        : ''}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-
-              <ActionButton
-                label={PROFILE_TEXT.review}
-                onPress={review}
+                  return (
+                    <Pressable
+                      key={language}
+                      accessibilityRole="radio"
+                      accessibilityLabel={label}
+                      accessibilityState={{ checked: selected, disabled: saving }}
+                      disabled={saving}
+                      onPress={() =>
+                        model.setDraft(current => ({
+                          ...current,
+                          programLanguage: language,
+                        }))
+                      }
+                      className={
+                        'min-h-app-touch rounded-app-button border p-app-medium active:opacity-75 ' +
+                        (selected
+                          ? 'border-app-brand bg-app-brand'
+                          : 'border-app-border bg-app-surface')
+                      }
+                    >
+                      <Text
+                        className={
+                          'text-app-body font-semibold ' +
+                          (selected ? 'text-app-onBrand' : 'text-app-text')
+                        }
+                      >
+                        {label}
+                        {selected ? ` — ${text.selected}` : ''}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </AppCard>
+              <AppButton
+                label={text.review}
+                disabled={saving}
+                onPress={model.review}
               />
             </>
           )}
-
-          {original && (
-            <ActionButton
-              label={PROFILE_TEXT.back}
+          {model.original ? (
+            <AppButton
+              label={text.back}
               disabled={saving}
-              onPress={leave}
+              onPress={model.leave}
             />
-          )}
-        </ScrollView>
+          ) : null}
+        </AppScreen>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-
-

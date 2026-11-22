@@ -1,7 +1,11 @@
 import { StyleSheet } from 'react-native';
-import { colors, dimensions, spacing, typography } from '../../../constants/theme';
+import { colors as legacyColors, dimensions, spacing, typography } from '../../../constants/theme';
+import type { AppPalette } from '../../../constants/appearanceTheme';
 
-export const meetingStyles = StyleSheet.create({
+export function createMeetingStyles(
+  colors: Pick<AppPalette, keyof typeof legacyColors>,
+) {
+  return StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: colors.canvas,
@@ -95,4 +99,7 @@ export const meetingStyles = StyleSheet.create({
     fontSize: typography.body,
     lineHeight: typography.bodyLineHeight,
   },
-});
+  });
+}
+
+export const meetingStyles = createMeetingStyles(legacyColors);

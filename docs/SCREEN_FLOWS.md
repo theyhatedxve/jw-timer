@@ -628,3 +628,37 @@ Unrecognized actions remain accessible under Other tools rather than
 being silently omitted.
 
 Source applied; owner typecheck and device verification pending.
+
+## Profile and publisher presentation — 2026-11-22
+
+Profile setup and editing use shared themed fields and cards.
+Validation, review-before-save, conflict handling, and unsaved-change
+confirmation retain their existing hooks and handlers.
+
+Publisher search remains virtualized. Empty data, no filter matches,
+inactive publishers, loading, and errors retain distinct presentation.
+
+The publisher editor exposes only the four existing technical duties.
+Saving, reload confirmation, revision conflicts, and discard protection
+retain their existing behavior.
+
+No database schema, assignment eligibility, or synchronization rule changes.
+Source applied; owner typecheck, tests, and device verification pending.
+
+## Meeting and duty editor presentation — 2026-11-22
+
+Meeting editor styling resolves the current appearance palette.
+Shared themed inputs, radio choices, buttons, and timing toggles retain
+the existing form model and handlers.
+
+Section and part ordering, removal confirmation, duration validation,
+save conflicts, and unsaved-change protection remain unchanged.
+
+The four-duty editor uses themed cards and a virtualized eligible-publisher
+list. Assign, clear assignment, reload, and return actions retain their
+existing handlers and checks.
+
+The shared MeetingField also themes workbook-import fields.
+The separate legacy part-assignment editor is not changed by this batch.
+
+Source applied; owner typecheck, tests, and device verification pending.

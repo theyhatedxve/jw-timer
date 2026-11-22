@@ -1,7 +1,6 @@
-import { meetingStyles } from '../../styles/meetings/meetings.styles';
-import { Pressable, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { Pressable, Text, View, type TextInputProps } from 'react-native';
 
-
+import AppInput from '../common/AppInput';
 
 interface MeetingFieldProps {
   readonly label: string;
@@ -21,14 +20,14 @@ export function MeetingField({
   hint,
 }: MeetingFieldProps) {
   return (
-    <View style={meetingStyles.group}>
-      <Text style={meetingStyles.label}>{label}</Text>
-
+    <View className="gap-app-small">
+      <Text className="text-app-body font-semibold text-app-text">
+        {label}
+      </Text>
       {hint ? (
-        <Text style={meetingStyles.supporting}>{hint}</Text>
+        <Text className="text-app-body text-app-secondary">{hint}</Text>
       ) : null}
-
-      <TextInput
+      <AppInput
         accessibilityLabel={label}
         accessibilityHint={hint}
         value={value}
@@ -36,7 +35,6 @@ export function MeetingField({
         editable={editable}
         keyboardType={keyboardType}
         autoCapitalize="none"
-        style={meetingStyles.input}
       />
     </View>
   );
@@ -61,10 +59,11 @@ export function MeetingChoices<T extends string>({
   disabled = false,
 }: MeetingChoicesProps<T>) {
   return (
-    <View style={meetingStyles.group}>
-      <Text style={meetingStyles.label}>{label}</Text>
-
-      <View style={meetingStyles.actions}>
+    <View className="gap-app-small">
+      <Text className="text-app-body font-semibold text-app-text">
+        {label}
+      </Text>
+      <View className="flex-row flex-wrap gap-app-small">
         {options.map(option => {
           const selected = option.value === value;
 
@@ -73,23 +72,21 @@ export function MeetingChoices<T extends string>({
               key={option.value}
               accessibilityRole="radio"
               accessibilityLabel={`${label}: ${option.label}`}
-              accessibilityState={{
-                selected,
-                disabled,
-              }}
+              accessibilityState={{ checked: selected, disabled }}
               disabled={disabled}
               onPress={() => onChange(option.value)}
-              style={[
-                meetingStyles.choice,
-                selected && meetingStyles.selectedChoice,
-                disabled && meetingStyles.disabled,
-              ]}
+              className={
+                'min-h-app-touch justify-center rounded-app-button border p-app-medium active:opacity-75 disabled:opacity-50 ' +
+                (selected
+                  ? 'border-app-brand bg-app-brand'
+                  : 'border-app-border bg-app-surface')
+              }
             >
               <Text
-                style={[
-                  meetingStyles.body,
-                  selected && meetingStyles.selectedLabel,
-                ]}
+                className={
+                  'text-app-body font-semibold ' +
+                  (selected ? 'text-app-onBrand' : 'text-app-text')
+                }
               >
                 {option.label}
               </Text>
@@ -100,4 +97,3 @@ export function MeetingChoices<T extends string>({
     </View>
   );
 }
-

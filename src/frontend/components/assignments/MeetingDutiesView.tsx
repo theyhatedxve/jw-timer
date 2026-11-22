@@ -1,98 +1,118 @@
 import { FlatList, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import ActionButton from '../common/ActionButton';
-
 import { meetingDutyEn as text } from '../../../constants/strings/meetingDutyEn';
-import { styles as base } from '../../styles/publishers/publishers.styles';
-import { styles } from '../../styles/assignments/schedules.styles';
+import { dimensions, spacing } from '../../../constants/theme';
 
+import { useAppTheme } from '../../context/AppearanceContext';
 import type { useMeetingDuties } from '../../hooks/useMeetingDuties';
+
+import AppButton from '../common/AppButton';
+import AppCard from '../common/AppCard';
 
 type Props = ReturnType<typeof useMeetingDuties>;
 
 export default function MeetingDutiesView(model: Props) {
+  const { palette } = useAppTheme();
+
   return (
     <SafeAreaView
-      style={base.screen}
+      style={{ flex: 1, backgroundColor: palette.canvas }}
       edges={['left', 'right', 'bottom']}
     >
       <FlatList
         data={model.selected ? model.eligible : []}
         keyExtractor={person => person.id}
-        contentContainerStyle={base.content}
+        contentContainerStyle={{
+          width: '100%',
+          maxWidth: dimensions.contentWidth,
+          alignSelf: 'center',
+          padding: spacing.large,
+          gap: spacing.medium,
+        }}
         ListHeaderComponent={
-          <View style={base.group}>
-            <Text accessibilityRole="header" style={base.title}>
+          <View className="gap-app-medium">
+            <Text
+              accessibilityRole="header"
+              className="text-app-title font-bold text-app-text"
+            >
               {model.title}
             </Text>
-
             {model.error ? (
-              <>
-                <Text accessibilityRole="alert" style={base.error}>
+              <AppCard>
+                <Text
+                  accessibilityRole="alert"
+                  accessibilityLiveRegion="polite"
+                  className="text-app-body text-app-danger"
+                >
                   {model.error}
                 </Text>
-                <ActionButton
+                <AppButton
                   label={text.reload}
                   disabled={model.busy}
                   onPress={model.reload}
                 />
-              </>
+              </AppCard>
             ) : null}
-
             {!model.ready && !model.error ? (
-              <Text style={base.text}>{text.loading}</Text>
+              <Text
+                accessibilityLiveRegion="polite"
+                className="text-app-body text-app-secondary"
+              >
+                {text.loading}
+              </Text>
             ) : null}
-
             {model.ready && !model.selected ? (
               model.rows.map(row => (
-                <View key={row.key} style={styles.part}>
-                  <Text style={base.heading}>{row.label}</Text>
-                  <Text style={base.text}>{row.name}</Text>
-
+                <AppCard key={row.key}>
+                  <Text
+                    accessibilityRole="header"
+                    className="text-app-body font-bold text-app-text"
+                  >
+                    {row.label}
+                  </Text>
+                  <Text className="text-app-body text-app-text">{row.name}</Text>
                   {row.needsReview ? (
-                    <Text style={styles.warning}>{text.review}</Text>
+                    <Text className="text-app-body text-app-danger">{text.review}</Text>
                   ) : null}
-
-                  <ActionButton
+                  <AppButton
                     label={`${text.assign}: ${row.label}`}
                     disabled={model.busy}
                     onPress={() => model.selectDuty(row.key)}
                   />
-                </View>
+                </AppCard>
               ))
             ) : null}
-
             {model.ready && model.selected ? (
-              <>
-                <Text style={base.heading}>
+              <AppCard>
+                <Text
+                  accessibilityRole="header"
+                  className="text-app-body font-bold text-app-text"
+                >
                   {model.current?.label}
                 </Text>
-                <Text style={base.text}>
+                <Text className="text-app-body text-app-text">
                   {text.current}: {model.current?.name}
                 </Text>
-
-                <ActionButton
+                <AppButton
                   label={text.notAssigned}
                   disabled={model.busy}
                   onPress={() => model.assign(null)}
                 />
-
                 {model.eligible.length === 0 ? (
-                  <Text style={base.secondary}>{text.noEligible}</Text>
+                  <Text className="text-app-body text-app-secondary">{text.noEligible}</Text>
                 ) : null}
-
-                <ActionButton
+                <AppButton
                   label={text.back}
                   disabled={model.busy}
                   onPress={() => model.selectDuty(null)}
                 />
-              </>
+              </AppCard>
             ) : null}
           </View>
         }
         renderItem={({ item }) => (
-          <ActionButton
+          <AppButton
             label={`${text.assign}: ${item.displayName}`}
             disabled={model.busy}
             onPress={() => model.assign(item.id)}

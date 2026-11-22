@@ -12,6 +12,7 @@ import type {
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useLocalProfile } from './useLocalProfile';
+import { useWatchtowerImport } from './useWatchtowerImport';
 
 import { buildWorkbookCandidates } from '../../backend/domain/imports/workbookParser';
 import { workbookParsingEn as parsingText } from '../../constants/strings/workbookParsingEn';
@@ -28,6 +29,12 @@ export function useWorkbookFile(
   const [busy, setBusy] =
     useState<'selecting' | 'extracting' | null>(null);
   const [error, setError] = useState('');
+
+  const watchtower = useWatchtowerImport(
+    pages,
+    file,
+    busy !== null,
+  );
 
   const navigation = useNavigation();
   const { state: profileState } = useLocalProfile();
@@ -167,8 +174,13 @@ export function useWorkbookFile(
     pages,
     busy,
     error,
-    select,
-    extract,
+    watchtower,
+    select: () => watchtower.confirmDiscard(() => {
+      void select();
+    }),
+    extract: () => watchtower.confirmDiscard(() => {
+      void extract();
+    }),
     year,
     setYear,
     candidates,

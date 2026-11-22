@@ -1,7 +1,10 @@
 export interface WorkbookSource {
   readonly filename: string;
   readonly page: number;
-  readonly parser: 'numbered-workbook-v1' | 'workbook-v2';
+  readonly parser:
+    | 'numbered-workbook-v1'
+    | 'workbook-v2'
+    | 'watchtower-v1';
 }
 
 export function readWorkbookSource(
@@ -28,7 +31,8 @@ export function readWorkbookSource(
     value.page > 32 ||
     (
       value.parser !== 'numbered-workbook-v1' &&
-      value.parser !== 'workbook-v2'
+      value.parser !== 'workbook-v2' &&
+      value.parser !== 'watchtower-v1'
     )
   ) {
     return null;

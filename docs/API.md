@@ -323,6 +323,17 @@ These checklists are **required per route**, not optional generic advice. All mu
 - Use a single SQLite transaction for canonical rows, import provenance and change journal.
 - Reject malformed payloads without partial meeting mutation. OCR is deferred unless approved.
 
+Watchtower PDF candidates use the existing local preview/editor save path.
+Their source metadata is `{ filename, page, parser: 'watchtower-v1' }`.
+The page is the physical PDF article-start page. Existing workbook parser
+identifiers remain valid; no database migration is required.
+
+Supported Watchtower layouts are the supplied English and Waray study editions.
+Contents headings determine program language; song headers must match that language.
+Ambiguous contents language is rejected.
+Review requires confirmed songs, date, and local start time, using the
+saved congregation timezone. No upstream request or automatic save occurs.
+
 ### 8.3 Manual encrypted backup and transfer (no HTTP by default)
 
 **Logical operations:** `ExportBackup`, `ValidateBackup`, `RestoreBackup`; adapter: `src/infrastructure/files/` and `src/infrastructure/crypto/`.

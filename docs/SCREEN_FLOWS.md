@@ -725,3 +725,60 @@ order, column extraction, and missing content.
 
 WOL retrieval and Weekend import are separate pending batches.
 Source applied; owner typecheck, tests, and device verification pending.
+
+## Watchtower PDF review — 2026-11-22
+
+The existing local PDF importer lists study candidates from the supported
+Waray Watchtower layout. Selecting a candidate opens confirmation fields
+for the article title, three song numbers, meeting date, and local start time.
+
+The congregation profile supplies the scheduling timezone. Missing profile
+data blocks review. The printed study week is displayed for comparison;
+it does not determine the actual meeting date or start time.
+
+Opening song requires local confirmation. Missing or ambiguous study songs
+remain blank. A valid preview contains five timed parts totaling 105 minutes:
+opening song 5, Public Talk 30, middle song 5, Watchtower study 60,
+and closing song 5.
+
+Opening the existing editor does not save. Its existing validation,
+duplicate protection, and explicit Save action remain responsible for
+persistence. Leaving a staged review or replacing its PDF requires
+discard confirmation.
+
+Source metadata adds the watchtower-v1 parser identifier. Existing PDF
+identifiers remain supported. Older app builds cannot read the new
+Watchtower source identifier in local drafts or restored backups.
+Local PDF provenance remains excluded from shared schedules.
+
+Source applied; owner verification pending.
+
+## English Watchtower PDF support — 2026-11-22
+
+The existing importer recognizes the supplied English and Waray layouts.
+Contents headings determine program language. English uses SONG headers;
+Waray uses KARANTAHON. Missing or ambiguous song numbers remain unassigned.
+
+Both languages use the same review form, saved congregation timezone,
+105-minute program builder, PDF provenance, duplicate protection,
+and explicit editor save. No database migration is required.
+
+Source applied; owner verification pending.
+
+
+## PDF import checkpoint closed — 2026-11-22
+
+Status: complete based on owner-reported verification.
+
+The owner reported completing typecheck, targeted tests, and device checks
+for the supplied English and Waray Watchtower PDFs, including study
+detection, song pairs, language, and the 105-minute review preview.
+
+The owner also reported completing saved-program timer checks:
+five parts, explicit Start/Next, continued overtime at zero, and offline
+operation. Test-device backup/restore retained title, songs, and timezone.
+
+The agent did not run tests, builds, or device checks.
+Earlier pending statements remain historical checkpoints.
+
+Scope: supported local PDF layouts. Direct online retrieval remains deferred.

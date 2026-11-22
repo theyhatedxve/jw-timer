@@ -1,10 +1,11 @@
 export const workbookImportEn = {
-  title: 'Import workbook PDF',
+  title: 'Import meeting PDF',
   select: 'Select PDF',
   selecting: 'Opening document picker...',
   extract: 'Extract PDF text',
   extracting: 'Extracting text...',
-  empty: 'Select a workbook PDF stored on this device.',
+  empty:
+    'Select a local meeting workbook or supported English or Waray Watchtower study-edition PDF.',
   selected: 'PDF selected. Extract its text to preview the pages.',
   preview: 'Extracted text preview',
   review:

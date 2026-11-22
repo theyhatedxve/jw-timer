@@ -2,6 +2,7 @@ import { FlatList, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import ActionButton from '../common/AppButton';
+import WatchtowerImportView from './WatchtowerImportView';
 import { useDocumentStyles } from '../../styles/common/useDocumentStyles';
 import { workbookImportEn as text } from '../../../constants/strings/workbookImportEn';
 
@@ -31,7 +32,10 @@ export default function WorkbookFileView(model: Props) {
           <View style={styles.group}>
             <Text style={styles.text}>{text.empty}</Text>
 
-            {model.pages.length > 0 ? (
+            <WatchtowerImportView model={model.watchtower} />
+
+            {model.pages.length > 0 &&
+            model.watchtower.candidates.length === 0 ? (
               <>
                 <MeetingField
                   label={parsingText.year}

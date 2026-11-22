@@ -1,3 +1,4 @@
+import { reviewWorkbookCoverage } from './workbookCoverage';
 import type {
   MeetingDraft,
   MeetingPartDraft,
@@ -210,6 +211,10 @@ export function buildWorkbookCandidates(
       sections,
       warnings,
     );
+
+    for (const warning of reviewWorkbookCoverage(page, arrangedSections)) {
+      warnings.add(warning);
+    }
 
     const result = validateMeetingDraft({
       title: text.meeting(date),

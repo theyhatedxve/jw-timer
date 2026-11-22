@@ -1,4 +1,8 @@
 export const workbookParsingEn = {
+  minuteCoverage:
+    'Printed minute values do not match the imported timed parts. Compare every duration with the PDF before saving.',
+  songCoverage:
+    'Expected three song entries. Check opening, middle, and closing song numbers against the PDF.',
   year: 'Workbook year',
   yearHint: 'Use four digits. Verify each meeting date before saving.',
   candidates: 'Meeting previews',

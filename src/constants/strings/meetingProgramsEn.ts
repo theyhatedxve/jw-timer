@@ -23,7 +23,7 @@ export const meetingProgramsEn = {
   invalidDate: 'Enter a valid date using YYYY-MM-DD.',
   applyDate: 'Show this week',
   cancel: 'Cancel',
-  create: 'Create meeting',
+  importPdf: 'Import workbook PDF',
   edit: 'Edit program',
   timer: 'Open timer',
   loading: 'Loading meeting programs…',

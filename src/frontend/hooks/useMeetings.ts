@@ -178,7 +178,7 @@ export function useMeetings(service: MeetingService) {
     previousWeek: () => moveWeek(-1),
     nextWeek: () => moveWeek(1),
 
-    createMeeting: () => navigation.navigate('MeetingEditor', {}),
+    importPdf: () => navigation.navigate('WorkbookImport'),
 
     openMeeting: (meetingId: string) =>
       navigation.navigate('MeetingEditor', { meetingId }),

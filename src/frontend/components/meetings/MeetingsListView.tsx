@@ -83,7 +83,7 @@ export default function MeetingsListView(model: Props) {
           selectDate={model.selectDate}
         />
 
-        <AppButton label={text.create} onPress={model.createMeeting} />
+        <AppButton label={text.importPdf} onPress={model.importPdf} />
 
         {model.state.status === 'loading' ? (
           <View className="gap-app-medium">

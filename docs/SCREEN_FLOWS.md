@@ -711,3 +711,17 @@ No route, supported duty, or permission is added. Existing selection,
 validation, save, and discard handlers remain unchanged.
 
 Source applied; owner typecheck, tests, and device verification pending.
+
+## Import-first program entry — 2026-11-22
+
+Meetings opens WorkbookImport instead of creating a blank local program.
+Existing programs remain editable. PDF candidates still require review
+and explicit saving through the existing editor.
+
+Midweek import compares printed minute values with imported timed parts.
+Missing or mismatched values and unexpected song counts produce warnings.
+Unprinted durations are never invented. Review remains necessary for titles,
+order, column extraction, and missing content.
+
+WOL retrieval and Weekend import are separate pending batches.
+Source applied; owner typecheck, tests, and device verification pending.

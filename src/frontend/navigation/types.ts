@@ -6,8 +6,8 @@ import type { MeetingDraft } from '../../backend/domain/meetings/meeting.types';
 
 export type MainTabParamList = {
   Home: undefined;
-  Meetings: undefined;
-  Timer: undefined;
+  Meetings: { meetingId?: string; requestId?: string } | undefined;
+  Timer: TimerProgramRequest | undefined;
   SettingsTab: undefined;
 };
 

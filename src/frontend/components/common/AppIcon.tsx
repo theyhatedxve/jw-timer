@@ -4,6 +4,7 @@ const paths = {
   play: 'M8 5v14l11-7Z',
   pause: 'M8 5v14M16 5v14',
   restart: 'M3 11a9 9 0 1 1 2 7M3 5v6h6',
+  previousPart: 'M19 5v14L9 12ZM5 5v14',
   nextPart: 'M5 5v14l10-7ZM19 5v14',
   song: 'M9 18V5l12-2v13M9 7l12-2M9 18a3 2 0 1 1-6 0 3 2 0 0 1 6 0ZM21 16a3 2 0 1 1-6 0 3 2 0 0 1 6 0Z',
   comments: 'M4 4h16v12H9l-5 4V4ZM8 8h8M8 12h6',

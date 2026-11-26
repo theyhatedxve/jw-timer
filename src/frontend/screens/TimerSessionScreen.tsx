@@ -1,25 +1,13 @@
-import type {
-  NativeStackScreenProps,
-} from '@react-navigation/native-stack';
+import { useEffect } from 'react';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../navigation/types';
 
-import TimerSessionView from '../components/timer/TimerSessionView';
-import { useTimerSession } from '../hooks/useTimerSession';
-import { timerSessionService } from '../../bootstrap/timerDependencies';
+type Props = NativeStackScreenProps<RootStackParamList, 'PracticeTimer'>;
 
-import type {
-  RootStackParamList,
-} from '../navigation/types';
-
-type Props = NativeStackScreenProps<
-  RootStackParamList,
-  'PracticeTimer'
->;
-
-export default function TimerSessionScreen({ route }: Props) {
-  const model = useTimerSession(
-    timerSessionService,
-    route.params,
-  );
-
-  return <TimerSessionView {...model} />;
+// Preserve old timer links while keeping a single timer screen instance.
+export default function TimerSessionScreen({ route, navigation }: Props) {
+  useEffect(() => {
+    navigation.popTo('Main', { screen: 'Timer', params: route.params });
+  }, [navigation, route.params]);
+  return null;
 }

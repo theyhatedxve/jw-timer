@@ -3,18 +3,24 @@ import { test } from 'node:test';
 
 import {
   createTimer,
+  elapsed,
+  restart,
   next,
   start,
 } from '../src/backend/domain/timer/timer';
 
 import {
   isTimerProgram,
+  makeSessionCheckpoint,
+  parseSessionCheckpoint,
+  restoreSession,
   type TimerProgram,
 } from '../src/backend/domain/timer/timerProgram';
 
 import {
   remainingProgramMs,
   selectProgramPart,
+  switchProgramPart,
 } from '../src/backend/domain/timer/timerAgenda';
 
 const program: TimerProgram = {
@@ -90,4 +96,51 @@ test('optional date metadata rejects impossible dates', () => {
   );
 
   assert.equal(isTimerProgram(program), true);
+});
+
+test('switching timers preserves elapsed time for each part and resumes from it', () => {
+  const first = start(selectProgramPart(program, 0), 1000);
+  const second = switchProgramPart(program, first, 1, 3750);
+  assert.equal(second.status, 'ready');
+
+  const returning = switchProgramPart(program, start(second, 5000), 0, 6500);
+  assert.equal(returning.elapsedBeforeMs, 2750);
+  assert.equal(returning.status, 'paused');
+  assert.equal(elapsed(start(returning, 8000), 9000), 3750);
+  assert.equal(remainingProgramMs(program, returning, 6500), 7250 + 18500);
+
+  const saved = makeSessionCheckpoint(program, returning, 6500, 10000);
+  const recovered = restoreSession(parseSessionCheckpoint(JSON.parse(JSON.stringify(saved))));
+  const secondAgain = switchProgramPart(program, recovered, 1, 7000);
+  assert.equal(secondAgain.elapsedBeforeMs, 1500);
+  assert.equal(secondAgain.status, 'paused');
+});
+
+test('Restart part clears only that part while retaining other timers', () => {
+  const second = switchProgramPart(program, start(selectProgramPart(program, 0), 0), 1, 3000);
+  const firstAgain = switchProgramPart(program, start(second, 4000), 0, 6000);
+  const resetFirst = restart(firstAgain);
+  const returnSecond = switchProgramPart(program, resetFirst, 1, 7000);
+  assert.equal(returnSecond.elapsedBeforeMs, 2000);
+  assert.equal(switchProgramPart(program, returnSecond, 0, 8000).elapsedBeforeMs, 0);
+});
+
+test('timer history retains overtime and rejects malformed persisted progress', () => {
+  const second = switchProgramPart(program, start(selectProgramPart(program, 0), 0), 1, 12000);
+  const firstAgain = switchProgramPart(program, second, 0, 13000);
+  assert.equal(firstAgain.elapsedBeforeMs, 12000);
+  const saved = makeSessionCheckpoint(program, firstAgain, 13000, 20000);
+  assert.throws(() => parseSessionCheckpoint({ ...saved, partElapsedMs: [1] }));
+  assert.throws(() => parseSessionCheckpoint({ ...saved, partElapsedMs: [-1, 0] }));
+  assert.throws(() => parseSessionCheckpoint({ ...saved, partElapsedMs: [0, 0] }));
+  assert.throws(() => parseSessionCheckpoint({ ...saved, partElapsedMs: [12000, 0.5] }));
+});
+
+test('legacy session checkpoints can begin preserving per-part elapsed time', () => {
+  const saved = makeSessionCheckpoint(program, start(selectProgramPart(program, 0), 1000), 5000, 10000);
+  assert.equal(saved.partElapsedMs, undefined);
+  const recovered = restoreSession(saved);
+  const second = switchProgramPart(program, recovered, 1, 6000);
+  const firstAgain = switchProgramPart(program, second, 0, 7000);
+  assert.equal(firstAgain.elapsedBeforeMs, 4000);
 });

@@ -46,18 +46,7 @@ export function useSectionScreen(section: MainSection) {
 
     meetings: [],
 
-    timer: [
-      {
-        id: 'programs',
-        label: en.actions.managePrograms,
-        onPress: () => navigation.navigate('MeetingPrograms'),
-      },
-      {
-        id: 'current-timer',
-        label: en.actions.openPracticeTimer,
-        onPress: () => navigation.navigate('PracticeTimer'),
-      },
-    ],
+    timer: [],
 
     settings: [
       {
@@ -81,11 +70,6 @@ export function useSectionScreen(section: MainSection) {
         onPress: () => navigation.navigate('Diagnostics'),
       },
       {
-        id: 'programs',
-        label: en.actions.managePrograms,
-        onPress: () => navigation.navigate('MeetingPrograms'),
-      },
-      {
         id: 'workbook-import',
         label: workbookImportEn.title,
         onPress: () => navigation.navigate('WorkbookImport'),
@@ -93,7 +77,7 @@ export function useSectionScreen(section: MainSection) {
       {
         id: 'timer-display',
         label: settingsEn.timerDisplay,
-        onPress: () => navigation.navigate('PracticeTimer'),
+        onPress: () => navigation.navigate('Main', { screen: 'Timer' }),
       },
       {
         id: 'backups',

@@ -39,14 +39,63 @@ const MONTHS: Readonly<Record<string, number>> = {
   DECEMBER: 12, DISYEMBRE: 12,
 };
 
+const LIVING_HEADING =
+  /LIVING\s*AS\s+CHRISTIANS|PAGKINABUHI\s+SUGAD\s+NGA\s+MGA\s+KRISTIANO/gi;
+const PART_START = /^[ \t]*(\d{1,2})\.[ \t]*/gm;
 const HEADINGS = [
-  /TREASURES\s+FROM\s+GOD['’]S\s+WORD|MGA\s+BAHANDI\s+TIKANG\s+HA\s+PULONG\s+HAN\s+DIOS/gi,
-  /APPLY\s+YOURSELF\s+TO\s+THE\s+FIELD\s+MINISTRY|MAGIN\s+MAS\s+EPEKTIBO\s+HA\s+MINISTERYO/gi,
-  /LIVING\s+AS\s+CHRISTIANS|PAGKINABUHI\s+SUGAD\s+NGA\s+MGA\s+KRISTIANO/gi,
+  /TREASURES\s+FROM\s+GOD['’]S\s+WORD|MGA\s+BAHANDI\s+TIKANG\s+HA\s*PULONG\s+HAN\s+DIOS/gi,
+  /APPLY\s+YOURSELF\s*TO\s+THE\s+FIELD\s+MINISTRY|MAGIN\s+MAS\s+EPEKTIBO\s+HA\s+MINISTERYO/gi,
+  LIVING_HEADING,
 ];
 
 function clean(value: string): string {
   return value.replace(/\s+/g, ' ').trim();
+}
+
+function normalizePage(raw: string): string {
+  return raw
+    .normalize('NFKC')
+    .replace(/\r\n?/g, '\n')
+    .replace(/\u00ad/g, '')
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u00A0]+/g, ' ');
+}
+
+function continuationFor(
+  first: string,
+  next: string | undefined,
+  datePattern: RegExp,
+): string {
+  if (!next || datePattern.test(next)) return '';
+
+  const living = next.search(LIVING_HEADING);
+  if (living < 0) return '';
+
+  const firstPart = [...next.matchAll(PART_START)][0];
+  if (!firstPart || living >= (firstPart.index ?? 0)) return '';
+
+  const previousPart = [...first.matchAll(PART_START)].at(-1);
+  if (!previousPart || Number(firstPart[1]) !== Number(previousPart[1]) + 1) return '';
+
+  if (readWorkbookExtras(first).closing.length > 0 || readWorkbookExtras(next).closing.length !== 1) {
+    return '';
+  }
+
+  return '\n' + next;
+}
+
+const datePattern = new RegExp(
+  '\\b(' + Object.keys(MONTHS).join('|') + ')\\s+' +
+  '(\\d{1,2})\\s*[-–—]\\s*(?:[A-Z]+\\s+)?\\d{1,2}\\b',
+  'i',
+);
+
+export function readWorkbookDate(source: string, year: string): string | null {
+  const header = datePattern.exec(source);
+  const month = MONTHS[header?.[1]?.toUpperCase() ?? ''];
+  const day = header?.[2];
+  if (!month || !day) return null;
+  const date = year + '-' + String(month).padStart(2, '0') + '-' + day.padStart(2, '0');
+  return isCalendarDate(date) ? date : null;
 }
 
 export function buildWorkbookCandidates(
@@ -65,47 +114,28 @@ export function buildWorkbookCandidates(
     return [];
   }
 
-  const datePattern = new RegExp(
-    `\\b(${Object.keys(MONTHS).join('|')})\\s+` +
-    '(\\d{1,2})\\s*[-–—]\\s*(?:[A-Z]+\\s+)?\\d{1,2}\\b',
-    'i',
-  );
-
   const candidates: WorkbookCandidate[] = [];
 
-  pages.forEach((raw, pageIndex) => {
-    const page = raw
-      .normalize('NFKC')
-      .replace(/\r\n?/g, '\n')
-      .replace(/\u00ad/g, '')
-      .replace(/\u00a0/g, ' ');
+  const normalizedPages = pages.map(normalizePage);
+  normalizedPages.forEach((first, pageIndex) => {
+    const date = readWorkbookDate(first, year);
+    if (!date) return;
 
-    const header = datePattern.exec(page);
-    const monthName = header?.[1];
-    const day = header?.[2];
-    const month = monthName
-      ? MONTHS[monthName.toUpperCase()]
-      : undefined;
-
-    if (!month || !day) return;
-
-    const date =
-      `${year}-${String(month).padStart(2, '0')}-` +
-      day.padStart(2, '0');
-
-    if (!isCalendarDate(date)) return;
-
+    const page = first + continuationFor(first, normalizedPages[pageIndex + 1], datePattern);
     const headings = HEADINGS.flatMap((pattern, group) =>
       [...page.matchAll(new RegExp(pattern.source, 'gi'))].map(match => ({
         group,
         index: match.index ?? 0,
-        title: clean(match[0]),
+        title: clean(match[0])
+          .replace(/YOURSELFTO/i, 'YOURSELF TO')
+          .replace(/LIVINGAS/i, 'LIVING AS')
+          .replace(/HAPULONG/i, 'HA PULONG'),
       })),
     ).sort((left, right) => left.index - right.index);
 
     if (headings.length === 0) return;
 
-    const starts = [...page.matchAll(/^[ \t]*(\d{1,2})\.[ \t]*/gm)];
+    const starts = [...page.matchAll(PART_START)];
 
     if (starts.length === 0 || starts.length > 30) return;
 

@@ -1,11 +1,12 @@
 import { useCallback, useRef, useState } from 'react';
 import { AccessibilityInfo, AppState } from 'react-native';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 
 import { meetingWeek } from '../../backend/domain/meetings/meetingWeek';
-import { isCalendarDate } from '../../backend/domain/meetings/meetingValidation';
+import { isCalendarDate, MEETING_LIMITS } from '../../backend/domain/meetings/meetingValidation';
 
-import type { MeetingType } from '../../backend/domain/meetings/meeting.types';
+import type { OnlineWorkbookImporter } from '../../backend/services/onlineWorkbookImport';
+import type { MeetingPartDraft, MeetingSectionDraft, MeetingType } from '../../backend/domain/meetings/meeting.types';
 import type {
   MeetingService,
   MeetingSummary,
@@ -14,6 +15,8 @@ import type {
 
 import { meetingProgramsEn as text } from '../../constants/strings/meetingProgramsEn';
 import { useLocalProfile } from './useLocalProfile';
+import { useOnlineWorkbookImport } from './useOnlineWorkbookImport';
+import type { MainTabParamList } from '../navigation/types';
 
 import {
   currentMeetingWeek,
@@ -36,13 +39,15 @@ interface Selection {
   meetingId: string | null;
 }
 
-export function useMeetings(service: MeetingService) {
+export function useMeetings(service: MeetingService, importer: OnlineWorkbookImporter) {
   const navigation = useNavigation();
+  const route = useRoute<RouteProp<MainTabParamList, 'Meetings'>>();
+  const requested = route.params;
+  const handledSelection = useRef<string | null>(null);
   const { state: profileState } = useLocalProfile();
 
-  const timezone = profileState.status === 'ready'
-    ? profileState.profile?.timezone
-    : undefined;
+  const profile = profileState.status === 'ready' ? profileState.profile : null;
+  const timezone = profile?.timezone;
 
   const selected = useRef<Selection>({
     week: null,
@@ -61,6 +66,18 @@ export function useMeetings(service: MeetingService) {
       }
 
       const selection = selected.current;
+      const requestKey = requested?.meetingId + ':' + requested?.requestId;
+      if (requested?.meetingId && handledSelection.current !== requestKey) {
+        const requestedMeeting = service.get(requested.meetingId);
+        if (!requestedMeeting.ok || !requestedMeeting.value) {
+          setState({ status: 'error', message: text.missing });
+          return;
+        }
+        selection.week = meetingWeek(requestedMeeting.value.draft.meetingDate);
+        selection.type = requestedMeeting.value.draft.meetingType;
+        selection.meetingId = requested.meetingId;
+        handledSelection.current = requestKey;
+      }
       const week = selection.week ?? currentMeetingWeek(timezone);
       selection.week = week;
 
@@ -108,7 +125,7 @@ export function useMeetings(service: MeetingService) {
     } catch {
       setState({ status: 'error', message: text.error });
     }
-  }, [service, timezone]);
+  }, [service, timezone, requested]);
 
   useFocusEffect(
     useCallback(() => {
@@ -163,9 +180,76 @@ export function useMeetings(service: MeetingService) {
     reload();
   }
 
+  const importType = selected.current.type;
+  const online = useOnlineWorkbookImport(
+    importer,
+    profile ? { language: profile.programLanguage, timezone: profile.timezone, meetingType: importType } : null,
+    date => {
+      selected.current.week = date;
+      selected.current.type = importType;
+      selected.current.meetingId = null;
+      reload();
+    },
+  );
+
+  function saveSections(meeting: SavedMeeting, sections: readonly MeetingSectionDraft[]): string | null {
+    const saved = service.save(
+      { ...meeting.draft, sections },
+      { id: meeting.id, revision: meeting.revision },
+    );
+    if (!saved.ok) return saved.error.message;
+    reload();
+    return null;
+  }
+
+  function changePart(
+    meeting: SavedMeeting,
+    sectionIndex: number,
+    partIndex: number,
+    part: MeetingPartDraft | null,
+  ): string | null {
+    const section = meeting.draft.sections[sectionIndex];
+    if (!section?.parts[partIndex]) return text.missing;
+    const parts = part
+      ? section.parts.map((current, index) => index === partIndex ? part : current)
+      : section.parts.filter((_, index) => index !== partIndex);
+    return saveSections(meeting, meeting.draft.sections.map((current, index) =>
+      index === sectionIndex ? { ...current, parts } : current,
+    ));
+  }
+
+  function addTimer(meeting: SavedMeeting, title: string, minutes: string): string | null {
+    const duration = minutes.trim();
+    const seconds = Number(duration) * 60;
+    if (!/^\d+$/.test(duration) || seconds < 60 || seconds > MEETING_LIMITS.durationSeconds) {
+      return text.invalidTimerMinutes(MEETING_LIMITS.durationSeconds / 60);
+    }
+    if (!title.trim()) return text.timerNameRequired;
+
+    const timer: MeetingPartDraft = {
+      title: title.trim(), kind: 'custom', durationSeconds: seconds, isTimed: true,
+    };
+    const sections = [...meeting.draft.sections];
+    const last = sections[sections.length - 1];
+    if (
+      last?.title === text.customTimers &&
+      last.parts.every(part => part.kind === 'custom') &&
+      last.parts.length < MEETING_LIMITS.partsPerSection
+    ) {
+      sections[sections.length - 1] = { ...last, parts: [...last.parts, timer] };
+    } else {
+      sections.push({ title: text.customTimers, parts: [timer] });
+    }
+
+    return saveSections(meeting, sections);
+  }
+
   const week = selected.current.week;
 
   return {
+    online,
+    addTimer,
+    changePart,
     state,
     week,
     meetingType: selected.current.type,
@@ -180,16 +264,13 @@ export function useMeetings(service: MeetingService) {
 
     importPdf: () => navigation.navigate('WorkbookImport'),
 
-    openMeeting: (meetingId: string) =>
-      navigation.navigate('MeetingEditor', { meetingId }),
-
     openTimer: (meetingId: string) => {
       timerRequest.current += 1;
 
-      navigation.navigate('PracticeTimer', {
+      navigation.navigate('Main', { screen: 'Timer', params: {
         meetingId,
         requestId: `${Date.now()}-${timerRequest.current}`,
-      });
+      } });
     },
   };
 }

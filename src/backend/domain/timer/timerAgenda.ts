@@ -6,6 +6,7 @@ import {
 
 import {
   isTimerProgram,
+  makeSessionCheckpoint,
   type TimerProgram,
 } from './timerProgram';
 
@@ -32,6 +33,28 @@ export function selectProgramPart(
   };
 }
 
+export function switchProgramPart(
+  program: TimerProgram,
+  state: TimerState,
+  index: number,
+  nowMs: number,
+): TimerState {
+  const selected = selectProgramPart(program, index);
+  const saved = makeSessionCheckpoint(program, state, nowMs, 0);
+  const progress = saved.partElapsedMs
+    ? [...saved.partElapsedMs]
+    : program.parts.map(() => 0);
+  progress[state.partIndex] = saved.elapsedMs;
+  const selectedElapsed = progress[index] ?? 0;
+
+  return {
+    ...selected,
+    partElapsedMs: progress,
+    elapsedBeforeMs: selectedElapsed,
+    status: selectedElapsed > 0 ? 'paused' : 'ready',
+  };
+}
+
 export function remainingProgramMs(
   program: TimerProgram,
   state: TimerState,
@@ -52,7 +75,10 @@ export function remainingProgramMs(
 
   const laterRemaining = program.parts
     .slice(state.partIndex + 1)
-    .reduce((total, item) => total + item.durationMs, 0);
+    .reduce((total, item, offset) => total + Math.max(
+      0,
+      item.durationMs - (state.partElapsedMs?.[state.partIndex + 1 + offset] ?? 0),
+    ), 0);
 
   return currentRemaining + laterRemaining;
 }

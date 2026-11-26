@@ -4,7 +4,10 @@ export interface WorkbookSource {
   readonly parser:
     | 'numbered-workbook-v1'
     | 'workbook-v2'
-    | 'watchtower-v1';
+    | 'watchtower-v1'
+    | 'wol-v1';
+  readonly url?: string;
+  readonly retrievedAt?: string;
 }
 
 export function readWorkbookSource(
@@ -32,10 +35,30 @@ export function readWorkbookSource(
     (
       value.parser !== 'numbered-workbook-v1' &&
       value.parser !== 'workbook-v2' &&
-      value.parser !== 'watchtower-v1'
+      value.parser !== 'watchtower-v1' &&
+      value.parser !== 'wol-v1'
     )
   ) {
     return null;
+  }
+
+  if (value.parser === 'wol-v1') {
+    if (
+      typeof value.url !== 'string' ||
+      !/^https:\/\/wol\.jw\.org\/(?:en\/wol\/d\/r1\/lp-e|war\/wol\/d\/r110\/lp-sa)\/\d+$/.test(value.url) ||
+      typeof value.retrievedAt !== 'string' ||
+      !Number.isFinite(Date.parse(value.retrievedAt)) ||
+      new Date(value.retrievedAt).toISOString() !== value.retrievedAt
+    ) {
+      return null;
+    }
+    return {
+      filename: value.filename.trim(),
+      page: value.page,
+      parser: value.parser,
+      url: value.url,
+      retrievedAt: value.retrievedAt,
+    };
   }
 
   return {

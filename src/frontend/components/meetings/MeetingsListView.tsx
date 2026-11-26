@@ -1,18 +1,17 @@
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
+import { workbookImportEn as importText } from '../../../constants/strings/workbookImportEn';
 import { meetingProgramsEn as text } from '../../../constants/strings/meetingProgramsEn';
-import { workbookParsingEn } from '../../../constants/strings/workbookParsingEn';
-import { spacing } from '../../../constants/theme';
 
 import type { useMeetings } from '../../hooks/useMeetings';
 import { useAppTheme } from '../../context/AppearanceContext';
 
 import AppButton from '../common/AppButton';
 import AppCard from '../common/AppCard';
-import AppIcon from '../common/AppIcon';
 import AppScreen from '../common/AppScreen';
 import MeetingWeekPicker from './MeetingWeekPicker';
-import ProgramSectionCard from './ProgramSectionCard';
+import MeetingAgenda from './MeetingAgenda';
+import AddMeetingTimer from './AddMeetingTimer';
 
 type Props = ReturnType<typeof useMeetings>;
 
@@ -85,6 +84,25 @@ export default function MeetingsListView(model: Props) {
           selectDate={model.selectDate}
         />
 
+        <AppButton
+          label={model.online.busy ? importText.importing : importText.wolImport[model.meetingType]}
+          disabled={!model.online.ready || model.online.busy}
+          onPress={model.online.run}
+        />
+        {model.online.busy ? (
+          <AppButton label={importText.cancelDownload} onPress={model.online.cancel} />
+        ) : null}
+        {model.online.message ? (
+          <Text accessibilityLiveRegion="polite" className="text-app-body text-app-secondary">
+            {model.online.message}
+          </Text>
+        ) : null}
+        {model.online.error ? (
+          <Text accessibilityRole="alert" className="text-app-body text-app-danger">
+            {model.online.error}
+          </Text>
+        ) : null}
+
         {model.state.status === 'loading' ? (
           <View className="gap-app-medium">
             <ActivityIndicator color={palette.brand} />
@@ -134,46 +152,24 @@ export default function MeetingsListView(model: Props) {
               <Text className="text-app-body text-app-secondary">
                 {text.summary(parts.length, seconds)}
               </Text>
+              {saved.draft.importSource?.retrievedAt ? (
+                <Text className="text-sm text-app-secondary">
+                  {importText.wolCached(saved.draft.importSource.retrievedAt)}
+                </Text>
+              ) : null}
             </View>
 
-            <View className="gap-app-small">
-              {saved.draft.sections.map((section, index) => {
-                const key = `${saved.id}:${saved.revision}:${section.id ?? index}`;
-                const showOpeningRows =
-                  section.title === workbookParsingEn.openingSection &&
-                  section.parts.length > 0 &&
-                  section.parts.every(part => part.kind === 'song' || part.kind === 'comments');
-
-                if (!showOpeningRows) {
-                  return <ProgramSectionCard key={key} section={section} />;
-                }
-
-                return (
-                  <View key={key} className="gap-app-small">
-                    {section.parts.map((part, partIndex) => (
-                      <View
-                        key={part.id ?? partIndex}
-                        className="min-h-app-touch flex-row items-center gap-app-small rounded-app-button border border-app-border bg-app-surface p-app-small"
-                      >
-                        <AppIcon
-                          name={part.kind === 'song' ? 'song' : 'comments'}
-                          color={palette.text}
-                          size={spacing.large}
-                        />
-                        <Text className="flex-1 text-app-body font-semibold text-app-text">
-                          {part.title}
-                        </Text>
-                        <Text className="text-app-body text-app-secondary">
-                          {part.isTimed ? text.duration(part.durationSeconds) : text.untimed}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                );
-              })}
-            </View>
-
-            <AppButton label={text.edit} onPress={() => model.openMeeting(saved.id)} />
+            <Text className="text-sm text-app-secondary">{text.editPartHint}</Text>
+            <MeetingAgenda
+              key={saved.id + ':' + saved.revision}
+              sections={saved.draft.sections}
+              save={(section, part, value) => model.changePart(saved, section, part, value)}
+              remove={(section, part) => model.changePart(saved, section, part, null)}
+            />
+            <AddMeetingTimer
+              key={saved.id}
+              save={(title, minutes) => model.addTimer(saved, title, minutes)}
+            />
             <AppButton
               label={text.timer}
               disabled={!canOpenTimer}

@@ -13,21 +13,21 @@ export const timerEn = {
     'Estimate assumes immediate starts, immediate advance at zero, and no extra pauses.',
   estimateUnavailable:
     'The finish estimate is available while timing is running.',
-  managePrograms: 'Manage programs',
-  editProgram: 'Edit saved program',
   start: 'Start',
   pause: 'Pause',
   resume: 'Resume',
   next: 'Next part',
   finish: 'Finish program',
   restart: 'Restart part',
+  chooseTimer: 'Choose timer',
+  viewMeeting: 'Open in Meetings',
   fullscreen: 'Fullscreen',
   exitFullscreen: 'Exit fullscreen',
   keepAwake: 'Keep screen awake in fullscreen',
   selectPart: 'Select part',
   selectTitle: 'Change selected part?',
   selectMessage:
-    'The current part’s elapsed time will be cleared. The selected part will wait for Start.',
+    'Each part keeps its elapsed time. The selected part will wait for Start or Resume.',
   keepCurrent: 'Keep current',
   cancel: 'Cancel',
   partMenu: 'Part actions',
@@ -39,9 +39,9 @@ export const timerEn = {
     'The checkpoint may be older than the interruption. Time while closed is excluded.',
   retrySaving: 'Retry saving',
   snapshotNote:
-    'Editing the saved meeting does not change this loaded program. Reload it from Manage programs to use newer edits.',
+    'Program edits appear when you open this program again from Meetings.',
   legacyMetadata:
-    'Reload this saved program from Manage programs to show its meeting week and section labels.',
+    'Open this program again from Meetings to show its meeting week and section labels.',
   practice: 'Practice program',
   dateMissing: 'Meeting date not recorded',
 } as const;

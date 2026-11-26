@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import {
   createNativeStackNavigator,
+  type NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 
 import { useAppTheme } from '../context/AppearanceContext';
@@ -10,7 +12,6 @@ import AppearanceScreen from '../screens/AppearanceScreen';
 import NativewindPreviewScreen from '../screens/NativewindPreviewScreen';
 import DiagnosticsScreen from '../screens/DiagnosticsScreen';
 import MeetingEditorScreen from '../screens/MeetingEditorScreen';
-import MeetingsScreen from '../screens/MeetingsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import TimerSessionScreen from '../screens/TimerSessionScreen';
@@ -34,6 +35,15 @@ import type { RootStackParamList } from './types';
 const Root = createNativeStackNavigator<RootStackParamList>();
 
 const getPracticeTimerId = () => 'local-practice-timer';
+
+function MeetingProgramsRedirect({
+  navigation,
+}: NativeStackScreenProps<RootStackParamList, 'MeetingPrograms'>) {
+  useEffect(() => {
+    navigation.popTo('Main', { screen: 'Meetings' });
+  }, [navigation]);
+  return null;
+}
 
 export default function AppNavigator() {
   const { palette: colors } = useAppTheme();
@@ -90,7 +100,7 @@ export default function AppNavigator() {
 
           <Root.Screen
             name="MeetingPrograms"
-            component={MeetingsScreen}
+            component={MeetingProgramsRedirect}
             options={{
               headerShown: true,
               title: en.navigation.meetings,

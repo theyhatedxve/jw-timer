@@ -39,6 +39,7 @@ export interface TimerProgram {
 
 export interface SessionCheckpoint {
   readonly schemaVersion: 2;
+  readonly partElapsedMs?: readonly number[];
   readonly program: TimerProgram;
   readonly partIndex: number;
   readonly elapsedMs: number;
@@ -268,6 +269,15 @@ export function isSessionCheckpoint(
     return false;
   }
 
+  if (value.partElapsedMs !== undefined && (
+    !Array.isArray(value.partElapsedMs) ||
+    value.partElapsedMs.length !== value.program.parts.length ||
+    value.partElapsedMs.some(time => !Number.isSafeInteger(time) || time < 0) ||
+    value.partElapsedMs[value.partIndex] !== value.elapsedMs
+  )) {
+    return false;
+  }
+
   if (value.status === 'ready' && value.elapsedMs !== 0) {
     return false;
   }
@@ -320,6 +330,11 @@ export function makeSessionCheckpoint(
     program,
     partIndex: state.partIndex,
     elapsedMs: Math.floor(elapsed(state, nowMs)),
+    ...(state.partElapsedMs === undefined ? {} : {
+      partElapsedMs: state.partElapsedMs.map((time, index) =>
+        index === state.partIndex ? Math.floor(elapsed(state, nowMs)) : time,
+      ),
+    }),
     status: state.status,
     savedAtMs,
   };
@@ -342,6 +357,7 @@ export function restoreSession(
     partIndex: saved.partIndex,
     durationMs: part.durationMs,
     elapsedBeforeMs: saved.elapsedMs,
+    ...(saved.partElapsedMs === undefined ? {} : { partElapsedMs: [...saved.partElapsedMs] }),
     startedAtMs: null,
     status: saved.status === 'running'
       ? 'paused'

@@ -1,15 +1,9 @@
-import { Text, useWindowDimensions } from 'react-native';
+import { Text } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import {
-  dimensions,
-  spacing,
-  typography,
-} from '../../constants/theme';
 
 import AppIcon from '../components/common/AppIcon';
 import { useAppTheme } from '../context/AppearanceContext';
+import { useTabLayout } from '../hooks/useTabLayout';
 import { styles } from '../styles/navigation/tabs.styles';
 import { TABS } from './tabs';
 import type { MainTabParamList } from './types';
@@ -18,16 +12,7 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export default function TabNavigator() {
   const { palette } = useAppTheme();
-  const { width, fontScale } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
-
-  const useRail = width >= dimensions.navigationRailBreakpoint;
-
-  const bottomBarHeight =
-    typography.navigationLineHeight * fontScale * 3 +
-    spacing.large +
-    spacing.medium +
-    insets.bottom;
+  const { useRail, barStyle } = useTabLayout();
 
   return (
     <Tab.Navigator
@@ -47,16 +32,7 @@ export default function TabNavigator() {
         tabBarHideOnKeyboard: true,
         tabBarAllowFontScaling: true,
         tabBarItemStyle: styles.item,
-        tabBarStyle: [
-          styles.bar,
-          {
-            backgroundColor: palette.surface,
-            borderColor: palette.border,
-          },
-          useRail
-            ? { width: dimensions.navigationRailWidth }
-            : { height: bottomBarHeight },
-        ],
+        tabBarStyle: barStyle,
         sceneStyle: { backgroundColor: palette.canvas },
       }}
     >
@@ -67,6 +43,7 @@ export default function TabNavigator() {
           component={component}
           options={{
             title: label,
+            headerShown: name !== 'Timer',
             tabBarAccessibilityLabel: label,
             tabBarIcon: ({ color, size }) => (
               <AppIcon name={icon} color={color} size={size} />

@@ -5,6 +5,7 @@ export interface TimerState {
   readonly durationMs: number;
   readonly elapsedBeforeMs: number;
   readonly startedAtMs: number | null;
+  readonly partElapsedMs?: readonly number[];
   readonly status: TimerStatus;
 }
 

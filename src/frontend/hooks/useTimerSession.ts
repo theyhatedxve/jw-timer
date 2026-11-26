@@ -47,7 +47,7 @@ import type {
 } from '../navigation/types';
 
 import {
-  selectProgramPart,
+  switchProgramPart,
 } from '../../backend/domain/timer/timerAgenda';
 
 import {
@@ -492,7 +492,7 @@ function editLoadedProgram() {
   const meetingId = current.current.program.meetingId;
 
   if (meetingId) {
-    navigation.navigate('MeetingEditor', { meetingId });
+    navigation.navigate('Main', { screen: 'Meetings', params: { meetingId, requestId: String(Date.now()) } });
   }
 }
 
@@ -525,7 +525,7 @@ function selectPart(index: number) {
 
     commit({
       program: existing.program,
-      timer: selectProgramPart(existing.program, index),
+      timer: switchProgramPart(existing.program, current.current.timer, index, performance.now()),
     });
   }
 
@@ -611,7 +611,7 @@ function selectPart(index: number) {
 
     if (existing.program.meetingId) {
       buttons.push({
-        text: timerEn.editProgram,
+        text: timerEn.viewMeeting,
         onPress: () => {
           if (sameProgram()) editLoadedProgram();
         },
@@ -687,6 +687,7 @@ function selectPart(index: number) {
     restoreCheckpoint,
     restartRecoveredPart,
     toggleRunning,
+    selectPart,
     advancePart,
     retrySaving: () => commit(current.current),
     toggleFullscreen: () => {
@@ -702,8 +703,6 @@ function selectPart(index: number) {
 
     nowMs: now,
     openPartMenu,
-    editLoadedProgram,
-    openPrograms: () => navigation.navigate('MeetingPrograms'),
     openSettings: () => navigation.navigate('Settings'),
   };
 }

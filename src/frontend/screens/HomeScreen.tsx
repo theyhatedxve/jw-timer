@@ -12,7 +12,7 @@ export default function HomeScreen() {
     <HomeView
       {...model}
       openProgram={meetingId =>
-        navigation.navigate('MeetingEditor', { meetingId })
+        navigation.navigate('Main', { screen: 'Meetings', params: { meetingId, requestId: String(Date.now()) } })
       }
       openMeetings={() =>
         navigation.navigate('Main', { screen: 'Meetings' })

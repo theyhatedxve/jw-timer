@@ -37,7 +37,10 @@ function markers(
       index,
       end: index + match[0].length,
       part: {
-        title: (match[1] ?? '').replace(/\s+/g, ' ').trim(),
+        title: (match[1] ?? '')
+          .replace(/\s+/g, ' ')
+          .replace(/^(Song|Karantahon)(?=\d)/i, '$1 ')
+          .trim(),
         kind,
         durationSeconds: hasDuration ? minutes * 60 : 0,
         isTimed: hasDuration,
@@ -49,19 +52,19 @@ function markers(
 export function readWorkbookExtras(source: string): WorkbookExtras {
   const songs = markers(
     source,
-    /\b((?:Song|Karantahon)\s+\d{1,3})(?!\d)(?:\s*\(\s*(\d{1,3})\s*min\.?\s*\))?/gi,
+    /\b((?:Song|Karantahon)\s*\d{1,3})(?!\d)(?:\s*\(\s*(\d{1,3})\s*min\.?\s*\))?/gi,
     'song',
   );
 
   const opening = markers(
     source,
-    /\b(Opening\s+Comments|Introduksyon)(?:\s*\(\s*(\d{1,3})\s*min\.?\s*\))?/gi,
+    /\b(Opening\s+Comments|Introduksyon)(?:\s*\(\s*(\d{1,3})\s*min\.?\s*\)|(?=[ \t]*(?:[|•·]|$)))/gim,
     'comments',
   );
 
   const closing = markers(
     source,
-    /\b(Concluding\s+Comments|Konklusyon)(?:\s*\(\s*(\d{1,3})\s*min\.?\s*\))?/gi,
+    /\b(Concluding\s+Comments|Konklusyon)(?:\s*\(\s*(\d{1,3})\s*min\.?\s*\)|(?=[ \t]*(?:[|•·]|(?:Song|Karantahon)\b|$)))/gim,
     'comments',
   );
 
@@ -77,10 +80,12 @@ export function readWorkbookExtras(source: string): WorkbookExtras {
 
 function isConnector(value: string): boolean {
   const gap = value
-    .replace(/[|•·,;:\u2013\u2014]/g, ' ')
+    .replace(/[\u0000-\u001F\u007F\uE000-\uF8FF_|•·˙▪◦●■♪♫,;:\u002D\u2010-\u2015\u2212]/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
 
-  return /^(?:(?:and|prayer|ngan|pag[- ]ampo)\s*)*$/i.test(gap);
+  return gap.length <= 160 &&
+    /^(?:(?:and|prayer|ngan|pag\s*-?\s*ampo)\s*)*$/i.test(gap);
 }
 
 function adjacent(
@@ -89,8 +94,38 @@ function adjacent(
   second: Marker,
 ): boolean {
   return first.end <= second.index &&
-    second.index - first.end <= 160 &&
     isConnector(source.slice(first.end, second.index));
+}
+
+function songBeside(
+  extras: WorkbookExtras,
+  comment: Marker,
+  songFirst: boolean,
+): Marker | undefined {
+  for (const before of [songFirst, !songFirst]) {
+    const matches = extras.songs.filter(song =>
+      before
+        ? adjacent(extras.source, song, comment)
+        : adjacent(extras.source, comment, song),
+    );
+    if (matches.length > 0) return matches.length === 1 ? matches[0] : undefined;
+  }
+  return undefined;
+}
+
+function songUnderLivingHeading(extras: WorkbookExtras): Marker | undefined {
+  const headings = [...extras.source.matchAll(
+    /\b(?:LIVING\s*AS\s+CHRISTIANS|PAGKINABUHI\s+SUGAD\s+NGA\s+MGA\s+KRISTIANO)\b/gi,
+  )];
+  const heading = headings.length === 1 ? headings[0] : undefined;
+  if (!heading || heading.index === undefined) return undefined;
+
+  const end = heading.index + heading[0].length;
+  const songs = extras.songs.filter(song =>
+    song.index >= end &&
+    isConnector(extras.source.slice(end, song.index)),
+  );
+  return songs.length === 1 ? songs[0] : undefined;
 }
 
 export function arrangeWorkbookExtras(
@@ -106,25 +141,18 @@ export function arrangeWorkbookExtras(
     ? extras.closing[0]
     : undefined;
 
-  const openingSongs = opening
-    ? extras.songs.filter(song =>
-        adjacent(extras.source, song, opening),
-      )
-    : [];
+  let openingSong = opening ? songBeside(extras, opening, true) : undefined;
+  let closingSong = closing ? songBeside(extras, closing, false) : undefined;
 
-  const closingSongs = closing
-    ? extras.songs.filter(song =>
-        adjacent(extras.source, closing, song),
-      )
-    : [];
-
-  const openingSong = openingSongs.length === 1
-    ? openingSongs[0]
-    : undefined;
-
-  const closingSong = closingSongs.length === 1
-    ? closingSongs[0]
-    : undefined;
+  if (opening && closing && extras.songs.length === 3 && (!openingSong || !closingSong)) {
+    const middle = songUnderLivingHeading(extras);
+    const paired = openingSong ?? closingSong;
+    if (middle && paired && middle !== paired) {
+      const remaining = extras.songs.find(song => song !== middle && song !== paired);
+      openingSong ??= remaining;
+      closingSong ??= remaining;
+    }
+  }
 
   const middleSongs = extras.songs.filter(song =>
     song.index !== openingSong?.index &&

@@ -31,7 +31,7 @@ const groups: readonly Group[] = [
   {
     key: 'programs',
     icon: 'meetings',
-    ids: ['programs', 'workbook-import'],
+    ids: ['workbook-import'],
   },
   {
     key: 'display',
@@ -62,7 +62,6 @@ function descriptionFor(id: string): string | undefined {
 const rowIcons: Readonly<Record<string, AppIconName | undefined>> = {
   appearance: 'moon',
   profile: 'globe',
-  programs: 'list',
   'workbook-import': 'book',
   'timer-display': 'timer',
   backups: 'database',

@@ -1,4 +1,5 @@
-import { Pressable, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { timerEn as text } from '../../../constants/strings/timerEn';
 import { timerPresentation } from '../../../constants/timerTheme';
@@ -17,6 +18,12 @@ export default function TimerControls({
 }) {
   const { palette } = useAppTheme();
   const completed = model.timer.status === 'completed';
+  const [expanded, setExpanded] = useState(false);
+  const selectionLocked = model.locked || model.timer.status === 'running';
+
+  useEffect(() => {
+    if (selectionLocked) setExpanded(false);
+  }, [selectionLocked]);
 
   const actions = [
     {
@@ -40,15 +47,6 @@ export default function TimerControls({
       disabled: model.locked,
       background: timerPresentation.restartBackground,
       foreground: timerPresentation.restartText,
-    },
-    {
-      key: 'advance',
-      icon: 'nextPart' as const,
-      label: model.isLastPart ? text.finish : text.next,
-      onPress: model.advancePart,
-      disabled: model.locked || completed,
-      background: palette.surface,
-      foreground: palette.text,
     },
   ];
 
@@ -78,6 +76,58 @@ export default function TimerControls({
             </Pressable>
           </View>
         ))}
+      </View>
+      <View className="overflow-hidden rounded-app-button border border-app-border bg-app-surface">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={text.chooseTimer + '. ' + model.partTitle}
+          accessibilityState={{ expanded: expanded && !selectionLocked, disabled: selectionLocked }}
+          disabled={selectionLocked}
+          onPress={() => setExpanded(value => !value)}
+          className="min-h-app-touch flex-row items-center gap-app-small p-app-medium disabled:opacity-50"
+        >
+          <View className="flex-1 gap-1">
+            <Text className="text-sm text-app-secondary">{text.chooseTimer}</Text>
+            <Text className="text-app-body font-semibold text-app-text">{model.partTitle}</Text>
+          </View>
+          <Text accessible={false} className="text-app-body text-app-secondary">{expanded ? '⌃' : '⌄'}</Text>
+        </Pressable>
+        {expanded && !selectionLocked ? (
+          <ScrollView style={{ maxHeight: 280 }} nestedScrollEnabled keyboardShouldPersistTaps="handled">
+            {model.program.parts.map((part, index) => {
+              const selected = index === model.timer.partIndex;
+              return (
+                <Pressable
+                  key={part.id}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected, disabled: selected && !completed }}
+                  disabled={selected && !completed}
+                  onPress={() => {
+                    setExpanded(false);
+                    model.selectPart(index);
+                  }}
+                  className="min-h-app-touch border-t border-app-border p-app-medium active:opacity-75"
+                >
+                  <Text className="text-app-body" style={{ color: selected ? palette.brand : palette.text }}>
+                    {part.title}
+                  </Text>
+                </Pressable>
+              );
+            })}
+            {model.isLastPart && !completed ? (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => {
+                  setExpanded(false);
+                  model.advancePart();
+                }}
+                className="min-h-app-touch border-t border-app-border p-app-medium active:opacity-75"
+              >
+                <Text className="text-app-body font-semibold text-app-text">{text.finish}</Text>
+              </Pressable>
+            ) : null}
+          </ScrollView>
+        ) : null}
       </View>
     </View>
   );

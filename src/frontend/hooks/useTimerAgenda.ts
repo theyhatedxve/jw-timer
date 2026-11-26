@@ -91,9 +91,6 @@ export function useTimerAgenda(model: SessionModel) {
   const finishFormatter = useMemo(
     () => new Intl.DateTimeFormat('en-GB', {
       timeZone: timezone,
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',

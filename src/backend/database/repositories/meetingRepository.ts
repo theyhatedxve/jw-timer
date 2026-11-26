@@ -463,7 +463,7 @@ export function createMeetingRepository(database: () => SQLiteDatabase): Meeting
 
             if (duplicate) {
               throw new MeetingStorageError(
-                'conflict',
+                'importDuplicate',
                 workbookParsingEn.duplicate,
               );
             }

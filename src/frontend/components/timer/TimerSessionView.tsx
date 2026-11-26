@@ -175,19 +175,6 @@ export default function TimerSessionView(model: Model) {
                   </Text>
                 </AppCard>
 
-                <AppButton
-                  label={text.managePrograms}
-                  onPress={model.openPrograms}
-                />
-
-                {model.program.meetingId ? (
-                  <AppButton
-                    label={text.editProgram}
-                    disabled={model.locked}
-                    onPress={model.editLoadedProgram}
-                  />
-                ) : null}
-
                 <Text className="text-app-body text-app-secondary">
                   {text.snapshotNote}
                 </Text>

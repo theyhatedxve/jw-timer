@@ -308,16 +308,11 @@ export function useMeetingEditor(
 
   navigation.dispatch(
     CommonActions.reset({
-      index: 1,
-      routes: [
-        {
-          name: 'Main',
-          params: { screen: 'Timer' },
-        },
-        {
-          name: 'MeetingPrograms',
-        },
-      ],
+      index: 0,
+      routes: [{
+        name: 'Main',
+        params: { screen: 'Meetings' },
+      }],
     }),
   );
 }, [navigation]);

@@ -30,14 +30,6 @@ export default function WorkbookFileView(model: Props) {
         maxToRenderPerBatch={2}
         ListHeaderComponent={
           <View style={styles.group}>
-            <ActionButton
-              label={model.busy === 'downloading' ? text.downloading : text.download}
-              disabled={!model.canDownload || model.busy !== null}
-              onPress={model.downloadCurrent}
-            />
-            {model.busy === 'downloading' ? (
-              <ActionButton label={text.cancelDownload} onPress={model.cancelDownload} />
-            ) : null}
             <Text style={styles.text}>{text.empty}</Text>
 
             <WatchtowerImportView model={model.watchtower} />
@@ -109,12 +101,7 @@ export default function WorkbookFileView(model: Props) {
                 <Text style={styles.secondary}>
                   {text.size(model.file.size)}
                 </Text>
-                {model.file.downloadedAt ? (
-                  <Text style={styles.secondary}>{text.downloaded(model.file.downloadedAt)}</Text>
-                ) : null}
-                {model.pages.length === 0 && model.busy === null ? (
-                  <Text style={styles.text}>{text.selected}</Text>
-                ) : null}
+                <Text style={styles.text}>{text.selected}</Text>
 
                 <ActionButton
                   label={

@@ -11,7 +11,7 @@ import {
 import { fullscreenTimerEn as text } from '../../constants/strings/fullscreenTimerEn';
 import AppButton from '../components/common/AppButton';
 import AppCard from '../components/common/AppCard';
-import AppInput from '../components/common/AppInput';
+import ColorPickerField from '../components/common/ColorPickerField';
 import AppScreen from '../components/common/AppScreen';
 import FullscreenTimerFace, { fullscreenColors } from '../components/timer/FullscreenTimerFace';
 import { useAppTheme } from '../context/AppearanceContext';
@@ -84,17 +84,17 @@ export default function FullscreenTimerSettingsScreen() {
       <Text className="text-app-body text-app-secondary">{text.colorHint}</Text>
       <AppCard>
         {colorFields.map(field => (
-          <View key={field} className="gap-app-small">
-            <Text className="text-app-body font-semibold text-app-text">{text[field]}</Text>
-            <AppInput
-              accessibilityLabel={text[field]}
-              value={draft[field]}
-              autoCapitalize="none"
-              autoCorrect={false}
-              maxLength={7}
-              onChangeText={value => setDraft(current => ({ ...current, [field]: value.trim() }))}
-            />
-          </View>
+          <ColorPickerField
+            key={field}
+            label={text[field]}
+            value={draft[field]}
+            themeColor={field === 'background' ? palette.canvas : field === 'digits' ? palette.text : palette.danger}
+            onChange={value => {
+              setDraft(current => ({ ...current, [field]: value }));
+              setMessage('');
+              setFailed(false);
+            }}
+          />
         ))}
       </AppCard>
 

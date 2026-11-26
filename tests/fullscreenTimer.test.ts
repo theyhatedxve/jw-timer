@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { hexToHsv, hsvToHex } from '../src/frontend/utils/colorPicker';
 
 import {
   DEFAULT_FULLSCREEN_TIMER,
@@ -69,4 +70,22 @@ test('storage failures and corrupt saved settings are reported', () => {
     write: () => undefined,
   });
   assert.deepEqual(corrupt.load(), { ok: false });
+});
+
+
+test('color picker converts primary colors, black, white, and hue wraparound', () => {
+  assert.equal(hsvToHex({ h: 0, s: 1, v: 1 }), '#FF0000');
+  assert.equal(hsvToHex({ h: 120, s: 1, v: 1 }), '#00FF00');
+  assert.equal(hsvToHex({ h: 240, s: 1, v: 1 }), '#0000FF');
+  assert.equal(hsvToHex({ h: 360, s: 1, v: 1 }), '#FF0000');
+  assert.equal(hsvToHex({ h: 270, s: 1, v: 0 }), '#000000');
+  assert.equal(hsvToHex({ h: 270, s: 0, v: 1 }), '#FFFFFF');
+});
+
+test('color picker preserves arbitrary saved hex colors when opened', () => {
+  for (const hex of ['#FF5555', '#00C2C7', '#123456', '#A855F7', '#808080', '#000000', '#FFFFFF']) {
+    assert.equal(hsvToHex(hexToHsv(hex)), hex);
+  }
+  assert.throws(() => hexToHsv('theme'));
+  assert.throws(() => hexToHsv('#FFF'));
 });

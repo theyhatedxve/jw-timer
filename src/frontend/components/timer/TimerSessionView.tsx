@@ -241,6 +241,11 @@ export default function TimerSessionView(model: Model) {
                   {presentation.showAgenda}
                 </Text>
                 <Text className="text-app-body text-app-secondary">{model.program.title}</Text>
+                <AppButton
+                  label={text.resetAll}
+                  disabled={model.locked || model.timer.status === 'running'}
+                  onPress={model.confirmResetAll}
+                />
                 <AppButton label={presentation.closeAgenda} onPress={() => setShowAgenda(false)} />
               </View>
             }

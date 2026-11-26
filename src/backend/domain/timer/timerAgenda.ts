@@ -82,3 +82,18 @@ export function remainingProgramMs(
 
   return currentRemaining + laterRemaining;
 }
+
+/** Project remaining durations live through pauses and overtime; freeze on completion. */
+export function estimatedProgramFinishMs(
+  program: TimerProgram,
+  state: TimerState,
+  nowMs: number,
+  wallNowMs: number,
+  previousFinishMs?: number,
+): number {
+  if (state.status === 'completed' && previousFinishMs !== undefined) {
+    return previousFinishMs;
+  }
+
+  return wallNowMs + remainingProgramMs(program, state, nowMs);
+}

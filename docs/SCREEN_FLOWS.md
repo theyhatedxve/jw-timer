@@ -922,3 +922,62 @@ The standard Timer view retains its layout. Fullscreen size, color, progress,
 per-part elapsed time, restart, and recovery behavior remain supported.
 The Settings preview uses the same fullscreen face. No rotation control is added.
 Owner typecheck and Android portrait/landscape verification remain pending.
+
+## Estimated meeting finish update - 2026-11-27
+
+The finish estimate follows the live projection described in the
+[JW Time manual](https://jwtime.github.io/jwtime/en/manual.html#schermata-principale).
+It remains visible while paused and ready between parts. It stays fixed
+during a normal running countdown and uses the active and later parts'
+remaining durations, including saved elapsed time. While a part is paused,
+its elapsed time stops but the finish moves later with the pause duration.
+Waiting to start another part also moves the finish later. Running overtime
+extends the finish without reducing later parts' allotted time.
+Resume continues the projection without adding the pause twice.
+Completion freezes the final estimate; loading another program creates a
+fresh estimate. Formatting remains time-only in the program/profile time zone.
+Owner regression tests, typecheck, and Android verification remain pending.
+
+## Agenda: reset all timers - 2026-11-27
+
+The agenda offers Reset all timers while paused, ready, or completed.
+Confirmation reloads the program currently saved in Meetings, restores
+its allotted durations, clears elapsed history for every part, and selects
+the first timer in Ready. Saved meeting records remain unchanged.
+A practice program resets to its current allotted durations.
+Cancellation or an unavailable saved meeting preserves session progress.
+The existing checkpoint save path persists the reset; save failures retain
+the previous session through its existing recovery behavior.
+Owner typecheck and Android verification remain pending.
+
+## Local PDF automatic timer import - 2026-11-27
+
+Selecting a local workbook or supported English/Waray Watchtower study PDF
+now extracts, validates, and saves its complete weekly programs automatically.
+There is no extracted-text review, song/date form, or Meeting Editor step.
+The importer reports saved, already-saved, and incomplete/failed weeks.
+Open Meetings selects a saved program; timers can be edited there as usual.
+
+Midweek uses the same completeness checks, song durations, and counsel
+timers as online import. Weekend shares the online layout: opening song,
+30-minute public talk, study song, 60-minute Watchtower study, closing song.
+The opening song remains unnamed when the publication does not specify it.
+Watchtower study dates use the printed year; workbook dates use the original
+publication filename. The local profile supplies the time zone.
+Incomplete dates/songs/durations are reported without guessing.
+Existing programs of the same week, type, and language are preserved.
+Each save uses the existing transactional MeetingService path.
+Leaving during extraction prevents subsequent saves. Online import continues
+to use website content only. PDF selection/extraction stays local.
+Owner typecheck, parser/service tests, and Android verification remain pending.
+
+## Meetings calendar popup - 2026-11-27
+
+Tapping the meeting week opens a calendar popup instead of a date text field.
+The popup shows a Monday-first month grid, previous/next month controls,
+and the selected day. Show this week applies that day's existing week
+selection; Cancel and Android Back close without changing the selected week.
+Calendar dates remain independent of UTC/device time conversions.
+The popup supports portrait/landscape scrolling and 48 dp day targets.
+No new native dependency or Android rebuild is required for this UI change.
+Owner typecheck, calendar tests, and device verification remain pending.

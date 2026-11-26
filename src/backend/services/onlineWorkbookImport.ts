@@ -1,5 +1,5 @@
 import { currentWolWeek, type WolProgramRequest } from '../domain/imports/wolProgram';
-import { meetingWeek } from '../domain/meetings/meetingWeek';
+import { findSavedProgram } from './meetingService';
 import type { MeetingDraft, MeetingResult } from '../domain/meetings/meeting.types';
 import type { MeetingService } from './meetingService';
 
@@ -13,16 +13,12 @@ function hasSavedWeek(
   request: WolProgramRequest,
   monday: string,
 ): MeetingResult<boolean> {
-  const existing = meetings.list();
-  if (!existing.ok) return existing;
-
-  for (const summary of existing.value) {
-    if (summary.meetingType !== request.meetingType || meetingWeek(summary.meetingDate) !== monday) continue;
-    const saved = meetings.get(summary.id);
-    if (!saved.ok) return saved;
-    if (saved.value?.draft.programLanguage === request.language) return { ok: true, value: true };
-  }
-  return { ok: true, value: false };
+  const existing = findSavedProgram(meetings, {
+    meetingType: request.meetingType,
+    programLanguage: request.language,
+    meetingDate: monday,
+  });
+  return existing.ok ? { ok: true, value: existing.value !== null } : existing;
 }
 
 export function createOnlineWorkbookImporter(

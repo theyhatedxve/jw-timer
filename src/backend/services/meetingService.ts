@@ -4,6 +4,7 @@ import type {
 } from '../domain/meetings/meeting.types';
 
 import { validateMeetingDraft } from '../domain/meetings/meetingValidation';
+import { meetingWeek } from '../domain/meetings/meetingWeek';
 
 export interface SavedMeeting {
   readonly id: string;
@@ -89,3 +90,23 @@ export function createMeetingService(
 export type MeetingService = ReturnType<
   typeof createMeetingService
 >;
+
+/** Find an existing program without replacing locally edited meeting data. */
+export function findSavedProgram(
+  meetings: MeetingService,
+  draft: Pick<MeetingDraft, 'meetingType' | 'programLanguage' | 'meetingDate'>,
+): MeetingResult<SavedMeeting | null> {
+  const listed = meetings.list();
+  if (!listed.ok) return listed;
+  const week = meetingWeek(draft.meetingDate);
+  for (const summary of listed.value) {
+    if (
+      summary.meetingType !== draft.meetingType ||
+      meetingWeek(summary.meetingDate) !== week
+    ) continue;
+    const saved = meetings.get(summary.id);
+    if (!saved.ok) return saved;
+    if (saved.value?.draft.programLanguage === draft.programLanguage) return saved;
+  }
+  return { ok: true, value: null };
+}

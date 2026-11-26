@@ -3,6 +3,9 @@ import { test } from 'node:test';
 
 import { buildWorkbookCandidates } from '../src/backend/domain/imports/workbookParser';
 import { planOnlineWorkbook } from '../src/backend/domain/imports/onlineWorkbook';
+import { planPdfPrograms } from '../src/backend/domain/imports/pdfProgram';
+import { importPdfPrograms } from '../src/backend/services/pdfWorkbookImport';
+import { createMeetingService, type SavedMeeting } from '../src/backend/services/meetingService';
 import { reviewWorkbookCoverage } from '../src/backend/domain/imports/workbookCoverage';
 import { workbookParsingEn as text } from '../src/constants/strings/workbookParsingEn';
 
@@ -161,4 +164,51 @@ test('auto-import identifies weeks with incomplete or missing programs', () => {
   assert.equal(first.date, '2026-11-02');
   assert.match(first.reason, /Missing part duration/);
   assert.deepEqual(weeks[1], { date: '2026-11-09', draft: null, reason: text.autoMissingPage });
+});
+
+test('local PDF uses online timer preparation and refuses incomplete weeks', () => {
+  const local = planPdfPrograms([workbook], 'mwb_SA_202611.pdf', 'Asia/Manila');
+  const online = planOnlineWorkbook([workbook], 'mwb_SA_202611.pdf', 'Asia/Manila');
+  assert.deepEqual(local, online);
+  const first = local.find(item => item.date === '2026-11-02');
+  assert.ok(first?.draft);
+  assert.ok(first.draft.sections.flatMap(section => section.parts).every(part => part.isTimed));
+  const incomplete = planPdfPrograms(
+    [workbook.replace('Karantahon 44', '')], 'mwb_SA_202611.pdf', 'Asia/Manila',
+  );
+  assert.equal(incomplete.find(item => item.date === '2026-11-02')?.draft, null);
+  assert.deepEqual(planPdfPrograms([workbook], 'renamed.pdf', 'Asia/Manila'), []);
+});
+
+test('automatic PDF saving keeps existing local edits and does not duplicate a week', () => {
+  const stored = new Map<string, SavedMeeting>();
+  const meetings = createMeetingService({
+    list: () => ({
+      ok: true,
+      value: [...stored.values()].map(item => ({
+        id: item.id, revision: item.revision, title: item.draft.title,
+        meetingDate: item.draft.meetingDate, meetingType: item.draft.meetingType,
+      })),
+    }),
+    get: id => ({ ok: true, value: stored.get(id) ?? null }),
+    save: draft => {
+      const saved = {
+        id: String(stored.size + 1).padStart(32, '0'),
+        revision: 1, updatedAt: 0, draft,
+      };
+      stored.set(saved.id, saved);
+      return { ok: true, value: saved };
+    },
+  });
+  const first = importPdfPrograms(meetings, [workbook], 'mwb_SA_202611.pdf', 'Asia/Manila');
+  assert.equal(first.imported, 1);
+  assert.ok(first.meetingId);
+  const saved = stored.get(first.meetingId);
+  assert.ok(saved);
+  stored.set(saved.id, { ...saved, draft: { ...saved.draft, title: 'Local meeting edits' } });
+  const repeated = importPdfPrograms(meetings, [workbook], 'mwb_SA_202611.pdf', 'Asia/Manila');
+  assert.equal(repeated.imported, 0);
+  assert.equal(repeated.skipped, 1);
+  assert.equal(stored.size, 1);
+  assert.equal(stored.get(saved.id)?.draft.title, 'Local meeting edits');
 });

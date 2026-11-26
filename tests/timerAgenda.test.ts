@@ -4,6 +4,7 @@ import { test } from 'node:test';
 import {
   createTimer,
   elapsed,
+  pause,
   restart,
   next,
   start,
@@ -18,6 +19,7 @@ import {
 } from '../src/backend/domain/timer/timerProgram';
 
 import {
+  estimatedProgramFinishMs,
   remainingProgramMs,
   selectProgramPart,
   switchProgramPart,
@@ -143,4 +145,47 @@ test('legacy session checkpoints can begin preserving per-part elapsed time', ()
   const second = switchProgramPart(program, recovered, 1, 6000);
   const firstAgain = switchProgramPart(program, second, 0, 7000);
   assert.equal(firstAgain.elapsedBeforeMs, 4000);
+});
+
+test('finish estimate stays fixed while running and moves later during pauses', () => {
+  const running = start(selectProgramPart(program, 0), 1000);
+  const finish = estimatedProgramFinishMs(program, running, 1000, 101000);
+  assert.equal(finish, 131000);
+  assert.equal(estimatedProgramFinishMs(program, running, 6000, 106000, finish), finish);
+
+  const paused = pause(running, 6000);
+  assert.equal(elapsed(paused, 60000), 5000);
+  assert.equal(estimatedProgramFinishMs(program, paused, 7000, 107000, finish), finish + 1000);
+  assert.equal(estimatedProgramFinishMs(program, paused, 60000, 160000, finish), 185000);
+
+  const resumed = start(paused, 60000);
+  assert.equal(estimatedProgramFinishMs(program, resumed, 60000, 160000, finish), 185000);
+  assert.equal(estimatedProgramFinishMs(program, resumed, 65000, 165000, finish), 185000);
+});
+
+test('running overtime adds to the finish without consuming later allotted time', () => {
+  const running = start(selectProgramPart(program, 0), 1000);
+  assert.equal(estimatedProgramFinishMs(program, running, 11000, 111000), 131000);
+  const overtimeFinish = estimatedProgramFinishMs(program, running, 16000, 116000);
+  assert.equal(overtimeFinish, 136000);
+  assert.equal(
+    estimatedProgramFinishMs(program, pause(running, 16000), 60000, 160000, overtimeFinish),
+    overtimeFinish + 44000,
+  );
+});
+
+test('finish estimate uses saved remaining durations when a selected part starts', () => {
+  const first = start(selectProgramPart(program, 0), 1000);
+  const second = switchProgramPart(program, first, 1, 3750);
+  const returning = switchProgramPart(program, start(second, 5000), 0, 6500);
+  const resumed = start(returning, 10000);
+  assert.equal(estimatedProgramFinishMs(program, resumed, 10000, 110000), 135750);
+});
+
+test('initial ready estimate includes all upcoming parts and completion retains the finish', () => {
+  const ready = selectProgramPart(program, 0);
+  assert.equal(estimatedProgramFinishMs(program, ready, 0, 100000), 130000);
+  assert.equal(estimatedProgramFinishMs(program, ready, 5000, 105000, 130000), 135000);
+  const completed = next(next(ready, 0, [10000, 20000]), 0, [10000, 20000]);
+  assert.equal(estimatedProgramFinishMs(program, completed, 60000, 160000, 130000), 130000);
 });

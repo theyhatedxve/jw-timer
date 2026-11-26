@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 
 import {
-  remainingProgramMs,
+  estimatedProgramFinishMs,
 } from '../../backend/domain/timer/timerAgenda';
 
 import {
@@ -134,18 +134,36 @@ export function useTimerAgenda(model: SessionModel) {
     ],
   );
 
-  const wallNow = Date.now();
+  // Keep wall time and the timer's monotonic clock aligned between ticks.
+  const [wallOffsetMs] = useState(() => Date.now() - performance.now());
+  const finish = useRef<{
+    readonly program: SessionModel['program'];
+    readonly timestampMs: number;
+  } | null>(null);
+  const previousFinishMs = finish.current?.program === model.program
+    ? finish.current.timestampMs
+    : undefined;
+  const finishMs = model.ready && !model.pendingRecovery && !model.locked
+    ? estimatedProgramFinishMs(
+      model.program,
+      model.timer,
+      model.nowMs,
+      wallOffsetMs + model.nowMs,
+      previousFinishMs,
+    )
+    : previousFinishMs;
 
-  const estimatedFinish =
-    model.timer.status === 'running' && !model.locked
-      ? finishFormatter.format(new Date(
-          wallNow + remainingProgramMs(
-            model.program,
-            model.timer,
-            model.nowMs,
-          ),
-        ))
-      : '—';
+  // Cache for completion/recovery without scheduling a second render per tick.
+  useEffect(() => {
+    if (finishMs !== undefined) {
+      finish.current = { program: model.program, timestampMs: finishMs };
+    }
+  }, [model.program, finishMs]);
+
+  const wallNow = Date.now();
+  const estimatedFinish = finishMs !== undefined
+    ? finishFormatter.format(new Date(finishMs))
+    : '—';
 
   return {
     rows,
@@ -158,9 +176,6 @@ export function useTimerAgenda(model: SessionModel) {
       width < timerLayout.tableBreakpoint ||
       fontScale > 1.3,
     estimatedFinish,
-    estimateNote:
-      model.timer.status === 'running'
-        ? timerEn.estimateNote
-        : timerEn.estimateUnavailable,
+    estimateNote: timerEn.estimateNote,
   };
 }

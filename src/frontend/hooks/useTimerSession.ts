@@ -461,6 +461,52 @@ export function useTimerSession(
     });
   }
 
+  function confirmResetAll() {
+    if (!canControl() || current.current.timer.status === 'running') return;
+
+    const existingProgram = current.current.program;
+    promptActive.current = true;
+    setPromptOpen(true);
+    let settled = false;
+
+    function finish(accept: boolean) {
+      if (settled) return;
+      settled = true;
+      promptActive.current = false;
+      setPromptOpen(false);
+
+      if (
+        !accept ||
+        !navigation.isFocused() ||
+        !canControl() ||
+        current.current.program !== existingProgram ||
+        current.current.timer.status === 'running'
+      ) return;
+
+      if (existingProgram.meetingId) {
+        // Read the saved Meetings program again, rather than the session snapshot.
+        const result = service.forMeeting(existingProgram.meetingId);
+        if (!result.ok) {
+          Alert.alert(timerEn.resetAllTitle, result.error.message);
+          return;
+        }
+        replaceProgram(result.value);
+      } else {
+        replaceProgram({ ...existingProgram });
+      }
+    }
+
+    Alert.alert(
+      timerEn.resetAllTitle,
+      timerEn.resetAllMessage,
+      [
+        { text: timerEn.keepCurrent, style: 'cancel', onPress: () => finish(false) },
+        { text: timerEn.resetAll, style: 'destructive', onPress: () => finish(true) },
+      ],
+      { cancelable: true, onDismiss: () => finish(false) },
+    );
+  }
+
   function confirmReset() {
     if (!canControl()) return;
 
@@ -689,6 +735,7 @@ function selectPart(index: number) {
       ?.program.parts[pendingRecovery.partIndex]?.title ?? '',
     isLastPart: timer.partIndex === program.parts.length - 1,
     confirmReset,
+    confirmResetAll,
     restoreCheckpoint,
     restartRecoveredPart,
     toggleRunning,

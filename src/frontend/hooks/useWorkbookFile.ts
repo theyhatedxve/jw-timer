@@ -1,69 +1,43 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
-import type {
-  WorkbookFile,
-  WorkbookFileService,
-} from '../../backend/domain/imports/workbookFile';
-
-import type {
-  WorkbookTextService,
-} from '../../backend/domain/imports/workbookText';
-
-import { Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useLocalProfile } from './useLocalProfile';
-import { useWatchtowerImport } from './useWatchtowerImport';
-
-import { buildWorkbookCandidates } from '../../backend/domain/imports/workbookParser';
-import { workbookParsingEn as parsingText } from '../../constants/strings/workbookParsingEn';
-
+import type { WorkbookFile, WorkbookFileService } from '../../backend/domain/imports/workbookFile';
+import type { WorkbookTextService } from '../../backend/domain/imports/workbookText';
+import type { MeetingService } from '../../backend/services/meetingService';
+import { importPdfPrograms, type PdfImportReport } from '../../backend/services/pdfWorkbookImport';
 import { workbookImportEn as text } from '../../constants/strings/workbookImportEn';
+import { useLocalProfile } from './useLocalProfile';
 
 export function useWorkbookFile(
   service: WorkbookFileService,
   extractor: WorkbookTextService,
+  meetings: MeetingService,
 ) {
-
-  const [file, setFile] = useState<WorkbookFile | null>(null);
-  const [pages, setPages] = useState<readonly string[]>([]);
-  const [busy, setBusy] =
-    useState<'selecting' | 'extracting' | null>(null);
-  const [error, setError] = useState('');
-
-  const watchtower = useWatchtowerImport(
-    pages,
-    file,
-    busy !== null,
-  );
-
   const navigation = useNavigation();
-  const { state: profileState } = useLocalProfile();
-  const [year, setYear] = useState(String(new Date().getFullYear()));
-
-  const timezone = profileState.status === 'ready'
-    ? profileState.profile?.timezone ?? 'UTC'
-    : 'UTC';
-
-  const candidates = useMemo(
-    () => buildWorkbookCandidates(
-      pages,
-      year,
-      timezone,
-      file?.name ?? '',
-    ),
-    [pages, year, timezone, file?.name],
-  );
-
+  const { state } = useLocalProfile();
+  const timezone = state.status === 'ready' ? state.profile?.timezone : undefined;
+  const [file, setFile] = useState<WorkbookFile | null>(null);
+  const [busy, setBusy] = useState<'selecting' | 'extracting' | null>(null);
+  const [error, setError] = useState('');
+  const [report, setReport] = useState<PdfImportReport | null>(null);
   const current = useRef<WorkbookFile | null>(null);
   const mounted = useRef(false);
+  const focused = useRef(false);
   const working = useRef(false);
+  const generation = useRef(0);
+
+  useFocusEffect(useCallback(() => {
+    focused.current = true;
+    return () => {
+      focused.current = false;
+      generation.current += 1;
+    };
+  }, []));
 
   useEffect(() => {
     mounted.current = true;
-
     return () => {
       mounted.current = false;
-
       if (current.current) {
         service.release(current.current);
         current.current = null;
@@ -72,118 +46,57 @@ export function useWorkbookFile(
   }, [service]);
 
   async function select() {
-    if (working.current) return;
-
+    if (working.current || !timezone || !focused.current) return;
+    const requestGeneration = generation.current;
     working.current = true;
     setBusy('selecting');
     setError('');
+    setReport(null);
 
     try {
-      const result = await service.select();
-
-      if (!mounted.current) {
-        if (result.ok && result.file) {
-          service.release(result.file);
-        }
+      const selected = await service.select();
+      if (!mounted.current || !focused.current || generation.current !== requestGeneration) {
+        if (selected.ok && selected.file) service.release(selected.file);
         return;
       }
-
-      if (!result.ok) {
-        setError(result.message);
+      if (!selected.ok) {
+        setError(selected.message);
         return;
       }
-
-      if (!result.file) return;
-
+      if (!selected.file) return;
       if (current.current) service.release(current.current);
+      current.current = selected.file;
+      setFile(selected.file);
+      setBusy('extracting');
 
-      current.current = result.file;
-      setFile(result.file);
-
-      const filenameYear =
-        /_(\d{4})\d{2}\.pdf$/i.exec(result.file.name)?.[1];
-
-      setYear(filenameYear ?? String(new Date().getFullYear()));
-      setPages([]);
-    } catch {
-      if (mounted.current) setError(text.unreadable);
-    } finally {
-      working.current = false;
-      if (mounted.current) setBusy(null);
-    }
-  }
-
-  async function extract() {
-    const selected = current.current;
-
-    if (!selected || working.current) return;
-
-    working.current = true;
-    setBusy('extracting');
-    setError('');
-    setPages([]);
-
-    try {
-      const result = await extractor.extract(selected);
-
+      const extracted = await extractor.extract(selected.file);
       if (
-        !mounted.current ||
-        current.current?.uri !== selected.uri
-      ) {
+        !mounted.current || !focused.current || generation.current !== requestGeneration ||
+        current.current?.uri !== selected.file.uri
+      ) return;
+      if (!extracted.ok) {
+        setError(extracted.message);
         return;
       }
-
-      if (result.ok) {
-        setPages(result.pages);
-      } else {
-        setError(result.message);
-      }
+      setReport(importPdfPrograms(meetings, extracted.pages, selected.file.name, timezone));
     } catch {
-      if (mounted.current) setError(text.unreadable);
+      if (mounted.current && focused.current && generation.current === requestGeneration) setError(text.unreadable);
     } finally {
       working.current = false;
       if (mounted.current) setBusy(null);
     }
   }
-
-  function openCandidate(key: string) {
-    if (working.current || !file) return;
-
-    const candidate = candidates.find(item => item.key === key);
-    if (!candidate) return;
-
-    Alert.alert(
-      parsingText.confirmTitle,
-      candidate.warnings.join('\n\n'),
-      [
-        { text: parsingText.cancel, style: 'cancel' },
-        {
-          text: parsingText.continue,
-          onPress: () => navigation.navigate('MeetingEditor', {
-            importDraft: candidate.draft,
-            importKey: `${file.uri}:${candidate.key}`,
-          }),
-        },
-      ],
-    );
-  }
-
 
   return {
-    file,
-    pages,
-    busy,
-    error,
-    watchtower,
-    select: () => watchtower.confirmDiscard(() => {
-      void select();
-    }),
-    extract: () => watchtower.confirmDiscard(() => {
-      void extract();
-    }),
-    year,
-    setYear,
-    candidates,
-    openCandidate,
+    file, busy, error, report,
+    ready: timezone !== undefined,
+    select: () => { void select(); },
+    openMeetings: () => {
+      if (!report?.meetingId || working.current) return;
+      navigation.navigate('Main', {
+        screen: 'Meetings',
+        params: { meetingId: report.meetingId, requestId: String(Date.now()) },
+      });
+    },
   };
 }

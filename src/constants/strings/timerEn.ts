@@ -10,7 +10,7 @@ export const timerEn = {
   finished: 'Finished',
   estimatedFinish: 'Estimated finish',
   estimateNote:
-    'Estimate assumes immediate starts, immediate advance at zero, and no extra pauses.',
+    'Includes remaining part durations. Pauses and overtime move the finish later.',
   estimateUnavailable:
     'The finish estimate is available while timing is running.',
   start: 'Start',
@@ -19,6 +19,10 @@ export const timerEn = {
   next: 'Next part',
   finish: 'Finish program',
   restart: 'Restart part',
+  resetAll: 'Reset all timers',
+  resetAllTitle: 'Restore all timers to meeting defaults?',
+  resetAllMessage:
+    'Reload saved meeting durations and clear elapsed time for every part. The first timer will wait for Start. Saved meetings will not change.',
   chooseTimer: 'Choose timer',
   viewMeeting: 'Open in Meetings',
   fullscreen: 'Fullscreen',

@@ -3,6 +3,8 @@ import { test } from 'node:test';
 
 import {
   currentMeetingWeek,
+  calendarMonthDays,
+  shiftCalendarMonth,
   meetingsInWeek,
   shiftMeetingWeek,
 } from '../src/frontend/utils/meetingCalendar';
@@ -60,4 +62,22 @@ test('recognized headings get colors while custom titles stay neutral', () => {
   assert.equal(sectionTone('Magin Mas Epektibo ha Ministeryo'), 'ministry');
   assert.equal(sectionTone('Pagkinabuhi Sugad nga mga Kristiano'), 'living');
   assert.equal(sectionTone('Custom discussion'), 'neutral');
+});
+
+test('calendar grids align Monday first and include leap-day without time-zone conversion', () => {
+  const february = calendarMonthDays('2024-02-17');
+  assert.equal(february.length, 35);
+  assert.deepEqual(february.slice(0, 4), [null, null, null, '2024-02-01']);
+  assert.ok(february.includes('2024-02-29'));
+  assert.equal(february.filter(Boolean).length, 29);
+  assert.equal(calendarMonthDays('2026-02-01').filter(Boolean).length, 28);
+  assert.equal(calendarMonthDays('2026-11-23').length, 42);
+});
+
+test('calendar month navigation crosses years and respects supported date bounds', () => {
+  assert.equal(shiftCalendarMonth('2026-12-31', 1), '2027-01-01');
+  assert.equal(shiftCalendarMonth('2024-03-31', -1), '2024-02-01');
+  assert.equal(shiftCalendarMonth('0001-01-01', -1), null);
+  assert.equal(shiftCalendarMonth('9999-12-01', 1), null);
+  assert.equal(shiftCalendarMonth('invalid', 1), null);
 });

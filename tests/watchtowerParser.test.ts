@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { planPdfPrograms } from '../src/backend/domain/imports/pdfProgram';
 
 import { buildWatchtowerCandidates } from '../src/backend/domain/imports/watchtowerParser';
 
@@ -232,4 +233,36 @@ test('rejects ambiguous contents language', () => {
   pages[31] += '\nAANHI HINI NGA ISYU';
 
   assert.deepEqual(buildWatchtowerCandidates(pages), []);
+});
+
+test('automatic Watchtower PDF plans use printed dates and the online Weekend durations', () => {
+  for (const [pages, filename, language] of [
+    [englishFixture(), 'w_E_202609.pdf', 'en'],
+    [fixture(), 'w_SA_202609.pdf', 'war'],
+  ] as const) {
+    const plan = planPdfPrograms(pages, filename, 'Asia/Manila');
+    assert.equal(plan.length, 5);
+    for (const item of plan) {
+      assert.ok(item.draft);
+      assert.equal(item.draft.meetingType, 'weekend');
+      assert.equal(item.draft.programLanguage, language);
+      assert.equal(item.draft.timezone, 'Asia/Manila');
+      assert.equal(item.draft.startLocalTime, null);
+      assert.equal(item.draft.importSource?.url, undefined);
+      assert.deepEqual(
+        item.draft.sections.flatMap(section => section.parts).map(part => part.durationSeconds),
+        [300, 1800, 300, 3600, 300],
+      );
+    }
+    assert.equal(plan[0]?.date, '2026-11-02');
+    assert.equal(plan[4]?.date, '2026-11-30');
+  }
+});
+
+test('automatic Watchtower PDF plans reject missing songs', () => {
+  const pages = englishFixture();
+  pages[18] = 'No readable closing song.';
+  const plan = planPdfPrograms(pages, 'w_E_202609.pdf', 'Asia/Manila');
+  assert.equal(plan.filter(item => item.draft !== null).length, 4);
+  assert.ok(plan.some(item => item.draft === null));
 });

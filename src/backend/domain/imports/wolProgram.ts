@@ -4,6 +4,7 @@ import type { MeetingDraft, MeetingLanguage, MeetingType } from '../meetings/mee
 import { validateMeetingDraft } from '../meetings/meetingValidation';
 import { buildWorkbookCandidates, readWorkbookDate } from './workbookParser';
 import { prepareWorkbookCandidate } from './onlineWorkbook';
+import { buildAutomaticWeekendProgram } from './weekendProgram';
 
 export interface WolProgramRequest {
   readonly language: MeetingLanguage;
@@ -145,25 +146,14 @@ export function readWolProgram(
   ) {
     throw new Error('The Watchtower title, week, or study songs could not be verified.');
   }
-  const songLabel = request.language === 'war' ? 'Karantahon ' : 'Song ';
-  const result = validateMeetingDraft({
-    title: request.language === 'war' ? 'Katirok ha kataposan han semana' : 'Weekend meeting',
-    meetingType: 'weekend',
+  const result = buildAutomaticWeekendProgram({
     meetingDate: week.monday,
-    startLocalTime: null,
     timezone: request.timezone,
     programLanguage: request.language,
     importSource,
-    sections: [{
-      title: request.language === 'war' ? 'Katirok ha kataposan han semana' : 'Weekend meeting',
-      parts: [
-        { title: request.language === 'war' ? 'Pagtikang nga karantahon ngan pag-ampo' : 'Opening song and prayer', kind: 'song', durationSeconds: 300, isTimed: true },
-        { title: request.language === 'war' ? 'Pahayag publiko' : 'Public talk', kind: 'talk', durationSeconds: 1800, isTimed: true },
-        { title: songLabel + songs[0], kind: 'song', durationSeconds: 300, isTimed: true },
-        { title: title[0].text, kind: 'study', durationSeconds: 3600, isTimed: true },
-        { title: songLabel + songs[1], kind: 'song', durationSeconds: 300, isTimed: true },
-      ],
-    }],
+    articleTitle: title[0].text,
+    middleSong: Number(songs[0]),
+    closingSong: Number(songs[1]),
   });
   if (!result.ok) throw new Error(result.error.message);
   return result.value;

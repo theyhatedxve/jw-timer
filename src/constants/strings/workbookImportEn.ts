@@ -1,6 +1,13 @@
 export const workbookImportEn = {
   title: 'Import meeting PDF',
   select: 'Select PDF',
+  pdfAutomatic: 'Select a local workbook or Watchtower PDF. Complete programs and timers are saved automatically. Existing programs are kept.',
+  pdfImporting: 'Importing timers...',
+  pdfProfileRequired: 'Set up your local profile and time zone before importing.',
+  pdfNone: 'No supported programs found. Use the original workbook filename with its publication year, or a supported Watchtower study PDF.',
+  pdfIncompleteStudy: 'The study date or song numbers could not be verified. This week was not imported.',
+  pdfSaveFailed: 'The program could not be saved. Try again.',
+  openMeetings: 'Open Meetings',
   wolShort: 'Import from WOL',
   localPdfShort: 'Local PDF',
   importingShort: 'Importing...',

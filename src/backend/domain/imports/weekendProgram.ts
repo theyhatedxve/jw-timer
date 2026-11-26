@@ -114,3 +114,35 @@ export function buildWeekendProgram(
     }],
   });
 }
+
+/** Shared automatic Weekend layout for website and local PDF imports. */
+export function buildAutomaticWeekendProgram(
+  input: Pick<MeetingDraft, 'meetingDate' | 'timezone' | 'programLanguage' | 'importSource'> & {
+    readonly articleTitle: string;
+    readonly middleSong: number;
+    readonly closingSong: number;
+  },
+): MeetingResult<MeetingDraft> {
+  const waray = input.programLanguage === 'war';
+  const title = waray ? 'Katirok ha kataposan han semana' : 'Weekend meeting';
+  const songLabel = waray ? 'Karantahon ' : 'Song ';
+  return validateMeetingDraft({
+    title,
+    meetingType: 'weekend',
+    meetingDate: input.meetingDate,
+    startLocalTime: null,
+    timezone: input.timezone,
+    programLanguage: input.programLanguage,
+    importSource: input.importSource,
+    sections: [{
+      title,
+      parts: [
+        { title: waray ? 'Pagtikang nga karantahon ngan pag-ampo' : 'Opening song and prayer', kind: 'song', durationSeconds: SONG_SECONDS, isTimed: true },
+        { title: waray ? 'Pahayag publiko' : 'Public talk', kind: 'talk', durationSeconds: PUBLIC_TALK_SECONDS, isTimed: true },
+        { title: songLabel + input.middleSong, kind: 'song', durationSeconds: SONG_SECONDS, isTimed: true },
+        { title: input.articleTitle, kind: 'study', durationSeconds: WATCHTOWER_SECONDS, isTimed: true },
+        { title: songLabel + input.closingSong, kind: 'song', durationSeconds: SONG_SECONDS, isTimed: true },
+      ],
+    }],
+  });
+}

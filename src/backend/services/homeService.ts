@@ -1,4 +1,5 @@
 import { Temporal } from '@js-temporal/polyfill';
+import { meetingWeek } from '../domain/meetings/meetingWeek';
 
 
 import type {
@@ -48,21 +49,31 @@ export function createHomeService({
         const listed = meetings.list();
         if (!listed.ok) return { ok: false };
 
-        const candidate = [...listed.value]
-          .filter(meeting => meeting.meetingDate >= today)
+        const currentWeek = meetingWeek(today);
+        const candidates = [...listed.value]
+          .filter(meeting => meeting.meetingDate >= currentWeek)
           .sort((left, right) =>
             left.meetingDate.localeCompare(right.meetingDate) ||
             left.id.localeCompare(right.id),
-          )[0];
+          );
+        let candidate: SavedMeeting | null = null;
+
+        for (const summary of candidates) {
+          const saved = meetings.get(summary.id);
+          if (!saved.ok || !saved.value) return { ok: false };
+          // Undated weekly programs use Monday as their week key, not a past event date.
+          if (saved.value.draft.meetingDate < today && saved.value.draft.startLocalTime !== null) {
+            continue;
+          }
+          candidate = saved.value;
+          break;
+        }
 
         if (!candidate) {
           return { ok: true, value: { next: null, refreshAt } };
         }
 
-        const saved = meetings.get(candidate.id);
-        if (!saved.ok || !saved.value) return { ok: false };
-
-        const parts = saved.value.draft.sections.flatMap(
+        const parts = candidate.draft.sections.flatMap(
           section => section.parts,
         );
 
@@ -72,7 +83,7 @@ export function createHomeService({
           value: {
             refreshAt,
             next: {
-              meeting: saved.value,
+              meeting: candidate,
               partCount: parts.length,
               durationSeconds: parts.reduce(
                 (total, part) =>

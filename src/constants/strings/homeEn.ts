@@ -16,7 +16,7 @@ export const homeEn = {
   meetings: 'Meetings',
   meetingsDescription: 'View and manage local programs',
   loading: 'Loading your next meeting…',
-  empty: 'No local programs dated today or later.',
+  empty: 'No current-week or upcoming programs are saved.',
   error: 'Your meeting summary could not be loaded. Try again.',
   retry: 'Try again',
   chevron: '›',

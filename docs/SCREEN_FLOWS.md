@@ -981,3 +981,13 @@ Calendar dates remain independent of UTC/device time conversions.
 The popup supports portrait/landscape scrolling and 48 dp day targets.
 No new native dependency or Android rebuild is required for this UI change.
 Owner typecheck, calendar tests, and device verification remain pending.
+
+## Home cards for online and PDF imports - 2026-11-27
+
+Home treats programs without a scheduled start time as weekly programs.
+Their Monday date identifies the week, so they remain eligible throughout
+that week in the profile time zone. This applies equally to WOL, PDF,
+Midweek, and Weekend programs. Past scheduled meetings and previous-week
+programs remain excluded. Existing card counts, timed duration, and
+Open program routing use the selected saved meeting as before.
+Owner typecheck, Home regression tests, and Android verification remain pending.

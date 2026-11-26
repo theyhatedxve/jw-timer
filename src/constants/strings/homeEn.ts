@@ -1,15 +1,14 @@
 import {
-  formatCalendarDate,
+  formatMeetingWeek,
   formatProgramDuration,
 } from './programFormatting';
 
 export const homeEn = {
   title: 'JW Meeting Timer',
   offline: 'Available offline',
-  next: 'Next local meeting',
-  local: 'Local program',
-  midweek: 'Midweek',
-  weekend: 'Weekend',
+  nextMidweek: 'Next Midweek meeting',
+  nextWeekend: 'Next Weekend meeting',
+  play: '▶',
   parts: 'Program parts',
   duration: 'Timed duration',
   quickActions: 'Quick actions',
@@ -22,6 +21,6 @@ export const homeEn = {
   retry: 'Try again',
   chevron: '›',
 
-  date: formatCalendarDate,
+  week: formatMeetingWeek,
   time: formatProgramDuration,
 } as const;

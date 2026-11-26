@@ -1,6 +1,7 @@
 import Svg, { Path } from 'react-native-svg';
 
 const paths = {
+  list: 'M4 6h.01M4 12h.01M4 18h.01M8 6h12M8 12h12M8 18h12',
   microphone:
     'M9 5a3 3 0 0 1 6 0v6a3 3 0 0 1-6 0V5ZM5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8',
   speaker:

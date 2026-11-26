@@ -16,6 +16,7 @@ interface Props {
   readonly reload: () => void;
   readonly openProgram: (id: string) => void;
   readonly openMeetings: () => void;
+  readonly openTimer: () => void;
 }
 
 export default function HomeView({
@@ -23,8 +24,13 @@ export default function HomeView({
   reload,
   openProgram,
   openMeetings,
+  openTimer,
 }: Props) {
   const { palette } = useAppTheme();
+  const quickActions = [
+    { icon: 'meetings', label: text.meetings, hint: text.meetingsDescription, onPress: openMeetings },
+    { icon: 'timer', label: text.timer, hint: text.timerDescription, onPress: openTimer },
+  ] as const;
   const next = state.status === 'ready' ? state.snapshot.next : null;
   const draft = next?.meeting.draft;
   const stats = next ? [
@@ -140,19 +146,21 @@ export default function HomeView({
       <Text accessibilityRole="header" className="text-xl font-bold text-app-text">
         {text.quickActions}
       </Text>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={text.meetings + '. ' + text.meetingsDescription}
-        onPress={openMeetings}
-        className="min-h-app-touch flex-row items-center gap-app-medium rounded-app-card border border-app-border bg-app-surface p-app-medium active:opacity-75"
-      >
-        <AppIcon name="meetings" color={palette.text} size={spacing.large} />
-        <View className="flex-1">
-          <Text className="text-app-body font-bold text-app-text">{text.meetings}</Text>
-          <Text className="text-app-body text-app-secondary">{text.meetingsDescription}</Text>
-        </View>
-        <Text accessible={false} className="text-app-title text-app-secondary">{text.chevron}</Text>
-      </Pressable>
+      <View className="flex-row gap-app-small">
+        {quickActions.map(action => (
+          <Pressable
+            key={action.icon}
+            accessibilityRole="button"
+            accessibilityLabel={action.label}
+            accessibilityHint={action.hint}
+            onPress={action.onPress}
+            className="min-h-app-touch flex-1 items-center justify-center gap-app-small rounded-app-card border border-app-border bg-app-surface p-app-medium active:opacity-75"
+          >
+            <AppIcon name={action.icon} color={palette.brand} size={spacing.large} />
+            <Text className="text-center text-app-body font-bold text-app-text">{action.label}</Text>
+          </Pressable>
+        ))}
+      </View>
     </AppScreen>
   );
 }

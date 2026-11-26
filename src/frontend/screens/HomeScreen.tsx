@@ -17,6 +17,9 @@ export default function HomeScreen() {
       openMeetings={() =>
         navigation.navigate('Main', { screen: 'Meetings' })
       }
+      openTimer={() =>
+        navigation.navigate('Main', { screen: 'Timer' })
+      }
     />
   );
 }

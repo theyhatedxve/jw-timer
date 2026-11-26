@@ -14,6 +14,8 @@ export const homeEn = {
   quickActions: 'Quick actions',
   openProgram: 'Open program',
   meetings: 'Meetings',
+  timer: 'Timer',
+  timerDescription: 'Open your timer session',
   meetingsDescription: 'View and manage local programs',
   loading: 'Loading your next meeting…',
   empty: 'No current-week or upcoming programs are saved.',

@@ -1,6 +1,9 @@
 export const workbookImportEn = {
   title: 'Import meeting PDF',
   select: 'Select PDF',
+  wolShort: 'Import from WOL',
+  localPdfShort: 'Local PDF',
+  importingShort: 'Importing...',
   wolImport: {
     midweek: 'Import this week’s workbook from WOL',
     weekend: 'Import this week’s Watchtower from WOL',

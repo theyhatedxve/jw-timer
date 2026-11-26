@@ -42,7 +42,7 @@ export default function MeetingsListView(model: Props) {
   );
 
   return (
-    <>
+    <View className="flex-1 bg-app-canvas">
       <AppScreen>
         <View
           accessibilityRole="tablist"
@@ -84,11 +84,6 @@ export default function MeetingsListView(model: Props) {
           selectDate={model.selectDate}
         />
 
-        <AppButton
-          label={model.online.busy ? importText.importing : importText.wolImport[model.meetingType]}
-          disabled={!model.online.ready || model.online.busy}
-          onPress={model.online.run}
-        />
         {model.online.busy ? (
           <AppButton label={importText.cancelDownload} onPress={model.online.cancel} />
         ) : null}
@@ -181,10 +176,37 @@ export default function MeetingsListView(model: Props) {
           </>
         )}
 
-        <AppButton label={text.importPdf} onPress={model.importPdf} />
       </AppScreen>
-
-
-    </>
+      <View className="w-full max-w-app-content self-center flex-row gap-app-small px-app-large py-app-small">
+        {[
+          {
+            key: 'wol',
+            label: model.online.busy ? importText.importingShort : importText.wolShort,
+            accessibilityLabel: importText.wolImport[model.meetingType],
+            disabled: !model.online.ready || model.online.busy,
+            onPress: model.online.run,
+          },
+          {
+            key: 'pdf',
+            label: importText.localPdfShort,
+            accessibilityLabel: text.importPdf,
+            disabled: model.online.busy,
+            onPress: model.importPdf,
+          },
+        ].map(action => (
+          <Pressable
+            key={action.key}
+            accessibilityRole="button"
+            accessibilityLabel={action.accessibilityLabel}
+            accessibilityState={{ disabled: action.disabled }}
+            disabled={action.disabled}
+            onPress={action.onPress}
+            className="min-h-app-touch flex-1 items-center justify-center rounded-app-button border border-app-border bg-app-surface px-app-small py-2 active:opacity-75 disabled:opacity-50"
+          >
+            <Text className="text-center text-sm font-semibold text-app-text">{action.label}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
   );
 }

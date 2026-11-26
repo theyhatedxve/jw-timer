@@ -9,7 +9,7 @@ export const timerPresentationEn = {
   next: 'Next part',
   progress: 'Elapsed portion of allotted time',
   showAgenda: 'Show program agenda',
-  hideAgenda: 'Hide program agenda',
+  closeAgenda: 'Close agenda',
   menuSymbol: '⋮',
   durationMissing: '—',
   allotted: (duration: string): string => `of ${duration}`,

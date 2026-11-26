@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Modal,
+  Pressable,
+  ScrollView,
   Switch,
   Text,
   View,
@@ -21,7 +24,6 @@ import { styles } from '../../styles/timer/timerPresentation.styles';
 import AppButton from '../common/AppButton';
 import AppCard from '../common/AppCard';
 import AppIcon from '../common/AppIcon';
-import SettingsButton from '../common/SettingsButton';
 import TimerAgendaCard from './TimerAgendaCard';
 import TimerControls from './TimerControls';
 import TimerCountdown from './TimerCountdown';
@@ -45,6 +47,10 @@ export default function TimerSessionView(model: Model) {
   const presenting = model.fullscreen && model.active;
   const showCountdown = model.ready && !model.pendingRecovery;
 
+  useEffect(() => {
+    if (!model.active || model.fullscreen) setShowAgenda(false);
+  }, [model.active, model.fullscreen]);
+
   const current = agenda.rows[model.timer.partIndex];
   const next = model.timer.status === 'completed'
     ? undefined
@@ -63,17 +69,14 @@ export default function TimerSessionView(model: Model) {
 
       {presenting && model.keepAwake ? <AwakeWhilePresented /> : null}
 
-      <FlatList
+      <ScrollView
         key={model.fullscreen ? 'fullscreen' : 'session'}
         className="flex-1"
         contentContainerStyle={[
           styles.content,
           model.fullscreen && styles.fullscreenContent,
         ]}
-        data={!model.fullscreen && showCountdown && showAgenda ? agenda.rows : []}
-        keyExtractor={row => row.id}
-        extraData={model.locked}
-        ListHeaderComponent={
+      >
           <View className="gap-app-medium pb-app-medium">
             {!model.fullscreen ? (
               <>
@@ -87,7 +90,16 @@ export default function TimerSessionView(model: Model) {
                     </Text>
                   </View>
 
-                  <SettingsButton onPress={model.openSettings} />
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={presentation.showAgenda}
+                    accessibilityState={{ disabled: !showCountdown }}
+                    disabled={!showCountdown}
+                    onPress={() => setShowAgenda(true)}
+                    className="min-h-app-touch min-w-app-touch items-center justify-center rounded-app-button border border-app-border bg-app-surface p-app-small active:opacity-75 disabled:opacity-50"
+                  >
+                    <AppIcon name="list" color={palette.brand} size={22} />
+                  </Pressable>
                 </View>
               </>
             ) : null}
@@ -185,24 +197,46 @@ export default function TimerSessionView(model: Model) {
                   </Text>
                 ) : null}
 
-                <AppButton
-                  label={showAgenda
-                    ? presentation.hideAgenda
-                    : presentation.showAgenda}
-                  onPress={() => setShowAgenda(currentValue => !currentValue)}
-                />
+
               </>
             ) : null}
           </View>
-        }
-        renderItem={({ item }) => (
-          <TimerAgendaCard
-            row={item}
-            disabled={model.locked}
-            onMenu={model.openPartMenu}
+      </ScrollView>
+      <Modal
+        visible={showAgenda && model.active && !model.fullscreen && showCountdown}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        supportedOrientations={['portrait', 'landscape']}
+        onRequestClose={() => setShowAgenda(false)}
+      >
+        <SafeAreaView
+          accessibilityViewIsModal
+          style={[styles.safe, { backgroundColor: palette.canvas }]}
+        >
+          <FlatList
+            data={agenda.rows}
+            keyExtractor={row => row.id}
+            extraData={model.locked || model.timer.status === 'running'}
+            contentContainerStyle={styles.content}
+            ListHeaderComponent={
+              <View className="gap-app-small pb-app-medium">
+                <Text accessibilityRole="header" className="text-app-title font-bold text-app-text">
+                  {presentation.showAgenda}
+                </Text>
+                <Text className="text-app-body text-app-secondary">{model.program.title}</Text>
+                <AppButton label={presentation.closeAgenda} onPress={() => setShowAgenda(false)} />
+              </View>
+            }
+            renderItem={({ item }) => (
+              <TimerAgendaCard
+                row={item}
+                disabled={model.locked || model.timer.status === 'running'}
+                onMenu={model.openPartMenu}
+              />
+            )}
           />
-        )}
-      />
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }

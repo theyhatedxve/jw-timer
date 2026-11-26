@@ -67,7 +67,7 @@ export function useTimerSession(
 ) {
   const navigation = useNavigation();
   const focused = useIsFocused();
-  const { width, fontScale } = useWindowDimensions();
+  const { width, height, fontScale } = useWindowDimensions();
 
   const [session, setSession] = useState<Runtime>(() => {
     const program = service.practice();
@@ -647,14 +647,19 @@ function selectPart(index: number) {
 
   const digits = formatTime(timer, now);
 
-  const displaySize = Math.max(
-    22,
-    Math.min(
-      fullscreen ? 120 : 76,
-      (Math.min(width, 800) - 80) /
-        (digits.length * 0.68 * fontScale),
-    ),
-  );
+  const displaySize = fullscreen
+    ? Math.max(22, Math.min(
+      height * 0.44 / fontScale,
+      (Math.min(width, 1200) - 64) / (digits.length * 0.68 * fontScale),
+    ))
+    : Math.max(
+      22,
+      Math.min(
+        76,
+        (Math.min(width, 800) - 80) /
+          (digits.length * 0.68 * fontScale),
+      ),
+    );
 
   return {
     program,

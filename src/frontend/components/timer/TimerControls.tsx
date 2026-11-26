@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { timerEn as text } from '../../../constants/strings/timerEn';
 import { timerPresentation } from '../../../constants/timerTheme';
@@ -25,6 +26,10 @@ export default function TimerControls({
     if (selectionLocked) setExpanded(false);
   }, [selectionLocked]);
 
+  useEffect(() => {
+    setExpanded(false);
+  }, [model.fullscreen, model.active]);
+
   const actions = [
     {
       key: 'running',
@@ -49,6 +54,99 @@ export default function TimerControls({
       foreground: timerPresentation.restartText,
     },
   ];
+
+  const timerList = (
+    <ScrollView style={{ maxHeight: 280 }} nestedScrollEnabled keyboardShouldPersistTaps="handled">
+      {model.program.parts.map((part, index) => {
+        const selected = index === model.timer.partIndex;
+        return (
+          <Pressable
+            key={part.id}
+            accessibilityRole="button"
+            accessibilityState={{ selected, disabled: selected && !completed }}
+            disabled={selected && !completed}
+            onPress={() => {
+              setExpanded(false);
+              model.selectPart(index);
+            }}
+            className="min-h-app-touch border-t border-app-border p-app-medium active:opacity-75"
+          >
+            <Text className="text-app-body" style={{ color: selected ? palette.brand : palette.text }}>
+              {part.title}
+            </Text>
+          </Pressable>
+        );
+      })}
+      {model.isLastPart && !completed ? (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => {
+            setExpanded(false);
+            model.advancePart();
+          }}
+          className="min-h-app-touch border-t border-app-border p-app-medium active:opacity-75"
+        >
+          <Text className="text-app-body font-semibold text-app-text">{text.finish}</Text>
+        </Pressable>
+      ) : null}
+    </ScrollView>
+  );
+
+  if (model.fullscreen) {
+    return (
+      <View className="items-center gap-app-small">
+        <View className="flex-row flex-wrap items-center justify-center gap-app-small">
+          {actions.map(action => (
+            <Pressable
+              key={action.key}
+              accessibilityRole="button"
+              accessibilityState={{ disabled: action.disabled }}
+              disabled={action.disabled}
+              onPress={action.onPress}
+              className="min-h-app-touch flex-row items-center justify-center gap-app-small rounded-app-button px-app-medium active:opacity-75 disabled:opacity-50"
+              style={{ backgroundColor: action.background }}
+            >
+              <AppIcon name={action.icon} color={action.foreground} size={18} />
+              <Text className="text-sm font-bold" style={{ color: action.foreground }}>{action.label}</Text>
+            </Pressable>
+          ))}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={text.chooseTimer + '. ' + model.partTitle}
+            accessibilityState={{ expanded: expanded && !selectionLocked, disabled: selectionLocked }}
+            disabled={selectionLocked}
+            onPress={() => setExpanded(true)}
+            className="min-h-app-touch min-w-app-touch items-center justify-center rounded-app-button border border-app-border bg-app-surface active:opacity-75 disabled:opacity-50"
+          >
+            <AppIcon name="list" color={palette.text} size={20} />
+          </Pressable>
+        </View>
+        <Modal
+          visible={expanded && !selectionLocked && model.active}
+          animationType="fade"
+          transparent
+          supportedOrientations={['portrait', 'landscape']}
+          onRequestClose={() => setExpanded(false)}
+        >
+          <SafeAreaView className="flex-1 justify-center p-app-medium" style={{ backgroundColor: palette.canvas }}>
+            <View accessibilityViewIsModal className="w-full max-w-app-content self-center gap-app-small" style={{ flexShrink: 1 }}>
+              <View className="flex-row items-center gap-app-small">
+                <Text accessibilityRole="header" className="flex-1 text-app-body font-bold text-app-text">{text.chooseTimer}</Text>
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => setExpanded(false)}
+                  className="min-h-app-touch items-center justify-center px-app-medium"
+                >
+                  <Text className="text-app-body text-app-text">{text.cancel}</Text>
+                </Pressable>
+              </View>
+              {timerList}
+            </View>
+          </SafeAreaView>
+        </Modal>
+      </View>
+    );
+  }
 
   return (
     <View className="gap-app-small">
@@ -93,40 +191,7 @@ export default function TimerControls({
           <Text accessible={false} className="text-app-body text-app-secondary">{expanded ? '⌃' : '⌄'}</Text>
         </Pressable>
         {expanded && !selectionLocked ? (
-          <ScrollView style={{ maxHeight: 280 }} nestedScrollEnabled keyboardShouldPersistTaps="handled">
-            {model.program.parts.map((part, index) => {
-              const selected = index === model.timer.partIndex;
-              return (
-                <Pressable
-                  key={part.id}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected, disabled: selected && !completed }}
-                  disabled={selected && !completed}
-                  onPress={() => {
-                    setExpanded(false);
-                    model.selectPart(index);
-                  }}
-                  className="min-h-app-touch border-t border-app-border p-app-medium active:opacity-75"
-                >
-                  <Text className="text-app-body" style={{ color: selected ? palette.brand : palette.text }}>
-                    {part.title}
-                  </Text>
-                </Pressable>
-              );
-            })}
-            {model.isLastPart && !completed ? (
-              <Pressable
-                accessibilityRole="button"
-                onPress={() => {
-                  setExpanded(false);
-                  model.advancePart();
-                }}
-                className="min-h-app-touch border-t border-app-border p-app-medium active:opacity-75"
-              >
-                <Text className="text-app-body font-semibold text-app-text">{text.finish}</Text>
-              </Pressable>
-            ) : null}
-          </ScrollView>
+          timerList
         ) : null}
       </View>
     </View>

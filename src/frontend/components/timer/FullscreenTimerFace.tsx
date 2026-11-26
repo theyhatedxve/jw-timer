@@ -35,10 +35,12 @@ export default function FullscreenTimerFace({
   const width = (percent + '%') as DimensionValue;
 
   return (
-    <View className="gap-app-medium" style={{ backgroundColor: colors.background }}>
-      <View className="self-center rounded-full border px-app-medium py-app-small" style={{ borderColor: color }}>
-        <Text className="text-app-body font-bold" style={{ color }}>{stateLabel}</Text>
-      </View>
+    <View className="gap-app-small" style={{ backgroundColor: colors.background }}>
+      {preferences.showCurrentPart ? (
+        <Text accessibilityRole="header" className="text-center text-app-title font-bold" style={{ color: colors.digits }}>
+          {partTitle}
+        </Text>
+      ) : null}
       <Text
         accessibilityLabel={stateLabel + ': ' + digits}
         accessibilityLiveRegion="none"
@@ -50,7 +52,7 @@ export default function FullscreenTimerFace({
         {digits}
       </Text>
       <Text className="text-center text-app-body" style={{ color: colors.digits }}>
-        {text.allotted(durationLabel)}
+        {stateLabel}{' · '}{text.allotted(durationLabel)}
       </Text>
       {preferences.showProgress ? (
         <View
@@ -60,14 +62,6 @@ export default function FullscreenTimerFace({
           style={[styles.progressTrack, { backgroundColor: colors.digits + '33' }]}
         >
           <View style={[styles.progressFill, { width, backgroundColor: color }]} />
-        </View>
-      ) : null}
-      {preferences.showCurrentPart ? (
-        <View className="gap-app-small rounded-app-card border p-app-medium" style={{ borderColor: colors.digits + '66' }}>
-          <Text className="text-app-body" style={{ color: colors.digits }}>{text.current}</Text>
-          <Text accessibilityRole="header" className="text-app-body font-bold" style={{ color: colors.digits }}>
-            {partTitle}
-          </Text>
         </View>
       ) : null}
     </View>

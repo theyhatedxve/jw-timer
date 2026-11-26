@@ -908,3 +908,17 @@ archives its assignment records in the same save transaction.
 Existing databases and backup formats remain compatible.
 
 Earlier pending notes record the status at each batch.
+
+## Fullscreen timer layout update - 2026-11-27
+
+Fullscreen places the current part title above a larger centered countdown,
+subject to the current-part visibility preference. Compact Start/Pause/Resume
+and Restart controls sit below it. A small list icon opens the timer picker;
+selection stays disabled while running. The picker retains Finish program
+for the final part. A small exit icon sits in the top-right corner.
+All controls retain at least 48 dp touch targets.
+
+The standard Timer view retains its layout. Fullscreen size, color, progress,
+per-part elapsed time, restart, and recovery behavior remain supported.
+The Settings preview uses the same fullscreen face. No rotation control is added.
+Owner typecheck and Android portrait/landscape verification remain pending.

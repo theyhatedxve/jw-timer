@@ -73,6 +73,17 @@ export default function TimerSessionView(model: Model) {
 
       {presenting && model.keepAwake ? <AwakeWhilePresented /> : null}
 
+      {model.fullscreen ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={text.exitFullscreen}
+          onPress={model.toggleFullscreen}
+          className="min-h-app-touch min-w-app-touch items-center justify-center self-end rounded-app-button active:opacity-75"
+        >
+          <AppIcon name="exitFullscreen" color={fullscreenPalette.digits} size={20} />
+        </Pressable>
+      ) : null}
+
       <ScrollView
         key={model.fullscreen ? 'fullscreen' : 'session'}
         className="flex-1"
@@ -147,11 +158,13 @@ export default function TimerSessionView(model: Model) {
               </AppCard>
             ) : null}
 
-            <AppButton
-              label={model.fullscreen ? text.exitFullscreen : text.fullscreen}
-              disabled={!model.fullscreen && model.locked}
-              onPress={model.toggleFullscreen}
-            />
+            {!model.fullscreen ? (
+              <AppButton
+                label={text.fullscreen}
+                disabled={model.locked}
+                onPress={model.toggleFullscreen}
+              />
+            ) : null}
 
             {!model.fullscreen ? (
               <>

@@ -1,6 +1,6 @@
 export const settingsEn = {
   chevron: '›',
-  timerDisplay: 'Timer display',
+  timerDisplay: 'Fullscreen timer',
   groups: {
     general: 'General',
     programs: 'Meetings',
@@ -13,7 +13,7 @@ export const settingsEn = {
     profile: 'Congregation name, time zone, and program language',
     programs: 'View and manage saved meeting programs',
     'workbook-import': 'Import a workbook PDF stored on this device',
-    'timer-display': 'Open fullscreen and keep-awake controls',
+    'timer-display': 'Customize text, colors, and visible timer elements',
     backups: 'Export or restore an encrypted local backup',
     diagnostics: 'Run local SQLite storage checks',
     'backup-checks': 'Check backup recovery behavior',

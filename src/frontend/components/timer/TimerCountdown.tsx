@@ -10,6 +10,8 @@ import type { useTimerSession } from '../../hooks/useTimerSession';
 import { timerProgressPercent } from '../../utils/timerPresentation';
 import { styles } from '../../styles/timer/timerPresentation.styles';
 import AppIcon from '../common/AppIcon';
+import FullscreenTimerFace from './FullscreenTimerFace';
+import { useFullscreenTimer } from '../../context/FullscreenTimerContext';
 
 type Model = ReturnType<typeof useTimerSession>;
 
@@ -21,6 +23,7 @@ export default function TimerCountdown({
   readonly durationLabel: string;
 }) {
   const { palette, resolved } = useAppTheme();
+  const { preferences } = useFullscreenTimer();
 
   const part = model.program.parts[model.timer.partIndex];
   const sectionTitle = part?.sectionTitle ?? timerEn.agenda;
@@ -32,6 +35,21 @@ export default function TimerCountdown({
   const running = model.timer.status === 'running';
   const paused = model.timer.status === 'paused';
   const completed = model.timer.status === 'completed';
+
+  if (model.fullscreen) {
+    return (
+      <FullscreenTimerFace
+        preferences={preferences}
+        digits={model.digits}
+        stateLabel={model.stateLabel}
+        durationLabel={durationLabel}
+        partTitle={model.partTitle}
+        progress={percent}
+        overtime={model.overtime}
+        fontSize={model.displaySize}
+      />
+    );
+  }
 
   const badgeBackground = paused
     ? palette.warningBackground

@@ -9,6 +9,7 @@ import { useLocalProfile } from '../hooks/useLocalProfile';
 import ProfileBoundary from '../components/common/ProfileBoundary';
 
 import AppearanceScreen from '../screens/AppearanceScreen';
+import FullscreenTimerSettingsScreen from '../screens/FullscreenTimerSettingsScreen';
 import NativewindPreviewScreen from '../screens/NativewindPreviewScreen';
 import DiagnosticsScreen from '../screens/DiagnosticsScreen';
 import MeetingEditorScreen from '../screens/MeetingEditorScreen';
@@ -23,6 +24,7 @@ import { runSqliteDiagnostics } from '../../backend/database/diagnostics/sqliteD
 import { runBackupChecks } from '../../backend/database/diagnostics/backupDiagnostics';
 
 import { appearanceEn } from '../../constants/strings/appearanceEn';
+import { fullscreenTimerEn } from '../../constants/strings/fullscreenTimerEn';
 import { nativewindPreviewEn } from '../../constants/strings/nativewindPreviewEn';
 import { workbookImportEn } from '../../constants/strings/workbookImportEn';
 import { backupEn } from '../../constants/strings/backupEn';
@@ -86,6 +88,15 @@ export default function AppNavigator() {
             options={{
               headerShown: true,
               title: appearanceEn.title,
+            }}
+          />
+
+          <Root.Screen
+            name="FullscreenTimerSettings"
+            component={FullscreenTimerSettingsScreen}
+            options={{
+              headerShown: true,
+              title: fullscreenTimerEn.title,
             }}
           />
 

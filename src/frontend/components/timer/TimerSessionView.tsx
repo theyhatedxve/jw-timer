@@ -17,6 +17,8 @@ import { timerEn as text } from '../../../constants/strings/timerEn';
 import { timerPresentationEn as presentation } from '../../../constants/strings/timerPresentationEn';
 
 import { useAppTheme } from '../../context/AppearanceContext';
+import { useFullscreenTimer } from '../../context/FullscreenTimerContext';
+import { fullscreenColors } from './FullscreenTimerFace';
 import { useTimerAgenda } from '../../hooks/useTimerAgenda';
 import type { useTimerSession } from '../../hooks/useTimerSession';
 import { styles } from '../../styles/timer/timerPresentation.styles';
@@ -41,6 +43,8 @@ function AwakeWhilePresented() {
 
 export default function TimerSessionView(model: Model) {
   const { palette, resolved } = useAppTheme();
+  const { preferences } = useFullscreenTimer();
+  const fullscreenPalette = fullscreenColors(preferences, palette);
   const [showAgenda, setShowAgenda] = useState(false);
   const agenda = useTimerAgenda(model);
 
@@ -58,7 +62,7 @@ export default function TimerSessionView(model: Model) {
 
   return (
     <SafeAreaView
-      style={[styles.safe, { backgroundColor: palette.canvas }]}
+      style={[styles.safe, { backgroundColor: model.fullscreen ? fullscreenPalette.background : palette.canvas }]}
     >
       {model.active ? (
         <StatusBar

@@ -26,6 +26,7 @@ export const linking:
         },
 
         Settings: 'settings',
+        FullscreenTimerSettings: 'settings/fullscreen-timer',
         MeetingPrograms: 'meetings',
         EditProfile: 'settings/profile',
         PracticeTimer: 'timer/prototype',

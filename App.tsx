@@ -12,6 +12,8 @@ import {
   AppearanceProvider,
   useAppTheme,
 } from './src/frontend/context/AppearanceContext';
+import { FullscreenTimerProvider } from './src/frontend/context/FullscreenTimerContext';
+import { fullscreenTimerService } from './src/bootstrap/fullscreenTimerDependencies';
 import { ProfileProvider } from './src/frontend/context/ProfileContext';
 import AppNavigator from './src/frontend/navigation/AppNavigator';
 import { linking } from './src/frontend/navigation/linking';
@@ -51,7 +53,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <AppearanceProvider service={appearanceService}>
-        <ThemedApplication />
+        <FullscreenTimerProvider service={fullscreenTimerService}>
+          <ThemedApplication />
+        </FullscreenTimerProvider>
       </AppearanceProvider>
     </SafeAreaProvider>
   );

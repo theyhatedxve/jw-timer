@@ -77,7 +77,7 @@ export function useSectionScreen(section: MainSection) {
       {
         id: 'timer-display',
         label: settingsEn.timerDisplay,
-        onPress: () => navigation.navigate('Main', { screen: 'Timer' }),
+        onPress: () => navigation.navigate('FullscreenTimerSettings'),
       },
       {
         id: 'backups',

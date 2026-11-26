@@ -6,7 +6,7 @@ import { timerPresentation } from '../../../constants/timerTheme';
 import { useAppTheme } from '../../context/AppearanceContext';
 import type { useTimerSession } from '../../hooks/useTimerSession';
 
-import AppButton from '../common/AppButton';
+import AppIcon from '../common/AppIcon';
 
 type Model = ReturnType<typeof useTimerSession>;
 
@@ -21,6 +21,7 @@ export default function TimerControls({
   const actions = [
     {
       key: 'running',
+      icon: model.timer.status === 'running' ? 'pause' as const : 'play' as const,
       label: model.timer.status === 'running'
         ? text.pause
         : model.timer.status === 'paused'
@@ -33,6 +34,7 @@ export default function TimerControls({
     },
     {
       key: 'restart',
+      icon: 'restart' as const,
       label: text.restart,
       onPress: model.confirmReset,
       disabled: model.locked,
@@ -41,6 +43,7 @@ export default function TimerControls({
     },
     {
       key: 'advance',
+      icon: 'nextPart' as const,
       label: model.isLastPart ? text.finish : text.next,
       onPress: model.advancePart,
       disabled: model.locked || completed,
@@ -59,12 +62,13 @@ export default function TimerControls({
               accessibilityState={{ disabled: action.disabled }}
               disabled={action.disabled}
               onPress={action.onPress}
-              className="min-h-app-touch items-center justify-center rounded-app-button border p-app-medium active:opacity-75 disabled:opacity-50"
+              className="min-h-app-touch items-center justify-center gap-app-small rounded-app-button border p-app-medium active:opacity-75 disabled:opacity-50"
               style={{
                 backgroundColor: action.background,
                 borderColor: palette.border,
               }}
             >
+              <AppIcon name={action.icon} color={action.foreground} size={24} />
               <Text
                 className="text-center text-app-body font-bold"
                 style={{ color: action.foreground }}
@@ -75,12 +79,6 @@ export default function TimerControls({
           </View>
         ))}
       </View>
-
-      <AppButton
-        label={model.fullscreen ? text.exitFullscreen : text.fullscreen}
-        disabled={!model.fullscreen && model.locked}
-        onPress={model.toggleFullscreen}
-      />
     </View>
   );
 }

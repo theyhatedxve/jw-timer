@@ -9,6 +9,7 @@ import { useAppTheme } from '../../context/AppearanceContext';
 import type { useTimerSession } from '../../hooks/useTimerSession';
 import { timerProgressPercent } from '../../utils/timerPresentation';
 import { styles } from '../../styles/timer/timerPresentation.styles';
+import AppIcon from '../common/AppIcon';
 
 type Model = ReturnType<typeof useTimerSession>;
 
@@ -49,12 +50,15 @@ export default function TimerCountdown({
   return (
     <View className="gap-app-medium">
       <View
-        className="self-center rounded-app-button border px-app-medium py-app-small"
+        className="flex-row items-center gap-app-small self-center rounded-full border px-app-medium py-app-small"
         style={{
           backgroundColor: badgeBackground,
           borderColor: badgeText,
         }}
       >
+        {running && !model.overtime ? (
+          <AppIcon name="play" color={badgeText} size={16} />
+        ) : null}
         <Text
           accessibilityLiveRegion="none"
           className="text-center text-app-body font-bold"
@@ -108,29 +112,22 @@ export default function TimerCountdown({
         />
       </View>
 
-      <View
-        className="gap-app-small rounded-app-card border p-app-medium"
-        style={{
-          backgroundColor: section.background,
-          borderColor: section.border,
-        }}
-      >
-        <Text
-          className="text-app-body"
-          style={{ color: section.text }}
+      <View className="flex-row items-start gap-app-small rounded-app-card border border-app-border bg-app-surface p-app-medium">
+        <View
+          className="rounded-app-button p-app-small"
+          style={{ backgroundColor: section.background }}
         >
-          {text.current}
-          {' · '}
-          {sectionTitle}
-        </Text>
+          <AppIcon name="book" color={section.text} size={24} />
+        </View>
 
-        <Text
-          accessibilityRole="header"
-          className="text-app-body font-bold"
-          style={{ color: section.text }}
-        >
-          {model.partTitle}
-        </Text>
+        <View className="flex-1 gap-app-small">
+          <Text className="text-app-body text-app-secondary">
+            {text.current} · {sectionTitle}
+          </Text>
+          <Text accessibilityRole="header" className="text-app-body font-bold text-app-text">
+            {model.partTitle}
+          </Text>
+        </View>
       </View>
     </View>
   );

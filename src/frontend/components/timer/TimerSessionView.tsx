@@ -20,6 +20,7 @@ import { styles } from '../../styles/timer/timerPresentation.styles';
 
 import AppButton from '../common/AppButton';
 import AppCard from '../common/AppCard';
+import AppIcon from '../common/AppIcon';
 import SettingsButton from '../common/SettingsButton';
 import TimerAgendaCard from './TimerAgendaCard';
 import TimerControls from './TimerControls';
@@ -69,7 +70,7 @@ export default function TimerSessionView(model: Model) {
           styles.content,
           model.fullscreen && styles.fullscreenContent,
         ]}
-        data={!model.fullscreen && showAgenda ? agenda.rows : []}
+        data={!model.fullscreen && showCountdown && showAgenda ? agenda.rows : []}
         keyExtractor={row => row.id}
         extraData={model.locked}
         ListHeaderComponent={
@@ -88,17 +89,6 @@ export default function TimerSessionView(model: Model) {
 
                   <SettingsButton onPress={model.openSettings} />
                 </View>
-
-                <AppCard>
-                  <Text className="text-app-body text-app-secondary">
-                    {text.currentTime}
-                    {' · '}
-                    {agenda.timezone}
-                  </Text>
-                  <Text accessibilityLiveRegion="none" className="text-app-body font-bold text-app-text">
-                    {agenda.clock}
-                  </Text>
-                </AppCard>
               </>
             ) : null}
 
@@ -124,22 +114,31 @@ export default function TimerSessionView(model: Model) {
 
             <TimerControls model={model} />
 
+            {!model.fullscreen && showCountdown && next ? (
+              <AppCard>
+                <Text className="text-app-body text-app-secondary">
+                  {presentation.next}
+                </Text>
+                <Text className="text-app-body font-bold text-app-text">
+                  {next.title}
+                </Text>
+                <View className="flex-row items-center gap-app-small">
+                  <AppIcon name="timer" color={palette.secondary} size={16} />
+                  <Text className="text-app-body text-app-secondary">
+                    {next.durationLabel}
+                  </Text>
+                </View>
+              </AppCard>
+            ) : null}
+
+            <AppButton
+              label={model.fullscreen ? text.exitFullscreen : text.fullscreen}
+              disabled={!model.fullscreen && model.locked}
+              onPress={model.toggleFullscreen}
+            />
+
             {!model.fullscreen ? (
               <>
-                {showCountdown && next ? (
-                  <AppCard>
-                    <Text className="text-app-body text-app-secondary">
-                      {presentation.next}
-                    </Text>
-                    <Text className="text-app-body font-bold text-app-text">
-                      {next.title}
-                    </Text>
-                    <Text className="text-app-body text-app-secondary">
-                      {next.durationLabel}
-                    </Text>
-                  </AppCard>
-                ) : null}
-
                 <View className="flex-row items-center gap-app-medium">
                   <Text className="flex-1 text-app-body text-app-text">
                     {text.keepAwake}
@@ -155,6 +154,17 @@ export default function TimerSessionView(model: Model) {
                     thumbColor={palette.surface}
                   />
                 </View>
+
+                <AppCard>
+                  <Text className="text-app-body text-app-secondary">
+                    {text.currentTime}
+                    {' · '}
+                    {agenda.timezone}
+                  </Text>
+                  <Text accessibilityLiveRegion="none" className="text-app-body font-bold text-app-text">
+                    {agenda.clock}
+                  </Text>
+                </AppCard>
 
                 <AppCard>
                   <Text accessibilityLiveRegion="none" className="text-app-body text-app-text">

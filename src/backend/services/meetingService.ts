@@ -19,6 +19,7 @@ export interface MeetingSummary {
   readonly title: string;
   readonly meetingDate: string;
   readonly meetingType: MeetingDraft['meetingType'];
+  readonly importSource?: MeetingDraft['importSource'];
 }
 
 export interface MeetingTarget {

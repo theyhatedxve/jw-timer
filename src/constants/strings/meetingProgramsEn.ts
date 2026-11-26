@@ -52,6 +52,7 @@ export const meetingProgramsEn = {
   loading: 'Loading meeting programs…',
   empty: 'No local programs match this week and meeting type.',
   chooseProgram: 'Programs in this week',
+  programSources: { pdf: 'PDF', wol: 'WOL', local: 'Local' },
   retry: 'Try again',
   error: 'Meeting programs could not be loaded. Try again.',
   missing: 'This program is unavailable. Reload the list.',

@@ -126,17 +126,33 @@ export default function MeetingsListView(model: Props) {
                   {text.chooseProgram}
                 </Text>
 
-                {matches.map(meeting => (
-                  <AppButton
-                    key={meeting.id}
-                    label={
-                      `${text.date(meeting.meetingDate)} · ${meeting.title}` +
-                      (meeting.id === saved.id ? text.selected : '')
-                    }
-                    selected={meeting.id === saved.id}
-                    onPress={() => model.selectMeeting(meeting.id)}
-                  />
-                ))}
+                <View className="flex-row flex-wrap gap-app-small">
+                  {matches.map(meeting => {
+                    const selected = meeting.id === saved.id;
+                    const source = meeting.importSource
+                      ? meeting.importSource.parser === 'wol-v1' ? 'wol' : 'pdf'
+                      : 'local';
+                    const label = text.programSources[source];
+                    return (
+                      <Pressable
+                        key={meeting.id}
+                        accessibilityRole="button"
+                        accessibilityLabel={label + '. ' + text.date(meeting.meetingDate) + '. ' + meeting.title}
+                        accessibilityState={{ selected }}
+                        onPress={() => model.selectMeeting(meeting.id)}
+                        className={
+                          'min-h-app-touch items-center justify-center rounded-app-button border border-app-border px-app-small py-app-small active:opacity-75 ' +
+                          (selected ? 'bg-app-brand' : 'bg-app-surface')
+                        }
+                        style={{ flexBasis: '45%', flexGrow: 1 }}
+                      >
+                        <Text className={'text-center text-sm font-bold ' + (selected ? 'text-app-onBrand' : 'text-app-text')}>
+                          {label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
               </AppCard>
             ) : null}
 

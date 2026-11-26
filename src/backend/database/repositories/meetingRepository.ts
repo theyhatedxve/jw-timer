@@ -383,6 +383,7 @@ export function createMeetingRepository(database: () => SQLiteDatabase): Meeting
             title: draft.title,
             meetingDate: draft.meetingDate,
             meetingType: draft.meetingType,
+            importSource: draft.importSource,
           };
         });
       });

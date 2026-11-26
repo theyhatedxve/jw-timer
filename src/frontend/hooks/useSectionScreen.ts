@@ -6,6 +6,7 @@ import {
 } from '@react-navigation/native';
 
 import { appearanceEn } from '../../constants/strings/appearanceEn';
+import { settingsEn } from '../../constants/strings/settingsEn';
 import { nativewindPreviewEn } from '../../constants/strings/nativewindPreviewEn';
 import { workbookImportEn } from '../../constants/strings/workbookImportEn';
 import { backupEn } from '../../constants/strings/backupEn';
@@ -80,9 +81,19 @@ export function useSectionScreen(section: MainSection) {
         onPress: () => navigation.navigate('Diagnostics'),
       },
       {
+        id: 'programs',
+        label: en.actions.managePrograms,
+        onPress: () => navigation.navigate('MeetingPrograms'),
+      },
+      {
         id: 'workbook-import',
         label: workbookImportEn.title,
         onPress: () => navigation.navigate('WorkbookImport'),
+      },
+      {
+        id: 'timer-display',
+        label: settingsEn.timerDisplay,
+        onPress: () => navigation.navigate('PracticeTimer'),
       },
       {
         id: 'backups',

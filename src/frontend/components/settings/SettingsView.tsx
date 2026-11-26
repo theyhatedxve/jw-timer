@@ -13,7 +13,7 @@ type Action = ReturnType<typeof useSectionScreen>['actions'][number];
 
 interface Props {
   readonly actions: readonly Action[];
-  readonly appearanceLabel: string;
+  readonly values: Readonly<Record<string, string | undefined>>;
 }
 
 interface Group {
@@ -31,11 +31,16 @@ const groups: readonly Group[] = [
   {
     key: 'programs',
     icon: 'meetings',
-    ids: ['workbook-import'],
+    ids: ['programs', 'workbook-import'],
+  },
+  {
+    key: 'display',
+    icon: 'laptop',
+    ids: ['timer-display'],
   },
   {
     key: 'backups',
-    icon: 'settings',
+    icon: 'database',
     ids: ['backups'],
   },
   {
@@ -54,17 +59,28 @@ function descriptionFor(id: string): string | undefined {
   return descriptions[id];
 }
 
+const rowIcons: Readonly<Record<string, AppIconName | undefined>> = {
+  appearance: 'moon',
+  profile: 'globe',
+  programs: 'list',
+  'workbook-import': 'book',
+  'timer-display': 'timer',
+  backups: 'database',
+};
+
 function SettingsRow({
   action,
-  appearanceLabel,
+  values,
   last,
 }: {
   readonly action: Action;
-  readonly appearanceLabel: string;
+  readonly values: Readonly<Record<string, string | undefined>>;
   readonly last: boolean;
 }) {
   const description = descriptionFor(action.id);
-  const value = action.id === 'appearance' ? appearanceLabel : null;
+  const { palette } = useAppTheme();
+  const value = values[action.id];
+  const icon = rowIcons[action.id] ?? 'settings';
 
   return (
     <Pressable
@@ -76,25 +92,26 @@ function SettingsRow({
       ].filter(Boolean).join('. ')}
       onPress={action.onPress}
       className={
-        'min-h-app-touch flex-row items-center gap-app-small border-app-border p-app-medium active:opacity-75 ' +
+        'min-h-app-touch flex-row items-center gap-app-small border-app-border px-app-medium py-app-small active:opacity-75 ' +
         (last ? '' : 'border-b')
       }
     >
+      <AppIcon name={icon} color={palette.text} size={spacing.medium} />
       <View className="flex-1 gap-app-small">
         <Text className="text-app-body font-semibold text-app-text">
           {action.label}
         </Text>
-        {value ? (
-          <Text className="text-app-body font-semibold text-app-secondary">
-            {value}
-          </Text>
-        ) : null}
         {description ? (
           <Text className="text-app-body text-app-secondary">
             {description}
           </Text>
         ) : null}
       </View>
+      {value ? (
+        <Text className="max-w-[40%] flex-shrink text-right text-sm text-app-secondary">
+          {value}
+        </Text>
+      ) : null}
       <Text accessible={false} className="text-app-title text-app-secondary">
         {text.chevron}
       </Text>
@@ -106,12 +123,12 @@ function SettingsGroup({
   title,
   icon,
   actions,
-  appearanceLabel,
+  values,
 }: {
   readonly title: string;
   readonly icon: AppIconName;
   readonly actions: readonly Action[];
-  readonly appearanceLabel: string;
+  readonly values: Readonly<Record<string, string | undefined>>;
 }) {
   const { palette } = useAppTheme();
   if (actions.length === 0) return null;
@@ -131,7 +148,7 @@ function SettingsGroup({
         <SettingsRow
           key={action.id}
           action={action}
-          appearanceLabel={appearanceLabel}
+          values={values}
           last={index === actions.length - 1}
         />
       ))}
@@ -139,21 +156,12 @@ function SettingsGroup({
   );
 }
 
-export default function SettingsView({ actions, appearanceLabel }: Props) {
+export default function SettingsView({ actions, values }: Props) {
   const knownIds = new Set(groups.flatMap(group => group.ids));
   const remaining = actions.filter(action => !knownIds.has(action.id));
 
   return (
     <AppScreen>
-      <Text
-        accessibilityRole="header"
-        className="text-app-title font-bold text-app-text"
-      >
-        {text.title}
-      </Text>
-      <Text className="text-app-body text-app-secondary">
-        {text.description}
-      </Text>
       {groups.map(group => {
         const ordered = group.ids.flatMap(id => {
           const action = actions.find(item => item.id === id);
@@ -166,7 +174,7 @@ export default function SettingsView({ actions, appearanceLabel }: Props) {
             title={text.groups[group.key]}
             icon={group.icon}
             actions={ordered}
-            appearanceLabel={appearanceLabel}
+            values={values}
           />
         );
       })}
@@ -174,7 +182,7 @@ export default function SettingsView({ actions, appearanceLabel }: Props) {
         title={text.groups.other}
         icon="settings"
         actions={remaining}
-        appearanceLabel={appearanceLabel}
+        values={values}
       />
     </AppScreen>
   );

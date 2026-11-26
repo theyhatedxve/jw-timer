@@ -1,6 +1,11 @@
 export const workbookImportEn = {
   title: 'Import meeting PDF',
   select: 'Select PDF',
+  download: 'Import current Midweek workbook from JW.org',
+  downloading: 'Downloading workbook...',
+  cancelDownload: 'Cancel download',
+  downloadFailed: 'Could not download the workbook from JW.org. Try again or select a local PDF.',
+  downloaded: (date: string) => 'Source: JW.org. Downloaded ' + new Date(date).toLocaleString() + '.',
   selecting: 'Opening document picker...',
   extract: 'Extract PDF text',
   extracting: 'Extracting text...',

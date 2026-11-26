@@ -2,7 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { AccessibilityInfo, AppState } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
-import { meetingWeek } from '../../backend/domain/assignments/assignment';
+import { meetingWeek } from '../../backend/domain/meetings/meetingWeek';
 import { isCalendarDate } from '../../backend/domain/meetings/meetingValidation';
 
 import type { MeetingType } from '../../backend/domain/meetings/meeting.types';

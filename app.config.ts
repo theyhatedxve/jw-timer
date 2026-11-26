@@ -16,7 +16,10 @@ const config: ExpoConfig = {
     allowBackup: false,
     blockedPermissions: ['android.permission.RECORD_AUDIO'],
   },
-  plugins: ['expo-sqlite', ['expo-dev-client', { launchMode: 'most-recent' }], ['expo-camera', { barcodeScannerEnabled: true, recordAudioAndroid: false }]],
+  plugins: [
+    'expo-sqlite',
+    ['expo-dev-client', { launchMode: 'most-recent' }],
+  ],
 };
 
 export default config;

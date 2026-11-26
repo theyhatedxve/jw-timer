@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import {
   parseSharedSchedule,
   SHARED_SCHEDULE_LIMITS,
-} from '../src/backend/domain/devices/sharedSchedule';
+} from '../src/backend/domain/legacy/sharedSchedule';
 
 const duties = [
   'mic-server', 'sound-operator', 'laptop-operator', 'microphone-adjuster',

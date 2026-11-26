@@ -3,7 +3,7 @@ import { test } from 'node:test';
 
 import {
   validatePublisherDraft,
-} from '../src/backend/domain/publishers/publisher';
+} from '../src/backend/domain/legacy/publisher';
 
 test('publisher names are trimmed and Unicode is preserved', () => {
   const result = validatePublisherDraft({

@@ -2,7 +2,6 @@ import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { homeEn as text } from '../../../constants/strings/homeEn';
 import { dimensions, spacing } from '../../../constants/theme';
-import { MEETING_DUTY_SLOTS } from '../../../backend/domain/assignments/meetingDuty';
 
 import type { HomeState } from '../../hooks/useHomeDashboard';
 import { useAppTheme } from '../../context/AppearanceContext';
@@ -17,9 +16,6 @@ interface Props {
   readonly reload: () => void;
   readonly openProgram: (id: string) => void;
   readonly openMeetings: () => void;
-  readonly openAssignments: () => void;
-  readonly openReceived: () => void;
-  readonly openSync: () => void;
 }
 
 function QuickAction({
@@ -65,9 +61,6 @@ export default function HomeView({
   reload,
   openProgram,
   openMeetings,
-  openAssignments,
-  openReceived,
-  openSync,
 }: Props) {
   const { palette } = useAppTheme();
   const next = state.status === 'ready' ? state.snapshot.next : null;
@@ -75,10 +68,6 @@ export default function HomeView({
   const stats = next ? [
     { label: text.parts, value: String(next.partCount) },
     { label: text.duration, value: text.time(next.durationSeconds) },
-    {
-      label: text.assignments,
-      value: `${next.assignedSlots}/${MEETING_DUTY_SLOTS.length}`,
-    },
   ] : [];
 
   return (
@@ -173,24 +162,6 @@ export default function HomeView({
         title={text.meetings}
         description={text.meetingsDescription}
         onPress={openMeetings}
-      />
-      <QuickAction
-        icon="assignments"
-        title="Assignments"
-        description={text.assignmentsDescription}
-        onPress={openAssignments}
-      />
-      <QuickAction
-        icon="meetings"
-        title={text.received}
-        description={text.receivedDescription}
-        onPress={openReceived}
-      />
-      <QuickAction
-        icon="settings"
-        title={text.sync}
-        description={text.syncDescription}
-        onPress={openSync}
       />
     </AppScreen>
   );

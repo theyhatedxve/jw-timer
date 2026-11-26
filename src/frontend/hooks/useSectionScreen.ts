@@ -1,27 +1,19 @@
-import { appearanceEn } from '../../constants/strings/appearanceEn';
-import { nativewindPreviewEn } from '../../constants/strings/nativewindPreviewEn';
 import { useCallback } from 'react';
 import { AccessibilityInfo } from 'react-native';
-import { meetingDutyEn } from '../../constants/strings/meetingDutyEn';
-
 import {
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
+
+import { appearanceEn } from '../../constants/strings/appearanceEn';
+import { nativewindPreviewEn } from '../../constants/strings/nativewindPreviewEn';
 import { workbookImportEn } from '../../constants/strings/workbookImportEn';
+import { backupEn } from '../../constants/strings/backupEn';
+import { backupChecksEn } from '../../constants/strings/backupChecksEn';
 import {
   en,
   type MainSection,
 } from '../../constants/strings/en';
-
-import { deviceIdentityEn } from '../../constants/strings/deviceIdentityEn';
-import { receivedSchedulesEn } from '../../constants/strings/receivedSchedulesEn';
-import { backupChecksEn } from '../../constants/strings/backupChecksEn';
-import { deviceRequestsEn } from '../../constants/strings/deviceRequestsEn';
-
-import { backupEn } from '../../constants/strings/backupEn';
-import { syncEn } from '../../constants/strings/syncEn';
-import { syncChecksEn } from '../../constants/strings/syncChecksEn';
 
 interface SectionAction {
   readonly id: string;
@@ -35,18 +27,12 @@ export function useSectionScreen(section: MainSection) {
 
   useFocusEffect(
     useCallback(() => {
-      AccessibilityInfo.announceForAccessibility(
-        content.title,
-      );
+      AccessibilityInfo.announceForAccessibility(content.title);
     }, [content.title]),
   );
 
-  const actions: Record<
-    MainSection,
-    readonly SectionAction[]
-  > = {
+  const actions: Record<MainSection, readonly SectionAction[]> = {
     home: [
-      { id: 'sync', label: syncEn.title, onPress: () => navigation.navigate('Sync') },
       {
         id: 'timer',
         label: en.actions.openTimer,
@@ -55,37 +41,20 @@ export function useSectionScreen(section: MainSection) {
           { screen: 'Timer' },
         ),
       },
-      {
-        id: 'assignments',
-        label: en.actions.openAssignments,
-        onPress: () => navigation.navigate(
-          'Main',
-          { screen: 'Assignments' },
-        ),
-      },
-      {
-        id: 'received-schedules',
-        label: receivedSchedulesEn.open,
-        onPress: () =>
-          navigation.navigate('ReceivedSchedules'),
-      },
     ],
 
     meetings: [],
-    assignments: [],
 
     timer: [
       {
         id: 'programs',
         label: en.actions.managePrograms,
-        onPress: () =>
-          navigation.navigate('MeetingPrograms'),
+        onPress: () => navigation.navigate('MeetingPrograms'),
       },
       {
         id: 'current-timer',
         label: en.actions.openPracticeTimer,
-        onPress: () =>
-          navigation.navigate('PracticeTimer'),
+        onPress: () => navigation.navigate('PracticeTimer'),
       },
     ],
 
@@ -100,24 +69,15 @@ export function useSectionScreen(section: MainSection) {
         label: nativewindPreviewEn.title,
         onPress: () => navigation.navigate('NativewindPreview'),
       }] : []),
-      { id: 'sync-checks', label: syncChecksEn.title, onPress: () => navigation.navigate('SyncChecks') },
-      { id: 'sync', label: syncEn.title, onPress: () => navigation.navigate('Sync') },
-      {
-        id: 'manage-assignments',
-        label: meetingDutyEn.title,
-        onPress: () => navigation.navigate('ManageAssignments'),
-      },
       {
         id: 'profile',
         label: en.actions.openProfile,
-        onPress: () =>
-          navigation.navigate('EditProfile'),
+        onPress: () => navigation.navigate('EditProfile'),
       },
       {
         id: 'diagnostics',
         label: en.actions.openDiagnostics,
-        onPress: () =>
-          navigation.navigate('Diagnostics'),
+        onPress: () => navigation.navigate('Diagnostics'),
       },
       {
         id: 'workbook-import',
@@ -133,16 +93,6 @@ export function useSectionScreen(section: MainSection) {
         id: 'backup-checks',
         label: backupChecksEn.title,
         onPress: () => navigation.navigate('BackupChecks'),
-      },
-      {
-        id: 'device-identity',
-        label: deviceIdentityEn.title,
-        onPress: () => navigation.navigate('DeviceIdentity'),
-      },
-      {
-        id: 'device-requests',
-        label: deviceRequestsEn.title,
-        onPress: () => navigation.navigate('DeviceRequests'),
       },
     ],
   };

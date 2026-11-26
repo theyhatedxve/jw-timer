@@ -7,7 +7,7 @@
     "start": "expo start --dev-client --localhost",
     "android": "expo run:android --device",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/timer.test.ts tests/timerProgram.test.ts tests/timerAgenda.test.ts tests/publisher.test.ts tests/assignment.test.ts"
+    "test": "tsx --test tests/timer.test.ts tests/timerProgram.test.ts tests/timerAgenda.test.ts tests/publisher.test.ts tests/legacyRecords.test.ts tests/legacySyncFormat.test.ts tests/backupFormat.test.ts"
   },
   "dependencies": {
     "@js-temporal/polyfill": "0.5.1",
@@ -15,7 +15,6 @@
     "@react-navigation/native": "^7.5.2",
     "@react-navigation/native-stack": "^7.21.1",
     "expo": "58.0.26",
-    "expo-camera": "~58.0.14",
     "expo-constants": "~58.0.16",
     "expo-dev-client": "~58.0.21",
     "expo-document-picker": "~58.0.5",
@@ -30,7 +29,6 @@
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native": "0.88.1",
-    "react-native-qrcode-svg": "6.3.21",
     "react-native-reanimated": "4.7.1",
     "react-native-safe-area-context": "~5.11.1",
     "react-native-screens": "~4.30.1",

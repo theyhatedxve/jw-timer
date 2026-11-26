@@ -6,10 +6,16 @@ import {
 
 import { getAppDatabase } from '../appDatabase';
 import { readMeetingForBackup } from './meetingRepository';
-import { readPublisherForBackup } from './publisherRepository';
-import { decodeDutyForBackup } from './meetingDutyRepository';
+import {
+  readPublisherForBackup,
+  decodeDutyForBackup,
+} from './legacyStoredRecords';
 import { parseStoredProfile } from '../../domain/profile/profile';
-import { captureSyncDrafts, restoreSyncDrafts, syncRestoreToken } from './syncBackup';
+import {
+  captureSyncDrafts,
+  restoreSyncDrafts,
+  syncRestoreToken,
+} from './legacySyncBackup';
 
 import {
   BACKUP_TABLES,

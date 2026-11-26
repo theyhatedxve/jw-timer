@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import {
   checkMeetingOverlap,
   type MeetingSchedule,
-} from '../src/backend/domain/assignments/meetingOverlap';
+} from '../src/backend/domain/legacy/meetingOverlap';
 
 const first: MeetingSchedule = {
   id: 'first',

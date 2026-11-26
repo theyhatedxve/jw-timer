@@ -6,6 +6,7 @@ import {
 } from '../appDatabase';
 
 import { createBackupRepository } from '../repositories/backupRepository';
+import { createMeetingRepository } from '../repositories/meetingRepository';
 import { backupCrypto } from '../../files/backupCrypto';
 
 import {
@@ -355,6 +356,58 @@ export async function runBackupChecks():
       requireCondition(
         repository.token() === changedToken,
         'Rejected restore modified current records.',
+      );
+    });
+
+    await check('Retired assignments survive meeting edits and backup restore', () => {
+      db.runSync(
+        `INSERT INTO local_part_assignments
+           (meeting_id, part_id, role_code, publisher_id, revision, updated_at)
+         VALUES (?, ?, 'sound', ?, 2, 123)`,
+        meetingId, partId, publisherId,
+      );
+
+      const before = repository.capture();
+      const meetings = createMeetingRepository(() => db);
+      const current = meetings.get(meetingId);
+      if (!current.ok || !current.value) throw new Error('Fixture meeting missing.');
+
+      const saved = meetings.save({
+        ...current.value.draft,
+        startLocalTime: null,
+        endLocalTime: null,
+        sections: current.value.draft.sections.map(section => ({
+          ...section,
+          parts: section.parts.filter(part => part.id !== partId),
+        })),
+      }, { id: meetingId, revision: current.value.revision });
+
+      if (!saved.ok) throw new Error(saved.error.message);
+
+      const archived = repository.capture();
+      requireCondition(
+        archived.tables.local_part_assignments.length === 0 &&
+          archived.tables.local_meeting_parts.length === 0 &&
+          archived.tables.local_meeting_drafts[0]?.start_local_time === null &&
+          JSON.stringify(archived.tables.legacy_part_assignments_v6) ===
+            JSON.stringify(before.tables.local_part_assignments) &&
+          JSON.stringify(archived.tables.local_technical_duties) ===
+            JSON.stringify(before.tables.local_technical_duties),
+        'Meeting edit did not preserve the historical records.',
+      );
+
+      repository.restore(before, repository.token());
+      requireCondition(
+        JSON.stringify(repository.capture().tables.local_part_assignments) ===
+          JSON.stringify(before.tables.local_part_assignments),
+        'The earlier backup did not restore the original assignment.',
+      );
+
+      repository.restore(archived, repository.token());
+      requireCondition(
+        JSON.stringify(repository.capture().tables.legacy_part_assignments_v6) ===
+          JSON.stringify(archived.tables.legacy_part_assignments_v6),
+        'The archived assignment did not survive restore.',
       );
     });
   } catch {

@@ -782,3 +782,129 @@ The agent did not run tests, builds, or device checks.
 Earlier pending statements remain historical checkpoints.
 
 Scope: supported local PDF layouts. Direct online retrieval remains deferred.
+
+## Assignment and device-sharing retirement: batch 1
+
+Per ADR 0006, active navigation retains Home, Meetings, Timer, and Settings.
+Assignment, publisher, device-management, received-schedule, and sync
+screens are unregistered. Their Home and Settings entry points are removed.
+
+Home shows meeting details, part count, and timed duration.
+Existing meeting import, editor, timer, appearance, profile, and backup
+flows remain registered.
+
+Retired source files and legacy route declarations remain temporarily
+for the next removal batch. This checkpoint does not claim complete
+source or dependency removal.
+
+Source applied; owner verification pending.
+
+## Assignment retirement: shared dependency separation
+
+The owner reported completing batch 1 navigation checks.
+
+Meeting-week calculation moves into the meeting domain. Retired assignment
+code temporarily re-exports that function. Home no longer reads or exposes
+assignment counts.
+
+Historical sync codecs and types move into domain/legacy. Backup capture
+and restore use legacySyncBackup directly. Temporary exports at the old
+sync paths keep remaining retired feature files typecheckable.
+
+Backup versions, validation, restoration rules, migration history, and
+stored data are unchanged. Some historical validators still depend on
+assignment/device helpers; compatibility extraction precedes their deletion.
+
+Feature-source deletion remains pending.
+Source applied; owner verification pending.
+
+## Assignment retirement: UI source removal
+
+The owner reported completing the shared-dependency separation checks.
+
+This batch removes 51 retired assignment, publisher, device, pairing,
+received-schedule, and sync UI files, including their screens, components,
+hooks, and dedicated styles.
+
+Navigation types now contain only registered screens and the four retained
+tabs. Assignment section metadata and its temporary action-map entry
+are removed.
+
+The dutyOverview utility remains temporarily because its existing test
+imports it. Backend feature removal, historical-validator extraction,
+native networking removal, dependency cleanup, and obsolete-test cleanup
+remain pending.
+
+Stored data, migration history, and legacy backup compatibility are preserved.
+
+Source applied; owner verification pending.
+
+## Assignment retirement: historical validator separation
+
+The owner reported completing the UI source-removal checks.
+
+Historical publisher, duty, device-fingerprint, shared-schedule, and overlap
+validation is owned by legacy compatibility modules. Temporary re-exports
+preserve remaining retired callers.
+
+Backup publisher reads and duty decoding use legacyStoredRecords directly,
+without importing publisher or duty CRUD repositories. Existing validation,
+error behavior, backup formats, transactions, and stored data are preserved.
+
+Remaining assignment-dependent meeting-editor constraints are addressed
+during backend retirement. This batch preserves their existing behavior.
+
+Backend/native feature deletion and final dependency cleanup remain pending.
+Source applied; owner verification pending.
+
+## Assignment retirement: backend and native sharing removal
+
+The owner reported completing historical-validator separation checks.
+
+This batch removes 64 retired backend/bootstrap, utility, string, and test
+files, plus the native device-identity module. Active assignment editing,
+publisher management, pairing, permissions, received-schedule delivery,
+synchronization, LAN transport, and their native adapters are removed.
+
+Historical publisher, shared-schedule, overlap, and sync-format tests point
+directly at legacy compatibility modules. Live synchronization mutation
+tests are retired; historical document-chain validation remains covered.
+
+Meeting conflict safeguards move to legacyMeetingConflictCheck.
+Existing assignment-linked meeting-edit restrictions remain until a
+separate preservation-safe data change addresses those links.
+
+Backup encryption, local PDF extraction, migration history, stored data,
+and legacy backup capture/restore are preserved.
+
+Unused camera/QR dependencies, remaining obsolete labels, and final
+documentation reconciliation remain pending. Rebuild the Android app
+to remove the native sharing module from the installed application.
+
+Source applied; owner verification pending.
+
+## Assignment retirement: dependency and label cleanup
+
+Removed the unused camera hook, Expo camera plugin, camera and QR
+packages, and retired Home and Settings labels. Updated the npm lockfile.
+
+Legacy backup compatibility and historical assignment safeguards remain.
+Owner verification pending.
+
+## Assignment retirement: meeting edits
+
+Retired technical duties no longer block rescheduling. When a program part
+is removed, its assignment rows move to the existing legacy archive within
+the meeting save transaction. Schema and backup formats are unchanged.
+Owner verification pending.
+
+## Assignment and device-sharing retirement closed — 2026-11-26
+
+The owner reported completing typecheck, tests, the Android rebuild,
+and the Backup checks diagnostic for meeting edits and restore.
+
+Retired duties no longer block rescheduling. Removing a program part
+archives its assignment records in the same save transaction.
+Existing databases and backup formats remain compatible.
+
+Earlier pending notes record the status at each batch.

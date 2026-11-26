@@ -1,5 +1,5 @@
-import { parseSyncDataset } from '../sync/syncCodec';
-import type { SyncDataset } from '../sync/syncTypes';
+import { parseSyncDataset } from '../legacy/syncCodec';
+import type { SyncDataset } from '../legacy/syncTypes';
 
 export const MAX_BACKUP_BYTES = 8 * 1024 * 1024;
 

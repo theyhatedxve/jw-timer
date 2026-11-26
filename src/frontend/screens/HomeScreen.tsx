@@ -17,11 +17,6 @@ export default function HomeScreen() {
       openMeetings={() =>
         navigation.navigate('Main', { screen: 'Meetings' })
       }
-      openAssignments={() =>
-        navigation.navigate('Main', { screen: 'Assignments' })
-      }
-      openReceived={() => navigation.navigate('ReceivedSchedules')}
-      openSync={() => navigation.navigate('Sync')}
     />
   );
 }

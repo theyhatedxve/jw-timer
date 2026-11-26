@@ -1,6 +1,6 @@
 import { Temporal } from '@js-temporal/polyfill';
 
-import { meetingWeek } from '../../backend/domain/assignments/assignment';
+import { meetingWeek } from '../../backend/domain/meetings/meetingWeek';
 import { isCalendarDate } from '../../backend/domain/meetings/meetingValidation';
 
 import type { MeetingType } from '../../backend/domain/meetings/meeting.types';

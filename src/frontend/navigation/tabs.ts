@@ -3,7 +3,6 @@ import { homeEn } from '../../constants/strings/homeEn';
 
 import HomeScreen from '../screens/HomeScreen';
 import MeetingsScreen from '../screens/MeetingsScreen';
-import AssignmentsScreen from '../screens/AssignmentsScreen';
 import TimerScreen from '../screens/TimerScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
@@ -19,12 +18,6 @@ export const TABS = [
     label: homeEn.meetings,
     icon: 'meetings',
     component: MeetingsScreen,
-  },
-  {
-    name: 'Assignments',
-    label: en.navigation.assignments,
-    icon: 'assignments',
-    component: AssignmentsScreen,
   },
   {
     name: 'Timer',

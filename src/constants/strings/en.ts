@@ -4,7 +4,6 @@ export const en = {
   navigation: {
     home: 'Home',
     meetings: 'Meeting programs',
-    assignments: 'Assignments',
     timer: 'Timer',
     settings: 'Settings',
   },
@@ -12,7 +11,6 @@ export const en = {
   actions: {
     openMeetings: 'Manage programs',
     managePrograms: 'Manage programs',
-    openAssignments: 'Open assignments',
     openTimer: 'Open timer',
     openPracticeTimer: 'Open current timer',
     openSettings: 'Open settings',
@@ -24,11 +22,10 @@ export const en = {
   sections: {
     home: {
       title: 'Home',
-      description: 'Your programs, assignments and local timer.',
+      description: 'Your meeting programs and local timer.',
       heading: 'Welcome to JW Timer',
       body:
-        'Use Timer to manage meeting programs and countdowns. ' +
-        'Use Assignments to organize meeting responsibilities.',
+        'Import and review meeting programs, then use the local timer.',
     },
 
     meetings: {
@@ -40,14 +37,6 @@ export const en = {
         'Waray-Waray content are supported.',
     },
 
-    assignments: {
-      title: 'Assignments',
-      description: 'People and meeting responsibilities.',
-      heading: 'Meeting duties',
-      body:
-        'Your meeting schedules, publishers and assigned ' +
-        'responsibilities will appear here.',
-    },
 
     timer: {
       title: 'Timer',

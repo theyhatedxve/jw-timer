@@ -3,7 +3,6 @@ import { test } from 'node:test';
 
 import { createHomeService } from '../src/backend/services/homeService';
 import type { SavedMeeting } from '../src/backend/services/meetingService';
-import type { MeetingDuty } from '../src/backend/domain/assignments/meetingDuty';
 
 const now = Date.UTC(2026, 10, 21, 17);
 
@@ -30,11 +29,7 @@ function meeting(id: string, date: string): SavedMeeting {
   };
 }
 
-function fixture(
-  records: readonly SavedMeeting[],
-  assigned: readonly MeetingDuty[] = [],
-  failDuties = false,
-) {
+function fixture(records: readonly SavedMeeting[]) {
   return createHomeService({
     profiles: {
       load: () => ({
@@ -64,11 +59,6 @@ function fixture(
         ok: true,
         value: records.find(record => record.id === id) ?? null,
       }),
-    },
-    duties: {
-      list: () => failDuties
-        ? { ok: false, error: { field: 'storage', message: 'Unavailable' } }
-        : { ok: true, value: assigned },
     },
   });
 }
@@ -106,29 +96,13 @@ test('same-date meetings have a stable identifier tie-break', () => {
   assert.equal(result.value.next?.meeting.id, 'a'.repeat(32));
 });
 
-test('totals include all parts but only timed duration and filled slots', () => {
-  const id = 'a'.repeat(32);
-  const publisherId = 'c'.repeat(32);
-
-  const result = fixture([meeting(id, '2026-11-22')], [
-    { meetingId: id, key: 'mic-server', publisherId, revision: 1 },
-    { meetingId: id, key: 'sound-operator', publisherId: null, revision: 1 },
+test('totals include all parts but only timed duration', () => {
+  const result = fixture([
+    meeting('a'.repeat(32), '2026-11-22'),
   ]).load(now);
 
-  assert.equal(result.ok, true);
-  if (!result.ok) return;
-
-  assert.equal(result.value.next?.partCount, 2);
-  assert.equal(result.value.next?.durationSeconds, 60);
-  assert.equal(result.value.next?.assignedSlots, 1);
-});
-
-test('failed duty reads do not present a false zero count', () => {
-  const service = fixture(
-    [meeting('a'.repeat(32), '2026-11-22')],
-    [],
-    true,
-  );
-
-  assert.deepEqual(service.load(now), { ok: false });
+  assert.ok(result.ok);
+  assert.ok(result.value.next);
+  assert.equal(result.value.next.partCount, 2);
+  assert.equal(result.value.next.durationSeconds, 60);
 });

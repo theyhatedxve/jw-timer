@@ -1,5 +1,4 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
-import { checkPublisherMeeting } from './meetingConflictCheck';
 
 import {
   AppDatabaseError,
@@ -290,16 +289,23 @@ function saveMeetingChildren(
   );
   for (const part of oldParts) {
     if (partIds.has(part.id)) continue;
-    const assigned = db.getFirstSync<{ present: number }>(
-      `SELECT 1 AS present FROM local_part_assignments
-       WHERE meeting_id = ? AND part_id = ? AND publisher_id IS NOT NULL LIMIT 1`,
+
+    db.runSync(
+      `INSERT INTO legacy_part_assignments_v6
+         (meeting_id, part_id, role_code, publisher_id, revision, updated_at)
+       SELECT meeting_id, part_id, role_code, publisher_id, revision, updated_at
+       FROM local_part_assignments
+       WHERE meeting_id = ? AND part_id = ?`,
       meetingId, part.id,
     );
-    if (assigned) {
-      throw new MeetingStorageError('assignments', 'Clear this part’s assignments before removing it.');
-    }
-    db.runSync('DELETE FROM local_part_assignments WHERE meeting_id = ? AND part_id = ?', meetingId, part.id);
-    db.runSync('DELETE FROM local_meeting_parts WHERE meeting_id = ? AND id = ?', meetingId, part.id);
+    db.runSync(
+      'DELETE FROM local_part_assignments WHERE meeting_id = ? AND part_id = ?',
+      meetingId, part.id,
+    );
+    db.runSync(
+      'DELETE FROM local_meeting_parts WHERE meeting_id = ? AND id = ?',
+      meetingId, part.id,
+    );
   }
 
   function stagePositions(
@@ -359,217 +365,187 @@ function saveMeetingChildren(
   }
 }
 
-export const localMeetingRepository: MeetingRepository = {
-  list() {
-    return safely(() => {
-      const db = getAppDatabase();
+export function createMeetingRepository(database: () => SQLiteDatabase): MeetingRepository {
+  return {
+    list() {
+      return safely(() => {
+        const db = database();
 
-      return db.getAllSync<MeetingRow>(
-        `SELECT * FROM local_meeting_drafts
-         ORDER BY meeting_date, id`,
-      ).map((row): MeetingSummary => {
-        const draft = decodeHeader(row, []);
+        return db.getAllSync<MeetingRow>(
+          `SELECT * FROM local_meeting_drafts
+           ORDER BY meeting_date, id`,
+        ).map((row): MeetingSummary => {
+          const draft = decodeHeader(row, []);
 
-        return {
-          id: row.id,
-          revision: row.revision,
-          title: draft.title,
-          meetingDate: draft.meetingDate,
-          meetingType: draft.meetingType,
-        };
+          return {
+            id: row.id,
+            revision: row.revision,
+            title: draft.title,
+            meetingDate: draft.meetingDate,
+            meetingType: draft.meetingType,
+          };
+        });
       });
-    });
-  },
+    },
 
-  get(id) {
-    return safely(() => {
-      const db = getAppDatabase();
-      let result: SavedMeeting | null = null;
+    get(id) {
+      return safely(() => {
+        const db = database();
+        let result: SavedMeeting | null = null;
 
-      db.withTransactionSync(() => {
-        result = readMeeting(db, id);
+        db.withTransactionSync(() => {
+          result = readMeeting(db, id);
+        });
+
+        return result;
       });
+    },
 
-      return result;
-    });
-  },
+    save(input, target) {
+      return safely(() => {
+        // Validate again at the persistence boundary.
+        const validated = validateMeetingDraft(input);
 
-  save(input, target) {
-    return safely(() => {
-      // Validate again at the persistence boundary.
-      const validated = validateMeetingDraft(input);
-
-      if (!validated.ok) {
-        throw new MeetingStorageError(
-          validated.error.field,
-          validated.error.message,
-        );
-      }
-
-      const db = getAppDatabase();
-      let saved: SavedMeeting | null = null;
-
-      db.withTransactionSync(() => {
-        requireProfile(db);
-
-        const current = target
-          ? readMeeting(db, target.id)
-          : null;
-
-        if (
-          target &&
-          (!current || current.revision !== target.revision)
-        ) {
+        if (!validated.ok) {
           throw new MeetingStorageError(
-            'conflict',
-            'This meeting changed or is unavailable. Reopen it before saving.',
+            validated.error.field,
+            validated.error.message,
           );
         }
 
-        const revision = (current?.revision ?? 0) + 1;
+        const db = database();
+        let saved: SavedMeeting | null = null;
 
-        if (!Number.isSafeInteger(revision)) {
-          throw new MeetingStorageError(
-            'revision',
-            'The meeting version cannot be increased.',
-          );
-        }
+        db.withTransactionSync(() => {
+          requireProfile(db);
 
-        const draft = assignIds(db, validated.value, current);
-        const id = current?.id ?? newId(db);
-        const now = Date.now();
+          const current = target
+            ? readMeeting(db, target.id)
+            : null;
 
-                if (!current && draft.importSource) {
-          const duplicate = db.getFirstSync<{ id: string }>(
-            `SELECT id FROM local_meeting_drafts
-             WHERE (
-               meeting_date = ?
-               AND meeting_type = ?
-               AND program_language = ?
-             ) OR import_source_json = ?
-             LIMIT 1`,
-            draft.meetingDate,
-            draft.meetingType,
-            draft.programLanguage,
-            JSON.stringify(draft.importSource),
-          );
-
-          if (duplicate) {
+          if (
+            target &&
+            (!current || current.revision !== target.revision)
+          ) {
             throw new MeetingStorageError(
               'conflict',
-              workbookParsingEn.duplicate,
+              'This meeting changed or is unavailable. Reopen it before saving.',
             );
           }
-        }
 
-        const scheduleChanged = current !== null && (
-          current.draft.meetingDate !== draft.meetingDate ||
-          current.draft.startLocalTime !== draft.startLocalTime ||
-          (current.draft.endLocalTime ?? null) !==
-            (draft.endLocalTime ?? null) ||
-          current.draft.timezone !== draft.timezone
-        );
+          const revision = (current?.revision ?? 0) + 1;
 
-        if (scheduleChanged) {
-          const publishers = db.getAllSync<{
-            publisher_id: string;
-          }>(
-            `SELECT DISTINCT publisher_id
-             FROM local_technical_duties
-             WHERE meeting_id = ? AND publisher_id IS NOT NULL`,
-            id,
-          );
+          if (!Number.isSafeInteger(revision)) {
+            throw new MeetingStorageError(
+              'revision',
+              'The meeting version cannot be increased.',
+            );
+          }
 
-          for (const publisher of publishers) {
-            const issue = checkPublisherMeeting(
-              db,
-              publisher.publisher_id,
-              { ...draft, id },
+          const draft = assignIds(db, validated.value, current);
+          const id = current?.id ?? newId(db);
+          const now = Date.now();
+
+          if (!current && draft.importSource) {
+            const duplicate = db.getFirstSync<{ id: string }>(
+              `SELECT id FROM local_meeting_drafts
+               WHERE (
+                 meeting_date = ?
+                 AND meeting_type = ?
+                 AND program_language = ?
+               ) OR import_source_json = ?
+               LIMIT 1`,
+              draft.meetingDate,
+              draft.meetingType,
+              draft.programLanguage,
+              JSON.stringify(draft.importSource),
             );
 
-            if (issue) {
+            if (duplicate) {
               throw new MeetingStorageError(
-                issue.field,
-                issue.message,
+                'conflict',
+                workbookParsingEn.duplicate,
               );
             }
           }
-        }
 
-        if (current) {
-                    const update = db.runSync(
-            `UPDATE local_meeting_drafts
-             SET title = ?, meeting_type = ?, meeting_date = ?,
-                 start_local_time = ?, end_local_time = ?,
-                 timezone = ?, program_language = ?,
-                 revision = ?, updated_at = ?
-             WHERE id = ? AND revision = ?`,
-            draft.title,
-            draft.meetingType,
-            draft.meetingDate,
-            draft.startLocalTime,
-            draft.endLocalTime ?? null,
-            draft.timezone,
-            draft.programLanguage,
-            revision,
-            now,
-            id,
-            current.revision,
-          );
+          if (current) {
+            const update = db.runSync(
+              `UPDATE local_meeting_drafts
+               SET title = ?, meeting_type = ?, meeting_date = ?,
+                   start_local_time = ?, end_local_time = ?,
+                   timezone = ?, program_language = ?,
+                   revision = ?, updated_at = ?
+               WHERE id = ? AND revision = ?`,
+              draft.title,
+              draft.meetingType,
+              draft.meetingDate,
+              draft.startLocalTime,
+              draft.endLocalTime ?? null,
+              draft.timezone,
+              draft.programLanguage,
+              revision,
+              now,
+              id,
+              current.revision,
+            );
 
-          if (update.changes !== 1) {
-            throw new MeetingStorageError(
-              'conflict',
-              'The meeting changed before it could be saved.',
+            if (update.changes !== 1) {
+              throw new MeetingStorageError(
+                'conflict',
+                'The meeting changed before it could be saved.',
+              );
+            }
+          } else {
+            db.runSync(
+              `INSERT INTO local_meeting_drafts
+               (id, title, meeting_type, meeting_date,
+                start_local_time, end_local_time,
+                timezone, program_language,
+                revision, created_at, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              id,
+              draft.title,
+              draft.meetingType,
+              draft.meetingDate,
+              draft.startLocalTime,
+              draft.endLocalTime ?? null,
+              draft.timezone,
+              draft.programLanguage,
+              revision,
+              now,
+              now,
             );
           }
-        } else {
-                    db.runSync(
-            `INSERT INTO local_meeting_drafts
-             (id, title, meeting_type, meeting_date,
-              start_local_time, end_local_time,
-              timezone, program_language,
-              revision, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+
+          saveMeetingChildren(db, id, draft);
+
+          db.runSync(
+            `UPDATE local_meeting_drafts
+             SET import_source_json = ?
+             WHERE id = ?`,
+            draft.importSource
+              ? JSON.stringify(draft.importSource)
+              : null,
             id,
-            draft.title,
-            draft.meetingType,
-            draft.meetingDate,
-            draft.startLocalTime,
-            draft.endLocalTime ?? null,
-            draft.timezone,
-            draft.programLanguage,
-            revision,
-            now,
-            now,
           );
+
+          saved = readMeeting(db, id);
+
+          if (!saved) corrupt();
+        });
+
+        if (!saved) {
+          throw new Error('The transaction returned no saved meeting.');
         }
 
-        saveMeetingChildren(db, id, draft);
-
-        db.runSync(
-          `UPDATE local_meeting_drafts
-           SET import_source_json = ?
-           WHERE id = ?`,
-          draft.importSource
-            ? JSON.stringify(draft.importSource)
-            : null,
-          id,
-        );
-
-        saved = readMeeting(db, id);
-
-        if (!saved) corrupt();
+        return saved;
       });
+    },
+  };
+}
 
-      if (!saved) {
-        throw new Error('The transaction returned no saved meeting.');
-      }
-
-      return saved;
-    });
-  },
-};
+export const localMeetingRepository = createMeetingRepository(getAppDatabase);
 
 export { readMeeting as readMeetingForBackup };
 export { readMeeting as readMeetingForShare };

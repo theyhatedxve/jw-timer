@@ -1,19 +1,16 @@
 import { Temporal } from '@js-temporal/polyfill';
 
-import { MEETING_DUTY_SLOTS } from '../domain/assignments/meetingDuty';
 
 import type {
   MeetingService,
   SavedMeeting,
 } from './meetingService';
-import type { MeetingDutyService } from './meetingDutyService';
 import type { ProfileService } from './profileService';
 
 export interface HomeMeeting {
   readonly meeting: SavedMeeting;
   readonly partCount: number;
   readonly durationSeconds: number;
-  readonly assignedSlots: number;
 }
 
 export interface HomeSnapshot {
@@ -27,11 +24,9 @@ export type HomeResult =
 
 export function createHomeService({
   meetings,
-  duties,
   profiles,
 }: {
   readonly meetings: Pick<MeetingService, 'list' | 'get'>;
-  readonly duties: Pick<MeetingDutyService, 'list'>;
   readonly profiles: Pick<ProfileService, 'load'>;
 }) {
   return {
@@ -67,20 +62,10 @@ export function createHomeService({
         const saved = meetings.get(candidate.id);
         if (!saved.ok || !saved.value) return { ok: false };
 
-        const assigned = duties.list(candidate.id);
-        if (!assigned.ok) return { ok: false };
-
         const parts = saved.value.draft.sections.flatMap(
           section => section.parts,
         );
 
-        const assignedSlots = MEETING_DUTY_SLOTS.filter(slot =>
-          assigned.value.some(duty =>
-            duty.meetingId === candidate.id &&
-            duty.key === slot.key &&
-            duty.publisherId !== null,
-          ),
-        ).length;
 
         return {
           ok: true,
@@ -94,7 +79,6 @@ export function createHomeService({
                   total + (part.isTimed ? part.durationSeconds : 0),
                 0,
               ),
-              assignedSlots,
             },
           },
         };

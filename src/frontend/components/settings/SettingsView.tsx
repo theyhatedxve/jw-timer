@@ -31,12 +31,7 @@ const groups: readonly Group[] = [
   {
     key: 'programs',
     icon: 'meetings',
-    ids: ['manage-assignments', 'workbook-import'],
-  },
-  {
-    key: 'connections',
-    icon: 'laptop',
-    ids: ['device-identity', 'device-requests', 'sync'],
+    ids: ['workbook-import'],
   },
   {
     key: 'backups',
@@ -48,7 +43,6 @@ const groups: readonly Group[] = [
     icon: 'settings',
     ids: [
       'diagnostics',
-      'sync-checks',
       'backup-checks',
       'nativewind-preview',
     ],

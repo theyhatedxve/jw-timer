@@ -19,7 +19,6 @@ export const linking:
         Main: {
           screens: {
             Home: '',
-            Assignments: 'assignments',
             Timer: 'timer',
             Meetings: 'programs',
             SettingsTab: 'preferences',

@@ -1,12 +1,15 @@
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 import { meetingProgramsEn as text } from '../../../constants/strings/meetingProgramsEn';
+import { workbookParsingEn } from '../../../constants/strings/workbookParsingEn';
+import { spacing } from '../../../constants/theme';
 
 import type { useMeetings } from '../../hooks/useMeetings';
 import { useAppTheme } from '../../context/AppearanceContext';
 
 import AppButton from '../common/AppButton';
 import AppCard from '../common/AppCard';
+import AppIcon from '../common/AppIcon';
 import AppScreen from '../common/AppScreen';
 import MeetingWeekPicker from './MeetingWeekPicker';
 import ProgramSectionCard from './ProgramSectionCard';
@@ -42,11 +45,10 @@ export default function MeetingsListView(model: Props) {
   return (
     <>
       <AppScreen>
-        <Text accessibilityRole="header" className="text-app-title font-bold text-app-text">
-          {text.title}
-        </Text>
-
-        <View className="flex-row gap-app-small">
+        <View
+          accessibilityRole="tablist"
+          className="flex-row rounded-full border border-app-border bg-app-surface"
+        >
           {types.map(type => {
             const selected = model.meetingType === type;
 
@@ -57,7 +59,7 @@ export default function MeetingsListView(model: Props) {
                 accessibilityState={{ selected }}
                 onPress={() => model.selectType(type)}
                 className={
-                  'min-h-app-touch flex-1 items-center justify-center rounded-app-button border border-app-border p-app-medium active:opacity-75 ' +
+                  'min-h-app-touch flex-1 items-center justify-center rounded-full px-app-small py-app-small active:opacity-75 ' +
                   (selected ? 'bg-app-brand' : 'bg-app-surface')
                 }
               >
@@ -82,8 +84,6 @@ export default function MeetingsListView(model: Props) {
           nextWeek={model.nextWeek}
           selectDate={model.selectDate}
         />
-
-        <AppButton label={text.importPdf} onPress={model.importPdf} />
 
         {model.state.status === 'loading' ? (
           <View className="gap-app-medium">
@@ -127,47 +127,65 @@ export default function MeetingsListView(model: Props) {
               </AppCard>
             ) : null}
 
-            <AppCard>
-              <Text className="text-app-body text-app-secondary">
-                {text.local}
-                {' · '}
-                {text.date(saved.draft.meetingDate)}
-              </Text>
-
-              <Text accessibilityRole="header" className="text-app-title font-bold text-app-text">
+            <View className="gap-app-small">
+              <Text accessibilityRole="header" className="text-xl font-bold text-app-text">
                 {saved.draft.title}
               </Text>
-
               <Text className="text-app-body text-app-secondary">
                 {text.summary(parts.length, seconds)}
               </Text>
+            </View>
 
-              <AppButton
-                label={text.edit}
-                onPress={() => model.openMeeting(saved.id)}
-              />
+            <View className="gap-app-small">
+              {saved.draft.sections.map((section, index) => {
+                const key = `${saved.id}:${saved.revision}:${section.id ?? index}`;
+                const showOpeningRows =
+                  section.title === workbookParsingEn.openingSection &&
+                  section.parts.length > 0 &&
+                  section.parts.every(part => part.kind === 'song' || part.kind === 'comments');
 
-              <AppButton
-                label={text.timer}
-                disabled={!canOpenTimer}
-                onPress={() => model.openTimer(saved.id)}
-              />
+                if (!showOpeningRows) {
+                  return <ProgramSectionCard key={key} section={section} />;
+                }
 
-              {!canOpenTimer ? (
-                <Text className="text-app-body text-app-secondary">
-                  {text.noTimedParts}
-                </Text>
-              ) : null}
-            </AppCard>
+                return (
+                  <View key={key} className="gap-app-small">
+                    {section.parts.map((part, partIndex) => (
+                      <View
+                        key={part.id ?? partIndex}
+                        className="min-h-app-touch flex-row items-center gap-app-small rounded-app-button border border-app-border bg-app-surface p-app-small"
+                      >
+                        <AppIcon
+                          name={part.kind === 'song' ? 'song' : 'comments'}
+                          color={palette.text}
+                          size={spacing.large}
+                        />
+                        <Text className="flex-1 text-app-body font-semibold text-app-text">
+                          {part.title}
+                        </Text>
+                        <Text className="text-app-body text-app-secondary">
+                          {part.isTimed ? text.duration(part.durationSeconds) : text.untimed}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                );
+              })}
+            </View>
 
-            {saved.draft.sections.map((section, index) => (
-              <ProgramSectionCard
-                key={`${saved.id}:${saved.revision}:${section.id ?? index}`}
-                section={section}
-              />
-            ))}
+            <AppButton label={text.edit} onPress={() => model.openMeeting(saved.id)} />
+            <AppButton
+              label={text.timer}
+              disabled={!canOpenTimer}
+              onPress={() => model.openTimer(saved.id)}
+            />
+            {!canOpenTimer ? (
+              <Text className="text-app-body text-app-secondary">{text.noTimedParts}</Text>
+            ) : null}
           </>
         )}
+
+        <AppButton label={text.importPdf} onPress={model.importPdf} />
       </AppScreen>
 
 

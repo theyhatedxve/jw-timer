@@ -1,6 +1,10 @@
 import Svg, { Path } from 'react-native-svg';
 
 const paths = {
+  song: 'M9 18V5l12-2v13M9 7l12-2M9 18a3 2 0 1 1-6 0 3 2 0 0 1 6 0ZM21 16a3 2 0 1 1-6 0 3 2 0 0 1 6 0Z',
+  comments: 'M4 4h16v12H9l-5 4V4ZM8 8h8M8 12h6',
+  book: 'M12 6c-3-3-6-3-10-2v15c4-1 7-1 10 2 3-3 6-3 10-2V4c-4-1-7-1-10 2Zm0 0v15',
+  heart: 'M12 21 4 13C-2 7 6 1 12 7c6-6 14 0 8 6l-8 8Z',
   list: 'M4 6h.01M4 12h.01M4 18h.01M8 6h12M8 12h12M8 18h12',
   microphone:
     'M9 5a3 3 0 0 1 6 0v6a3 3 0 0 1-6 0V5ZM5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8',

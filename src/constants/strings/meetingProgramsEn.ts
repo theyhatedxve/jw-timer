@@ -1,6 +1,6 @@
 import {
   formatCalendarDate,
-  formatMeetingWeek,
+  formatCompactMeetingWeek,
   formatProgramDuration,
 } from './programFormatting';
 
@@ -37,12 +37,12 @@ export const meetingProgramsEn = {
   untimed: 'Untimed',
   expand: 'Show section parts',
   collapse: 'Hide section parts',
-  expandSymbol: '+',
-  collapseSymbol: '−',
+  expandSymbol: '›',
+  collapseSymbol: '⌄',
   selected: ' (selected)',
   noTimedParts: 'Enable timing for at least one part to open its timer.',
   date: formatCalendarDate,
-  week: formatMeetingWeek,
+  week: formatCompactMeetingWeek,
   duration: formatProgramDuration,
   summary: (parts: number, seconds: number): string =>
     `${parts} parts · ${formatProgramDuration(seconds)}`,

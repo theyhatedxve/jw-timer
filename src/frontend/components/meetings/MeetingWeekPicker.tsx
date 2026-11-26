@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { meetingProgramsEn as text } from '../../../constants/strings/meetingProgramsEn';
+import { spacing } from '../../../constants/theme';
+import { useAppTheme } from '../../context/AppearanceContext';
+import AppIcon from '../common/AppIcon';
 import MeetingDateDialog from './MeetingDateDialog';
 
 interface Props {
@@ -15,6 +18,7 @@ interface Props {
 
 export default function MeetingWeekPicker(model: Props) {
   const [dateDialog, setDateDialog] = useState(false);
+  const { palette } = useAppTheme();
 
   return (
     <>
@@ -36,13 +40,17 @@ export default function MeetingWeekPicker(model: Props) {
           accessibilityRole="button"
           accessibilityHint={text.chooseDate}
           onPress={() => setDateDialog(true)}
-          className="min-h-app-touch flex-1 items-center justify-center rounded-app-button bg-app-surface p-app-small active:opacity-75"
+          className="min-h-app-touch flex-1 flex-row items-center justify-center gap-app-small rounded-app-button bg-app-surface p-app-small active:opacity-75"
         >
+          <AppIcon name="meetings" color={palette.text} size={spacing.medium} />
           <Text
             accessibilityLiveRegion="polite"
-            className="text-center text-app-body font-semibold text-app-text"
+            className="flex-shrink text-center text-app-body font-semibold text-app-text"
           >
             {model.week ? text.week(model.week) : text.chooseDate}
+          </Text>
+          <Text accessible={false} className="text-app-body text-app-secondary">
+            {text.collapseSymbol}
           </Text>
         </Pressable>
 

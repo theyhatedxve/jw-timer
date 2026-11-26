@@ -3,9 +3,18 @@ import { Pressable, Text, View } from 'react-native';
 
 import type { MeetingSectionDraft } from '../../../backend/domain/meetings/meeting.types';
 
-import { sectionColors } from '../../../constants/meetingProgramTheme';
+import { sectionColors, sectionTone } from '../../../constants/meetingProgramTheme';
 import { meetingProgramsEn as text } from '../../../constants/strings/meetingProgramsEn';
+import { spacing } from '../../../constants/theme';
 import { useAppTheme } from '../../context/AppearanceContext';
+import AppIcon, { type AppIconName } from '../common/AppIcon';
+
+const sectionIcons = {
+  treasures: 'book',
+  ministry: 'assignments',
+  living: 'heart',
+  neutral: 'list',
+} as const satisfies Record<ReturnType<typeof sectionTone>, AppIconName>;
 
 export default function ProgramSectionCard({
   section,
@@ -38,6 +47,11 @@ export default function ProgramSectionCard({
         onPress={() => setExpanded(current => !current)}
         className="min-h-app-touch flex-row items-center gap-app-medium p-app-medium active:opacity-75"
       >
+        <AppIcon
+          name={sectionIcons[sectionTone(section.title)]}
+          color={colors.text}
+          size={spacing.large}
+        />
         <View className="flex-1 gap-app-small">
           <Text
             className="text-app-body font-bold"

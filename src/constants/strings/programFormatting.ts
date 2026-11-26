@@ -26,3 +26,16 @@ export function formatMeetingWeek(start: string): string {
 
   return `${formatCalendarDate(start)} – ${formatCalendarDate(end)}`;
 }
+
+export function formatCompactMeetingWeek(start: string): string {
+  const first = Temporal.PlainDate.from(start);
+  const last = first.add({ days: 6 });
+
+  if (first.year !== last.year) return formatMeetingWeek(start);
+
+  const monthDay = (date: Temporal.PlainDate) =>
+    date.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+
+  const end = first.month === last.month ? last.day : monthDay(last);
+  return `${monthDay(first)} – ${end}`;
+}

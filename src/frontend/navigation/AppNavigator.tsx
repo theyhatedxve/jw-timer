@@ -14,6 +14,7 @@ import NativewindPreviewScreen from '../screens/NativewindPreviewScreen';
 import DiagnosticsScreen from '../screens/DiagnosticsScreen';
 import MeetingEditorScreen from '../screens/MeetingEditorScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import OnboardingScreen from '../screens/OnboardingScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import TimerSessionScreen from '../screens/TimerSessionScreen';
 import WorkbookImportScreen from '../screens/WorkbookImportScreen';
@@ -171,7 +172,10 @@ export default function AppNavigator() {
           </Root.Screen>
         </Root.Group>
       ) : (
-        <Root.Screen name="SetupProfile" component={ProfileScreen} />
+        <Root.Group navigationKey="setup">
+          <Root.Screen name="Onboarding" component={OnboardingScreen} />
+          <Root.Screen name="SetupProfile" component={ProfileScreen} />
+        </Root.Group>
       )}
     </Root.Navigator>
   );

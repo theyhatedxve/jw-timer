@@ -1,4 +1,5 @@
 import {
+  deleteDatabaseSync,
   openDatabaseSync,
   type SQLiteDatabase,
 } from 'expo-sqlite';
@@ -122,3 +123,13 @@ export const timerCheckpointRepository:
       ].join(' · ');
     },
   };
+/** Call only after timer cleanup has saved its final checkpoint. */
+export function deleteTimerDatabase(): void {
+  if (connection) {
+    connection.closeSync();
+    connection = null;
+  }
+  const empty = openDatabaseSync('jw-timer-feasibility.db', { useNewConnection: true });
+  empty.closeSync();
+  deleteDatabaseSync('jw-timer-feasibility.db');
+}

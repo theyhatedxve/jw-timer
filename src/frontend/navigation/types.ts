@@ -20,6 +20,7 @@ export type RootStackParamList = {
   Appearance: undefined;
   FullscreenTimerSettings: undefined;
   NativewindPreview: undefined;
+  Onboarding: undefined;
   SetupProfile: undefined;
   Main: NavigatorScreenParams<MainTabParamList> | undefined;
   Settings: undefined;

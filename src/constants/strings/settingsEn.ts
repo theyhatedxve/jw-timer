@@ -9,6 +9,7 @@ export const settingsEn = {
     timerData: 'Timer and data',
     developer: 'Developer tools',
     other: 'Other tools',
+    reset: 'Reset app',
   },
   labels: {
     appearance: 'Appearance',
@@ -16,6 +17,7 @@ export const settingsEn = {
     'workbook-import': 'Import meeting PDF',
     'timer-display': 'Fullscreen display',
     backups: 'Backups and restore',
+    'reset-app': 'Reset app',
     diagnostics: 'Diagnostics',
     'backup-checks': 'Backup recovery checks',
     'nativewind-preview': 'Style preview',
@@ -27,6 +29,7 @@ export const settingsEn = {
     'workbook-import': 'Workbook and Watchtower files',
     'timer-display': 'Digits, colors, visibility',
     backups: 'Encrypted local backup',
+    'reset-app': 'Erase app data and start again',
     diagnostics: 'SQLite storage checks',
     'backup-checks': 'Verify backup recovery',
     'nativewind-preview': 'Preview development styling',

@@ -1,4 +1,5 @@
 import {
+  deleteDatabaseSync,
   openDatabaseSync,
   type SQLiteDatabase,
 } from 'expo-sqlite';
@@ -212,3 +213,15 @@ export {
   MIGRATIONS as APP_SCHEMA_MIGRATIONS,
   checksum as migrationChecksum,
 };
+
+/** Call only after unmounting every database consumer. */
+export function deleteAppDatabase(): void {
+  if (connection) {
+    connection.closeSync();
+    connection = null;
+  }
+  // Expo deletion requires a file. A retry may follow an earlier deletion.
+  const empty = openDatabaseSync('jw-timer.db', { useNewConnection: true });
+  empty.closeSync();
+  deleteDatabaseSync('jw-timer.db');
+}

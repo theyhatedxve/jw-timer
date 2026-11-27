@@ -14,6 +14,7 @@ export const linking:
       initialRouteName: 'Main',
 
       screens: {
+        Onboarding: 'welcome',
         SetupProfile: 'setup/profile',
 
         Main: {

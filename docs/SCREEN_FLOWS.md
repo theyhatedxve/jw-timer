@@ -1096,3 +1096,38 @@ Impeccable context is recorded in PRODUCT.md, DESIGN.md, and
 .impeccable/surfaces/fullscreen-timer.md. Owner-run typecheck, fullscreen
 and timer regression tests, and portrait/landscape screenshot checks
 remain pending. Source inspection is not a visual-fidelity verdict.
+
+## First-use introduction - 2026-11-27
+
+New users see the owner-approved skippable three-step intro before the
+existing congregation profile setup. It explains program import, deliberate
+timer controls, and local profile/offline use in the Quiet Focus style.
+Next/Back and accessible progress guide the intro. Skip intro and the
+last action open SetupProfile without bypassing required profile validation.
+
+Only the unconfigured navigation group contains Onboarding and SetupProfile.
+Existing saved profiles open Main directly. Successful profile creation
+replaces the setup group, so Back cannot reopen onboarding after completion.
+If setup is abandoned before saving a profile, the intro can appear again
+on relaunch. Existing profile read-error recovery stays unchanged.
+No onboarding flag, database migration, network request, sample meeting,
+automatic timer, or dependency is added.
+
+Android Back returns to the previous intro step while the intro is focused;
+it retains normal platform behavior on the first step and on other screens.
+Both themes, safe areas, font scaling, and small/landscape scrolling are
+supported. Owner typecheck, clean-install flow, Skip/Back, failed-save,
+relaunch, and existing-profile device checks remain pending.
+
+## Settings: reset app (2026-11-27)
+
+Settings ends with Reset app. Native confirmation explains permanent deletion
+of programs, profile, timer progress and preferences. Cancel leaves data intact.
+Confirm unmounts the application, clears both app and timer SQLite databases
+and private import/temporary backup files, then remounts with default preferences
+and opens onboarding. Original PDFs and externally exported backups remain.
+
+A private pending marker is written before deletion and removed only after
+every store is cleared. Interrupted or failed resets block the application
+until a retry finishes; startup checks the marker before mounting providers.
+Owner-run Android, lifecycle, accessibility and automated checks remain pending.

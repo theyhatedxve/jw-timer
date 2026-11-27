@@ -1,5 +1,8 @@
 import './global.css';
 
+import { AppResetProvider } from './src/frontend/context/AppResetContext';
+import { appResetService } from './src/bootstrap/appResetDependencies';
+
 import {
   DarkTheme,
   DefaultTheme,
@@ -52,11 +55,13 @@ function ThemedApplication() {
 export default function App() {
   return (
     <SafeAreaProvider>
-      <AppearanceProvider service={appearanceService}>
-        <FullscreenTimerProvider service={fullscreenTimerService}>
-          <ThemedApplication />
-        </FullscreenTimerProvider>
-      </AppearanceProvider>
+      <AppResetProvider service={appResetService}>
+        <AppearanceProvider service={appearanceService}>
+          <FullscreenTimerProvider service={fullscreenTimerService}>
+            <ThemedApplication />
+          </FullscreenTimerProvider>
+        </AppearanceProvider>
+      </AppResetProvider>
     </SafeAreaProvider>
   );
 }

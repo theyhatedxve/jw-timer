@@ -24,6 +24,7 @@ const groups: readonly {
   { key: 'programs', ids: ['workbook-import'] },
   { key: 'timerData', ids: ['timer-display', 'backups'] },
   { key: 'developer', ids: ['diagnostics', 'backup-checks', 'nativewind-preview'] },
+  { key: 'reset', ids: ['reset-app'] },
 ];
 
 const rowIcons: Readonly<Record<string, AppIconName>> = {
@@ -32,6 +33,7 @@ const rowIcons: Readonly<Record<string, AppIconName>> = {
   'workbook-import': 'document',
   'timer-display': 'fullscreen',
   backups: 'database',
+  'reset-app': 'restart',
   diagnostics: 'target',
   'backup-checks': 'restart',
   'nativewind-preview': 'laptop',
@@ -46,6 +48,7 @@ function SettingsRow({
   readonly values: Props['values'];
 }) {
   const { palette } = useAppTheme();
+  const destructive = action.id === 'reset-app';
   const label = labels[action.id] ?? action.label;
   const description = descriptions[action.id];
   return (
@@ -53,13 +56,14 @@ function SettingsRow({
       accessibilityRole="button"
       accessibilityLabel={[label, values[action.id], description].filter(Boolean).join('. ')}
       onPress={action.onPress}
+      style={destructive ? { borderColor: palette.danger } : undefined}
       className="min-h-app-touch flex-row items-center gap-app-small rounded-app-card border border-app-border bg-app-surface p-app-medium active:opacity-75"
     >
       <View className="rounded-full p-app-small" style={{ backgroundColor: palette.selection }}>
-        <AppIcon name={rowIcons[action.id] ?? 'settings'} color={palette.brand} size={spacing.large} />
+        <AppIcon name={rowIcons[action.id] ?? 'settings'} color={destructive ? palette.danger : palette.brand} size={spacing.large} />
       </View>
       <View className="flex-1 gap-1">
-        <Text className="text-app-body font-semibold text-app-text">{label}</Text>
+        <Text className="text-app-body font-semibold text-app-text" style={destructive ? { color: palette.danger } : undefined}>{label}</Text>
         {description ? <Text className="text-sm text-app-secondary">{description}</Text> : null}
       </View>
       <Text accessible={false} className="text-app-title text-app-secondary">{text.chevron}</Text>

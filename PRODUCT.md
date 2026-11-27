@@ -50,3 +50,17 @@ font scaling, labelled buttons, and status conveyed by text as well as color.
 Owner-supplied Home, Meetings, Timer, Settings, and portrait/landscape
 fullscreen references are in this conversation. Implementation is in src.
 Device verification status is recorded separately from source inspection.
+
+## First-use flow
+
+The owner approved a short, skippable three-step introduction before
+congregation setup. A saved profile is the existing first-use completion
+gate. Existing users bypass the intro; unfinished setup may return to it
+on relaunch. No account or additional stored onboarding flag is introduced.
+
+## Reset app
+
+Settings provides a confirmed, permanent reset of programs, profile, timer
+progress and preferences, returning to onboarding with installation defaults.
+Original PDFs and external backups remain. Interrupted resets resume before
+normal startup; a failed reset offers retry without reopening partial data.

@@ -10,9 +10,10 @@ Visual authority: owner's four-panel onboarding reference, 2026-11-27.
 - Dark teal welcome with book/stopwatch mark, centered title, three feature
   rows, three-dot progress, and a white Get started button.
 - Two light feature pages: program/phone and fullscreen timer previews,
-  centered heading and copy, progress dots, paired Skip and Next buttons.
+  centered heading and copy, progress dots, and one centered full-width Next button.
 - Final You're Ready page with Set up now and Do it later. Mint meeting
   hall artwork sits below in portrait and beside the copy in landscape.
+  Setup actions stay in a fixed bottom footer outside vertically scrolling content.
 - Match light reference surfaces; retain readable dark-mode equivalents.
   Welcome stays teal in both themes.
 - Reuse outlined AppIcon geometry and render miniature app previews as
@@ -25,7 +26,10 @@ Visual authority: owner's four-panel onboarding reference, 2026-11-27.
 ## Behavior
 
 Get started advances to program overview, then timer overview, then ready.
-Skip jumps to ready. Back, including Android Back, returns one page.
+Pages advance with Get started and Next; horizontal swipe paging is removed.
+Skip and on-screen Back arrows are removed. Android Back returns one page.
+Only the current page is rendered. Vertical scrolling remains available for
+long content. Page changes reset that scroll position without a slide animation.
 Set up now opens the existing validated congregation form.
 
 Owner explicitly approved optional setup. Do it later saves only an
@@ -39,8 +43,21 @@ and returns Home. Reset app clears the completion preference too.
 
 ## Accessibility and verification
 
-48 dp minimum controls, labelled Back/Next/Skip actions, spoken progress,
+48 dp minimum controls, labelled Get started/Next/setup actions, spoken progress,
 font scaling, scrolling on short screens, safe areas, and landscape layouts.
 Decorative previews are excluded from the accessibility tree.
 Owner runs automated checks and Android visual/navigation verification.
-Source inspection is not proof of rendered fidelity.
+Source inspection is not proof of rendered fidelity. Button navigation, lack
+of horizontal swiping, vertical scrolling, orientation changes, TalkBack
+adjustment, and final setup button visibility remain owner-run.
+
+## Button styling compatibility
+
+IntroButton must use a static style array, with NativeWind active styling
+for pressed feedback. The installed NativeWind interop does not evaluate
+a Pressable style callback before cloning inline declarations, which
+removed background, radius, sizing and row layout on the owner's emulator.
+Welcome uses a white full-width pill. Other primary actions use a solid
+teal surface. Labels stay centered; chevrons align at the right edge.
+Decorative waves sit behind the full-width body, outside its padded column.
+Owner emulator confirmation remains required.

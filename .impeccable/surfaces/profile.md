@@ -40,3 +40,13 @@ from onboarding and after Do it later, editing an existing profile, timezone
 search/custom/invalid values, review/save/keep editing, discard protection,
 TalkBack, both themes, large text, keyboard and landscape. Static diff
 checks alone do not prove rendered fidelity or runtime behavior.
+
+## NativeWind rendering correction
+
+Profile controls use static style arrays with active/disabled classes.
+Do not supply Pressable style callbacks on this surface: the installed
+interop drops their layout and background declarations. This applies to
+the Back target, timezone dropdown, language options, review/save/edit
+actions and picker rows. The hero reserves separate copy/artwork columns
+so the illustration cannot overlap profile text. Owner screenshot and
+interaction confirmation remain pending.

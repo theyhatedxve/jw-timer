@@ -49,7 +49,8 @@ function ProfileAction({ label, icon, disabled, onPress, secondary = false }: {
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={({ pressed }) => [styles.action, secondary && { backgroundColor: palette.surface, borderColor: palette.border }, { opacity: disabled ? 0.5 : pressed ? 0.75 : 1 }]}
+      className="active:opacity-75 disabled:opacity-50"
+      style={[styles.action, secondary && { backgroundColor: palette.surface, borderColor: palette.border }]}
     >
       {icon ? <AppIcon name={icon} color={color} size={23} /> : null}
       <Text style={[styles.actionLabel, { color }]}>{label}</Text>
@@ -110,7 +111,8 @@ export default function ProfileForm(model: Model) {
                 accessibilityState={{ disabled: saving }}
                 disabled={saving}
                 onPress={back}
-                style={({ pressed }) => [styles.back, { opacity: saving ? 0.5 : pressed ? 0.75 : 1 }]}
+                className="active:opacity-75 disabled:opacity-50"
+                style={styles.back}
               >
                 <AppIcon name="arrowLeft" color={palette.text} size={26} />
               </Pressable>
@@ -120,12 +122,14 @@ export default function ProfileForm(model: Model) {
               </View>
             </View>
 
-            <View style={styles.hero}>
+            <View style={[styles.hero, stackedHero && styles.stackedHero]}>
               <View style={[styles.heroCopy, stackedHero && styles.stackedHeroCopy]}>
                 <Text accessibilityRole="header" style={styles.heroTitle}>{reviewing ? text.reviewTitle : text.title}</Text>
                 <Text style={styles.body}>{text.introduction}</Text>
               </View>
-              <Image source={require('../../assets/onboarding/meeting-hall.png')} resizeMode="contain" accessible={false} style={[styles.hall, stackedHero && styles.stackedHall]} />
+              <View style={[styles.heroArtwork, stackedHero && styles.stackedHeroArtwork]}>
+                <Image source={require('../../assets/onboarding/meeting-hall.png')} resizeMode="contain" accessible={false} style={[styles.hall, stackedHero && styles.stackedHall]} />
+              </View>
               <View accessible={false} pointerEvents="none" style={styles.waves}><OnboardingWaves /></View>
             </View>
 
@@ -181,7 +185,8 @@ export default function ProfileForm(model: Model) {
                         accessibilityState={{ expanded: timezoneOpen, disabled: saving }}
                         disabled={saving}
                         onPress={() => { Keyboard.dismiss(); setTimezoneOpen(true); }}
-                        style={({ pressed }) => [styles.inputRow, model.error === 'timezone' && { borderColor: palette.danger }, { opacity: pressed ? 0.75 : 1 }]}
+                        className="active:opacity-75 disabled:opacity-50"
+                        style={[styles.inputRow, model.error === 'timezone' && { borderColor: palette.danger }]}
                       >
                         <AppIcon name="clock" color={palette.brand} size={24} />
                         <Text style={styles.value}>{draft.timezone}</Text>
@@ -205,7 +210,8 @@ export default function ProfileForm(model: Model) {
                             accessibilityState={{ checked: selected, disabled: saving }}
                             disabled={saving}
                             onPress={() => model.setDraft(current => ({ ...current, programLanguage: language }))}
-                            style={({ pressed }) => [styles.option, selected && { backgroundColor: palette.brand, borderColor: palette.brand }, { opacity: saving ? 0.5 : pressed ? 0.75 : 1 }]}
+                            className="active:opacity-75 disabled:opacity-50"
+                            style={[styles.option, selected && { backgroundColor: palette.brand, borderColor: palette.brand }]}
                           >
                             <View style={styles.checkSlot}>{selected ? <AppIcon name="check" color={color} size={23} /> : null}</View>
                             <Text style={[styles.optionText, { color }]}>{language === 'war' ? text.waray : text.english}</Text>

@@ -84,7 +84,8 @@ export default function TimezonePicker({ value, select, close }: {
                     accessibilityLabel={item}
                     accessibilityState={{ checked: item === value }}
                     onPress={() => choose(item)}
-                    style={({ pressed }) => [styles.option, { marginBottom: spacing.small, backgroundColor: item === value ? palette.selection : palette.surface, opacity: pressed ? 0.75 : 1 }]}
+                    className="active:opacity-75"
+                    style={[styles.option, { marginBottom: spacing.small, backgroundColor: item === value ? palette.selection : palette.surface }]}
                   >
                     <Text style={styles.optionText}>{item}</Text>
                     {item === value ? <AppIcon name="check" color={palette.brand} size={22} /> : null}

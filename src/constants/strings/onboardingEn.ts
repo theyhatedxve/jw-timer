@@ -2,7 +2,6 @@ export const onboardingEn = {
   appName: 'JW Meeting Timer',
   tagline: 'A simple and reliable timer for your meetings',
   getStarted: 'Get started',
-  skip: 'Skip',
   back: 'Back',
   next: 'Next',
   setup: 'Set up now',

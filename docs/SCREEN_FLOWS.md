@@ -1187,3 +1187,83 @@ tokens. Hero artwork stacks on narrow screens and at large font scales.
 Owner-run typecheck, new/existing/deferred profile navigation, timezone
 search/custom-invalid input, review/save, discard, TalkBack, keyboard,
 font scaling and portrait/landscape visual checks remain pending.
+
+## Onboarding swipe navigation and fixed controls - 2026-11-27
+
+Onboarding now uses native horizontal paging across welcome, program,
+timer and ready pages. Get started and Next remain available as centered,
+full-width bottom buttons. Skip and on-screen Back arrows are removed.
+Android Back still returns one page; the introduction progress control
+also offers accessibility increment/decrement actions.
+
+Each page can scroll vertically, while primary controls sit outside that
+scroll region. Set up now and Do it later stay in the final page's fixed
+bottom footer. Setup keeps its existing route and deferred setup keeps
+its existing durable preference/error handling.
+
+Page width is measured inside the safe area and the selected page realigns
+on width/orientation changes. Native button-driven paging respects reduced
+motion. Offscreen page content is excluded from the accessibility tree.
+
+Owner-run checks remain pending: swipe both directions through all four
+pages, button/swipe agreement, vertical scrolling, rapid Next taps, Android
+Back, portrait/landscape, large text, TalkBack, and final setup action.
+No automated UI/gesture test runner exists in this checkout; source review
+and diff checks do not verify native gesture behavior.
+
+## Onboarding swipe removal - 2026-11-27
+
+At the owner's request, horizontal swipe navigation and slide transitions
+are removed. Onboarding renders only its current page. Get started and
+centered full-width Next buttons advance; Android Back and accessible
+progress actions retain their existing navigation behavior.
+
+Vertical scrolling remains for long content. Set up now and Do it later
+remain in the fixed final footer. Skip and on-screen Back arrows remain
+removed. No profile, preference, setup or reset behavior changes.
+Owner-run typecheck and button/Back, vertical scroll, no-swipe, rotation,
+and final setup visibility checks remain pending.
+
+## Onboarding button rendering correction - 2026-11-27
+
+The owner's emulator screenshot showed Get started text without its pill
+background, with its chevron on a separate row. The same shared button
+made light-text Next and setup actions appear missing on light pages.
+
+Source tracing found a NativeWind interop incompatibility: the onboarding
+Pressable supplied a style callback. The installed CSS interop collects
+that callback as an inline declaration, then spreads it as an object
+instead of evaluating it, dropping the button's container styles.
+The existing AppButton uses NativeWind pressed styling without a callback.
+
+IntroButton now passes a static style array and uses active:opacity-75
+for feedback. Welcome uses a full-width white pill; Next and Set up now
+use solid primary surfaces, with centered labels and a right-aligned
+chevron. All existing navigation and setup handlers remain.
+Decorative waves now sit behind the full-width body instead of inside
+the padded content column, removing the inset rectangular artwork block.
+
+Diff/source checks are not a runtime verdict. Owner-run typecheck and
+emulator checks remain pending for visible Get started, both Next buttons,
+Set up now/Do it later, pressed feedback, both themes and large text.
+
+## Profile control rendering correction - 2026-11-27
+
+The owner's emulator screenshot showed the timezone icon, value and
+chevron stacked without a border, an invisible selected language option,
+and missing primary-action surfaces. These controls used Pressable style
+callbacks, the same installed NativeWind interop incompatibility traced
+during the onboarding correction.
+
+Profile Back, timezone field, language radios, review/save/edit actions
+and timezone-picker options now pass static style arrays. NativeWind
+active/disabled classes provide feedback. This restores the field's
+horizontal bordered layout, full-width language choices with selected
+checkmark, and primary action surfaces without changing their handlers.
+
+The profile hero now gives copy and illustration separate layout columns,
+clipping artwork inside its own region so it cannot overlap the text.
+Narrow/large-text layouts still stack those regions.
+Owner-run typecheck and emulator checks remain pending: selected language
+visibility, timezone selection/search, Review/Save/Keep editing, Back/discard,
+both themes, large text and header artwork.

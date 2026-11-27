@@ -1267,3 +1267,14 @@ Narrow/large-text layouts still stack those regions.
 Owner-run typecheck and emulator checks remain pending: selected language
 visibility, timezone selection/search, Review/Save/Keep editing, Back/discard,
 both themes, large text and header artwork.
+
+## Icon library update - 2026-11-27
+
+All app icons now use lucide-react-native through the existing AppIcon
+component. The hand-authored icon path map is removed. Existing icon
+names, caller-provided size/color and decorative accessibility behavior
+remain. Lucide uses its standard 2-unit stroke and the existing installed
+react-native-svg dependency. Decorative wave SVGs remain artwork.
+
+Owner-run typecheck and Android visual checks remain pending for tabs,
+Home/Meetings, timer/fullscreen, Settings, profile and onboarding.

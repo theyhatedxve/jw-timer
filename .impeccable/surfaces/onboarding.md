@@ -16,7 +16,7 @@ Visual authority: owner's four-panel onboarding reference, 2026-11-27.
   Setup actions stay in a fixed bottom footer outside vertically scrolling content.
 - Match light reference surfaces; retain readable dark-mode equivalents.
   Welcome stays teal in both themes.
-- Reuse outlined AppIcon geometry and render miniature app previews as
+- Use Lucide icons through AppIcon and render miniature app previews as
   static native UI. Decorative previews never create a saved timer/program.
 - Building raster: src/frontend/assets/onboarding/meeting-hall.png.
   Generated with built-in Imagegen using the reference's pale mint style:

@@ -615,3 +615,13 @@ Legacy assignment choices use themed surfaces and checked radio states.
 
 Unreferenced legacy views are not evidence of active-screen coverage.
 Final completion requires owner verification of registered screens.
+
+## Owner-approved icon library - 2026-11-27
+
+Use Lucide React Native for UI icons through
+src/frontend/components/common/AppIcon.tsx. Use named imports and the
+shared semantic map; do not add hand-authored icon paths. Keep icons
+decorative where their parent control already supplies an accessible
+label. Callers retain control of size and palette color. Standard icon
+stroke width is 2. The existing react-native-svg package remains required
+by Lucide and by non-icon decorative artwork.

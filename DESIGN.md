@@ -7,7 +7,7 @@ does not authorize unrelated changes.
 ## Visual language
 
 Soft app surfaces, teal actions, mint accents, muted secondary text,
-generous grouping, and simple outlined SVG icons. Native platform sans
+generous grouping, and Lucide React Native icons with a 2-unit stroke. Native platform sans
 and tabular countdown digits suit the operating interface. Home's meeting
 card and the Timer card use dark ink surfaces.
 

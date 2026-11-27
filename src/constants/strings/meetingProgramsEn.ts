@@ -1,11 +1,20 @@
 import {
   formatCalendarDate,
   formatCompactMeetingWeek,
+  formatPickerMeetingWeek,
   formatProgramDuration,
 } from './programFormatting';
 
 export const meetingProgramsEn = {
   title: 'Meeting programs',
+  screenTitle: 'Meetings',
+  subtitle: 'Browse and edit weekly programs',
+  addOrImport: 'Add or import',
+  programTitle: { midweek: 'Midweek program', weekend: 'Weekend program' },
+  sourcesCount: (count: number) => count + (count === 1 ? ' SOURCE' : ' SOURCES'),
+  timedSummary: (parts: number, seconds: number) =>
+    parts + (parts === 1 ? ' timed part · ' : ' timed parts · ') + formatProgramDuration(seconds),
+  calendarWeek: formatPickerMeetingWeek,
   local: 'Local program',
   types: {
     midweek: 'Midweek',
@@ -51,8 +60,8 @@ export const meetingProgramsEn = {
     Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0'),
   loading: 'Loading meeting programs…',
   empty: 'No local programs match this week and meeting type.',
-  chooseProgram: 'Programs in this week',
-  programSources: { pdf: 'PDF', wol: 'WOL', local: 'Local' },
+  chooseProgram: 'Available programs',
+  programSources: { pdf: 'PDF', wol: 'WOL', local: 'Manual' },
   retry: 'Try again',
   error: 'Meeting programs could not be loaded. Try again.',
   missing: 'This program is unavailable. Reload the list.',

@@ -10,6 +10,7 @@ import {
 } from '../src/frontend/utils/meetingCalendar';
 
 import { sectionTone } from '../src/constants/meetingProgramTheme';
+import { formatPickerMeetingWeek } from '../src/constants/strings/programFormatting';
 import type { MeetingSummary } from '../src/backend/services/meetingService';
 
 function meeting(
@@ -80,4 +81,13 @@ test('calendar month navigation crosses years and respects supported date bounds
   assert.equal(shiftCalendarMonth('0001-01-01', -1), null);
   assert.equal(shiftCalendarMonth('9999-12-01', 1), null);
   assert.equal(shiftCalendarMonth('invalid', 1), null);
+});
+
+test('meeting picker labels include the correct year across week boundaries', () => {
+  const sameYear = formatPickerMeetingWeek('2026-11-23');
+  assert.ok(sameYear.includes('NOV'));
+  assert.ok(sameYear.includes('2026'));
+  const crossYear = formatPickerMeetingWeek('2026-12-28');
+  assert.ok(crossYear.includes('2026'));
+  assert.ok(crossYear.includes('2027'));
 });

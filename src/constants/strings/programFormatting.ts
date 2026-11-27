@@ -39,3 +39,11 @@ export function formatCompactMeetingWeek(start: string): string {
   const end = first.month === last.month ? last.day : monthDay(last);
   return `${monthDay(first)} – ${end}`;
 }
+
+export function formatPickerMeetingWeek(start: string): string {
+  const first = Temporal.PlainDate.from(start);
+  const last = first.add({ days: 6 });
+  return (first.year === last.year
+    ? formatCompactMeetingWeek(start) + ', ' + first.year
+    : formatMeetingWeek(start)).toUpperCase();
+}

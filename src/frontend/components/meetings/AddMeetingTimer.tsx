@@ -7,26 +7,18 @@ import AppCard from '../common/AppCard';
 import { MeetingField } from './MeetingControls';
 
 export default function AddMeetingTimer({
-  save,
+  save, close,
 }: {
   readonly save: (title: string, minutes: string) => string | null;
+  readonly close: () => void;
 }) {
-  const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [minutes, setMinutes] = useState('');
   const [error, setError] = useState('');
 
-  function close() {
-    setOpen(false);
-    setTitle('');
-    setMinutes('');
-    setError('');
-  }
-
-  if (!open) return <AppButton label={text.addTimer} onPress={() => setOpen(true)} />;
-
   return (
     <AppCard>
+      <Text accessibilityRole="header" className="text-xl font-bold text-app-text">{text.addTimer}</Text>
       <MeetingField label={text.timerName} value={title} onChangeText={setTitle} />
       <MeetingField label={text.timerMinutes} value={minutes} onChangeText={setMinutes} keyboardType="number-pad" />
       {error ? (

@@ -1012,3 +1012,25 @@ Colors support light/dark appearance, text wraps, and buttons retain
 minimum touch targets. Current-week WOL/PDF selection and empty/error
 states retain their existing behavior. No new dependency or schema.
 Owner typecheck, Home regression tests, and Android visual checks pending.
+
+## Meetings screen visual redesign - 2026-11-27
+
+Meetings follows the approved reference: in-page title/subtitle and plus
+button, segmented Midweek/Weekend control, bordered calendar week picker,
+and compact PDF/WOL/Manual source choices. The source count reflects
+actual saved source types; absent sources are not fabricated.
+Multiple records from one source retain separate numbered choices.
+
+The agenda groups all saved parts under numbered pastel section headers.
+Each part is an editable title/duration card. Untimed parts remain visible.
+The program summary counts timed parts and their allotted durations.
+Open timer stays fixed below the scroll area, above the existing tabs.
+
+The plus button opens Add timer, Import from WOL, and Local PDF actions.
+Add timer uses the existing validation/save path inside a scrollable popup.
+Part edit/delete confirmation, calendar selection, import cancellation,
+duplicate handling, and timer routing retain their existing handlers.
+The redundant navigation header is hidden only for Meetings.
+Light/dark colors, top safe area, text wrapping, and minimum touch targets
+remain supported. No data schema or dependency changes.
+Owner typecheck, calendar tests, and device visual checks remain pending.

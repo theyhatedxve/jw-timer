@@ -1159,3 +1159,31 @@ Safe areas, font scaling, accessible progress and scrolling remain.
 Owner-run typecheck, tests, TalkBack, portrait/landscape screenshots,
 setup-now/later relaunch, first profile save after deferral, and reset
 checks remain pending.
+
+## Congregation profile reference redesign - 2026-11-27
+
+SetupProfile and EditProfile now share the owner's reference layout:
+Back/title header, decorative settings badge, mint meeting-hall hero,
+grouped congregation details, icon-led name and timezone fields,
+full-width language radio choices, and teal Review profile action.
+Review/save/keep-editing use matching summary sections. The bundled
+onboarding building artwork is reused; no remote asset is fetched.
+
+Timezone is a searchable modal selector. Supported native Intl zones are
+listed when available; a common-zone fallback and custom IANA entry keep
+manual input available on runtimes without enumeration. Selection updates
+only the draft. Existing validation runs on Review, including for custom
+values. Closing the selector without choosing makes no changes.
+
+Existing default timezone, name limits, selected language, validation,
+revision checks, persistence and unsaved-change confirmation remain.
+The new header Back returns from review to editing and otherwise uses
+guarded navigation. SetupProfile with no previous route returns to
+Onboarding; editing keeps its existing Main/Settings fallback.
+Language and field errors remain accessible next to the relevant control.
+
+The form scrolls and avoids the keyboard. Dark mode uses current palette
+tokens. Hero artwork stacks on narrow screens and at large font scales.
+Owner-run typecheck, new/existing/deferred profile navigation, timezone
+search/custom-invalid input, review/save, discard, TalkBack, keyboard,
+font scaling and portrait/landscape visual checks remain pending.

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert } from 'react-native';
-import { CommonActions, useNavigation, usePreventRemove } from '@react-navigation/native';
+import { CommonActions, useNavigation, usePreventRemove, useRoute } from '@react-navigation/native';
 import { PROFILE_TEXT } from '../../constants/strings/profileEn';
 import { validateProfile, type ProfileDraft, type ProfileErrorCode } from '../../backend/domain/profile/profile';
 import { useLocalProfile } from './useLocalProfile';
@@ -12,6 +12,7 @@ function deviceTimezone(): string {
 
 export function useProfileForm() {
   const navigation = useNavigation();
+  const route = useRoute();
   const { state, save } = useLocalProfile();
   const [original] = useState(state.status === 'ready' ? state.profile : null);
   const [initialDraft] = useState<ProfileDraft>(() => ({
@@ -35,21 +36,26 @@ export function useProfileForm() {
   });
 
   const leave = useCallback(() => {
-  if (navigation.canGoBack()) {
-    navigation.goBack();
-    return;
-  }
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
 
-  navigation.dispatch(
-    CommonActions.reset({
-      index: 1,
-      routes: [
-        { name: 'Main' },
-        { name: 'Settings' },
-      ],
-    }),
-  );
-}, [navigation]);
+    if (route.name === 'SetupProfile') {
+      navigation.navigate('Onboarding');
+      return;
+    }
+
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 1,
+        routes: [
+          { name: 'Main' },
+          { name: 'Settings' },
+        ],
+      }),
+    );
+  }, [navigation, route.name]);
 
   // Navigate only after the completed render has disabled removal prevention.
   useEffect(() => {

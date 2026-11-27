@@ -50,3 +50,11 @@ Use src/constants/onboardingTheme.ts for reference colors. Light feature
 pages use a near-white surface; dark mode preserves readable equivalents.
 Welcome stays dark teal. Three progress dots represent the intro pages;
 the final setup choice is separate. Landscape places artwork beside copy.
+
+## Congregation profile reference
+
+The owner's 2026-11-27 profile reference uses an illustrated mint header,
+rounded bordered field groups, icon-led inputs, full-width language radio
+choices and a teal primary action. Reuse the existing meeting-hall asset.
+Keep review summaries in the same visual system. Current appearance tokens
+govern both themes; narrow screens and large text stack the header artwork.

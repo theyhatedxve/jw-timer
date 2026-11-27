@@ -1,6 +1,11 @@
 import Svg, { Path } from 'react-native-svg';
 
 const paths = {
+  close: 'M6 6l12 12M18 6 6 18',
+  chevronLeft: 'M15 5l-7 7 7 7',
+  chevronRight: 'M9 5l7 7-7 7',
+  target: 'M12 2v4M12 18v4M2 12h4M18 12h4M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM14 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z',
+  document: 'M6 2h8l4 4v16H6ZM14 2v5h4M9 12h6M9 16h6',
   fullscreen: 'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5',
   exitFullscreen: 'M4 9h5V4M20 9h-5V4M4 15h5v5M20 15h-5v5',
   arrowRight: 'M5 12h14M13 6l6 6-6 6',

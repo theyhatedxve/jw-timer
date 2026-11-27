@@ -13,8 +13,8 @@ import AppButton from '../components/common/AppButton';
 import AppCard from '../components/common/AppCard';
 import ColorPickerField from '../components/common/ColorPickerField';
 import AppScreen from '../components/common/AppScreen';
-import FullscreenTimerFace, { fullscreenColors } from '../components/timer/FullscreenTimerFace';
-import { useAppTheme } from '../context/AppearanceContext';
+import FullscreenTimerFace from '../components/timer/FullscreenTimerFace';
+import { fullscreenColors } from '../utils/timerPresentation';
 import { useFullscreenTimer } from '../context/FullscreenTimerContext';
 
 const colorFields = ['background', 'digits', 'overtime'] as const;
@@ -22,7 +22,6 @@ const switches = ['showCurrentPart', 'showProgress'] as const;
 
 export default function FullscreenTimerSettingsScreen() {
   const model = useFullscreenTimer();
-  const { palette } = useAppTheme();
   const [draft, setDraft] = useState(model.preferences);
   const [overtime, setOvertime] = useState(false);
   const [message, setMessage] = useState('');
@@ -34,7 +33,8 @@ export default function FullscreenTimerSettingsScreen() {
     digits: isTimerColor(draft.digits) ? draft.digits : model.preferences.digits,
     overtime: isTimerColor(draft.overtime) ? draft.overtime : model.preferences.overtime,
   };
-  const colors = fullscreenColors(preview, palette);
+  const colors = fullscreenColors(preview);
+  const defaults = fullscreenColors(DEFAULT_FULLSCREEN_TIMER);
 
   function apply(value: FullscreenTimerPreferences) {
     if (!isFullscreenTimerPreferences(value)) {
@@ -61,6 +61,9 @@ export default function FullscreenTimerSettingsScreen() {
           progress={overtime ? 100 : 6}
           overtime={overtime}
           fontSize={56}
+          meetingTitle={text.sampleMeeting}
+          layout="preview"
+          status="running"
         />
       </View>
       <View className="flex-row items-center gap-app-small">
@@ -88,7 +91,7 @@ export default function FullscreenTimerSettingsScreen() {
             key={field}
             label={text[field]}
             value={draft[field]}
-            themeColor={field === 'background' ? palette.canvas : field === 'digits' ? palette.text : palette.danger}
+            themeColor={defaults[field]}
             onChange={value => {
               setDraft(current => ({ ...current, [field]: value }));
               setMessage('');

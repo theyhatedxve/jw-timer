@@ -36,3 +36,22 @@ export const timerPresentation = {
   restartBackground: timerColors.danger,
   restartText: timerColors.onControl,
 } as const;
+
+export const fullscreenPresentation = {
+  background: '#122C34',
+  text: '#FFFFFF',
+  muted: '#B8E8DE',
+  overtime: '#FFB4B8',
+  track: '#45656D',
+  accent: '#00898B',
+  panel: '#24464F',
+  start: '#00767A',
+  restart: '#B54D52',
+  pausedBackground: '#514536',
+  pausedText: '#FFD693',
+  railWidth: 3,
+  landscapeMinHeight: 300,
+  portraitMinHeight: 600,
+  portraitControlHeight: 56,
+  portraitProgramHeight: 64,
+} as const;

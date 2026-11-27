@@ -43,7 +43,7 @@ export default function TabNavigator() {
           component={component}
           options={{
             title: label,
-            headerShown: name !== 'Timer' && name !== 'Home' && name !== 'Meetings',
+            headerShown: false,
             tabBarAccessibilityLabel: label,
             tabBarIcon: ({ color, size }) => (
               <AppIcon name={icon} color={color} size={size} />

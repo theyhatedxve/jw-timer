@@ -5,8 +5,6 @@ import { timerPresentationEn as text } from '../../../constants/strings/timerPre
 import type { useTimerSession } from '../../hooks/useTimerSession';
 import { timerProgressPercent } from '../../utils/timerPresentation';
 import { styles } from '../../styles/timer/timerPresentation.styles';
-import FullscreenTimerFace from './FullscreenTimerFace';
-import { useFullscreenTimer } from '../../context/FullscreenTimerContext';
 
 type Model = ReturnType<typeof useTimerSession>;
 
@@ -16,24 +14,8 @@ export default function TimerCountdown({
   readonly model: Model;
   readonly durationLabel: string;
 }) {
-  const { preferences } = useFullscreenTimer();
   const percent = timerProgressPercent(model.timer, model.nowMs);
   const progressWidth: `${number}%` = `${percent}%`;
-
-  if (model.fullscreen) {
-    return (
-      <FullscreenTimerFace
-        preferences={preferences}
-        digits={model.digits}
-        stateLabel={model.stateLabel}
-        durationLabel={durationLabel}
-        partTitle={model.partTitle}
-        progress={percent}
-        overtime={model.overtime}
-        fontSize={model.displaySize}
-      />
-    );
-  }
 
   const digitColor = model.overtime
     ? timerPresentation.sessionOvertime

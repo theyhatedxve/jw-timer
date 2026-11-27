@@ -21,7 +21,8 @@ import { timerPresentationEn as presentation } from '../../../constants/strings/
 
 import { useAppTheme } from '../../context/AppearanceContext';
 import { useFullscreenTimer } from '../../context/FullscreenTimerContext';
-import { fullscreenColors } from './FullscreenTimerFace';
+import { fullscreenColors } from '../../utils/timerPresentation';
+import FullscreenTimerView from './FullscreenTimerView';
 import { useTimerAgenda } from '../../hooks/useTimerAgenda';
 import type { useTimerSession } from '../../hooks/useTimerSession';
 import { styles } from '../../styles/timer/timerPresentation.styles';
@@ -47,7 +48,7 @@ function AwakeWhilePresented() {
 export default function TimerSessionView(model: Model) {
   const { palette, resolved } = useAppTheme();
   const { preferences } = useFullscreenTimer();
-  const fullscreenPalette = fullscreenColors(preferences, palette);
+  const fullscreenPalette = fullscreenColors(preferences);
   const [showAgenda, setShowAgenda] = useState(false);
   const agenda = useTimerAgenda(model);
 
@@ -88,16 +89,8 @@ export default function TimerSessionView(model: Model) {
       {presenting && model.keepAwake ? <AwakeWhilePresented /> : null}
 
       {model.fullscreen ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={text.exitFullscreen}
-          onPress={model.toggleFullscreen}
-          className="min-h-app-touch min-w-app-touch items-center justify-center self-end rounded-app-button active:opacity-75"
-        >
-          <AppIcon name="exitFullscreen" color={fullscreenPalette.digits} size={20} />
-        </Pressable>
-      ) : null}
-
+        <FullscreenTimerView model={model} durationLabel={current?.durationLabel ?? presentation.durationMissing} />
+      ) : (
       <ScrollView
         key={model.fullscreen ? 'fullscreen' : 'session'}
         className="flex-1"
@@ -246,6 +239,7 @@ export default function TimerSessionView(model: Model) {
             ) : null}
           </View>
       </ScrollView>
+      )}
       <Modal
         visible={showAgenda && model.active && !model.fullscreen && showCountdown}
         animationType="slide"

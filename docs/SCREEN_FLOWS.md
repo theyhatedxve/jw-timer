@@ -1054,3 +1054,45 @@ Normal countdown sizing accounts for the new card padding and available
 width. The layout supports light/dark appearance, scrolling, large text,
 and minimum touch targets. No timer engine, schema, or dependency changes.
 Owner typecheck, timer regression tests, and Android visual checks pending.
+
+## Settings screen visual redesign - 2026-11-27
+
+Settings follows the approved reference: in-page title/subtitle, uppercase
+group labels, and individual rounded navigation cards with circular icon
+badges, descriptions, and chevrons. Groups are General, Programs, Timer
+and data, and Developer tools. Every existing destination is preserved,
+including separate backup recovery checks and the development-only
+styling preview. Current profile/appearance values remain in accessible
+row labels. Selecting a row retains its existing navigation handler.
+
+The Settings tab uses the custom header and top safe area. The legacy
+root Settings route keeps its native Back header without duplicating
+the page title. Light/dark appearance, large-text wrapping, scrolling,
+and minimum touch targets remain supported. No settings persistence,
+backup, import, schema, or dependency changes.
+Owner typecheck and Android navigation/visual verification remain pending.
+
+## Fullscreen timer Quiet Focus redesign - 2026-11-27
+
+Fullscreen follows the owner's portrait and landscape references.
+Portrait places Exit fullscreen and the state badge above the centered
+meeting/part and countdown, with Resume/Pause and Restart part above the
+View program action. Landscape uses a meeting/part header, state badge,
+large centered digits, progress, and one bottom control row with Program
+and an accessible Exit icon. Short viewports can scroll.
+
+The owner confirmed dark reference defaults in both app themes. Existing
+explicit custom colors, digit sizes, and title/progress switches retain
+precedence. The customization preview and default-color swatches use the
+same resolver as the actual display. No stored preference schema changes.
+
+Digits fit their measured region and device font scale. Program selection
+remains disabled while running; selection, per-part elapsed history,
+restart confirmation, Finish program, recovery, keep-awake, and Android
+Back retain their existing handlers. No forced orientation or rotation
+button is added. Standard Timer rendering remains separate.
+
+Impeccable context is recorded in PRODUCT.md, DESIGN.md, and
+.impeccable/surfaces/fullscreen-timer.md. Owner-run typecheck, fullscreen
+and timer regression tests, and portrait/landscape screenshot checks
+remain pending. Source inspection is not a visual-fidelity verdict.

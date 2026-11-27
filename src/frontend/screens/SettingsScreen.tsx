@@ -1,3 +1,5 @@
+import { useRoute } from '@react-navigation/native';
+
 import { appearanceEn } from '../../constants/strings/appearanceEn';
 import { PROFILE_TEXT } from '../../constants/strings/profileEn';
 
@@ -8,6 +10,7 @@ import { useSectionScreen } from '../hooks/useSectionScreen';
 
 export default function SettingsScreen() {
   const model = useSectionScreen('settings');
+  const route = useRoute();
   const { preference } = useAppTheme();
   const { state } = useLocalProfile();
   const language = state.status === 'ready'
@@ -17,6 +20,7 @@ export default function SettingsScreen() {
   return (
     <SettingsView
       actions={model.actions}
+      hasNavigationHeader={route.name === 'Settings'}
       values={{
         appearance: appearanceEn.options[preference],
         profile: language === undefined

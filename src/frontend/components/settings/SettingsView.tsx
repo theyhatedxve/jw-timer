@@ -1,11 +1,10 @@
 import { Pressable, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { settingsEn as text } from '../../../constants/strings/settingsEn';
 import { spacing } from '../../../constants/theme';
-
 import { useAppTheme } from '../../context/AppearanceContext';
 import type { useSectionScreen } from '../../hooks/useSectionScreen';
-
 import AppIcon, { type AppIconName } from '../common/AppIcon';
 import AppScreen from '../common/AppScreen';
 
@@ -14,175 +13,99 @@ type Action = ReturnType<typeof useSectionScreen>['actions'][number];
 interface Props {
   readonly actions: readonly Action[];
   readonly values: Readonly<Record<string, string | undefined>>;
+  readonly hasNavigationHeader: boolean;
 }
 
-interface Group {
+const groups: readonly {
   readonly key: keyof typeof text.groups;
-  readonly icon: AppIconName;
   readonly ids: readonly string[];
-}
-
-const groups: readonly Group[] = [
-  {
-    key: 'general',
-    icon: 'settings',
-    ids: ['appearance', 'profile'],
-  },
-  {
-    key: 'programs',
-    icon: 'meetings',
-    ids: ['workbook-import'],
-  },
-  {
-    key: 'display',
-    icon: 'laptop',
-    ids: ['timer-display'],
-  },
-  {
-    key: 'backups',
-    icon: 'database',
-    ids: ['backups'],
-  },
-  {
-    key: 'diagnostics',
-    icon: 'settings',
-    ids: [
-      'diagnostics',
-      'backup-checks',
-      'nativewind-preview',
-    ],
-  },
+}[] = [
+  { key: 'general', ids: ['appearance', 'profile'] },
+  { key: 'programs', ids: ['workbook-import'] },
+  { key: 'timerData', ids: ['timer-display', 'backups'] },
+  { key: 'developer', ids: ['diagnostics', 'backup-checks', 'nativewind-preview'] },
 ];
 
-function descriptionFor(id: string): string | undefined {
-  const descriptions: Readonly<Record<string, string>> = text.descriptions;
-  return descriptions[id];
-}
-
-const rowIcons: Readonly<Record<string, AppIconName | undefined>> = {
+const rowIcons: Readonly<Record<string, AppIconName>> = {
   appearance: 'moon',
-  profile: 'globe',
-  'workbook-import': 'book',
-  'timer-display': 'timer',
+  profile: 'target',
+  'workbook-import': 'document',
+  'timer-display': 'fullscreen',
   backups: 'database',
+  diagnostics: 'target',
+  'backup-checks': 'restart',
+  'nativewind-preview': 'laptop',
 };
+const labels: Readonly<Record<string, string>> = text.labels;
+const descriptions: Readonly<Record<string, string>> = text.descriptions;
 
 function SettingsRow({
-  action,
-  values,
-  last,
+  action, values,
 }: {
   readonly action: Action;
-  readonly values: Readonly<Record<string, string | undefined>>;
-  readonly last: boolean;
+  readonly values: Props['values'];
 }) {
-  const description = descriptionFor(action.id);
   const { palette } = useAppTheme();
-  const value = values[action.id];
-  const icon = rowIcons[action.id] ?? 'settings';
-
+  const label = labels[action.id] ?? action.label;
+  const description = descriptions[action.id];
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={[
-        action.label,
-        value,
-        description,
-      ].filter(Boolean).join('. ')}
+      accessibilityLabel={[label, values[action.id], description].filter(Boolean).join('. ')}
       onPress={action.onPress}
-      className={
-        'min-h-app-touch flex-row items-center gap-app-small border-app-border px-app-medium py-app-small active:opacity-75 ' +
-        (last ? '' : 'border-b')
-      }
+      className="min-h-app-touch flex-row items-center gap-app-small rounded-app-card border border-app-border bg-app-surface p-app-medium active:opacity-75"
     >
-      <AppIcon name={icon} color={palette.text} size={spacing.medium} />
-      <View className="flex-1 gap-app-small">
-        <Text className="text-app-body font-semibold text-app-text">
-          {action.label}
-        </Text>
-        {description ? (
-          <Text className="text-app-body text-app-secondary">
-            {description}
-          </Text>
-        ) : null}
+      <View className="rounded-full p-app-small" style={{ backgroundColor: palette.selection }}>
+        <AppIcon name={rowIcons[action.id] ?? 'settings'} color={palette.brand} size={spacing.large} />
       </View>
-      {value ? (
-        <Text className="max-w-[40%] flex-shrink text-right text-sm text-app-secondary">
-          {value}
-        </Text>
-      ) : null}
-      <Text accessible={false} className="text-app-title text-app-secondary">
-        {text.chevron}
-      </Text>
+      <View className="flex-1 gap-1">
+        <Text className="text-app-body font-semibold text-app-text">{label}</Text>
+        {description ? <Text className="text-sm text-app-secondary">{description}</Text> : null}
+      </View>
+      <Text accessible={false} className="text-app-title text-app-secondary">{text.chevron}</Text>
     </Pressable>
   );
 }
 
 function SettingsGroup({
-  title,
-  icon,
-  actions,
-  values,
+  title, actions, values,
 }: {
   readonly title: string;
-  readonly icon: AppIconName;
   readonly actions: readonly Action[];
-  readonly values: Readonly<Record<string, string | undefined>>;
+  readonly values: Props['values'];
 }) {
-  const { palette } = useAppTheme();
   if (actions.length === 0) return null;
-
   return (
-    <View className="overflow-hidden rounded-app-card border border-app-border bg-app-surface">
-      <View className="flex-row items-center gap-app-small border-b border-app-border p-app-medium">
-        <AppIcon name={icon} color={palette.brand} size={spacing.large} />
-        <Text
-          accessibilityRole="header"
-          className="flex-1 text-app-body font-bold text-app-text"
-        >
-          {title}
-        </Text>
-      </View>
-      {actions.map((action, index) => (
-        <SettingsRow
-          key={action.id}
-          action={action}
-          values={values}
-          last={index === actions.length - 1}
-        />
-      ))}
+    <View className="gap-app-small">
+      <Text accessibilityRole="header" className="pb-app-small text-xs font-bold text-app-secondary">{title.toUpperCase()}</Text>
+      {actions.map(action => <SettingsRow key={action.id} action={action} values={values} />)}
     </View>
   );
 }
 
-export default function SettingsView({ actions, values }: Props) {
+export default function SettingsView({ actions, values, hasNavigationHeader }: Props) {
   const knownIds = new Set(groups.flatMap(group => group.ids));
   const remaining = actions.filter(action => !knownIds.has(action.id));
-
   return (
-    <AppScreen>
-      {groups.map(group => {
-        const ordered = group.ids.flatMap(id => {
-          const action = actions.find(item => item.id === id);
-          return action ? [action] : [];
-        });
-
-        return (
-          <SettingsGroup
-            key={group.key}
-            title={text.groups[group.key]}
-            icon={group.icon}
-            actions={ordered}
-            values={values}
-          />
-        );
-      })}
-      <SettingsGroup
-        title={text.groups.other}
-        icon="settings"
-        actions={remaining}
-        values={values}
-      />
-    </AppScreen>
+    <SafeAreaView edges={hasNavigationHeader ? [] : ['top']} className="flex-1 bg-app-canvas">
+      <AppScreen>
+        <View className="gap-app-small pb-app-medium">
+          {!hasNavigationHeader ? (
+            <Text accessibilityRole="header" className="text-app-title font-bold text-app-text">{text.title}</Text>
+          ) : null}
+          <Text className="text-app-body text-app-secondary">{text.subtitle}</Text>
+        </View>
+        <View className="gap-app-large">
+          {groups.map(group => {
+            const ordered = group.ids.flatMap(id => {
+              const action = actions.find(item => item.id === id);
+              return action ? [action] : [];
+            });
+            return <SettingsGroup key={group.key} title={text.groups[group.key]} actions={ordered} values={values} />;
+          })}
+          <SettingsGroup title={text.groups.other} actions={remaining} values={values} />
+        </View>
+      </AppScreen>
+    </SafeAreaView>
   );
 }

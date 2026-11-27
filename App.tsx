@@ -22,6 +22,8 @@ import AppNavigator from './src/frontend/navigation/AppNavigator';
 import { linking } from './src/frontend/navigation/linking';
 import { profileService } from './src/bootstrap/profileDependencies';
 import { appearanceService } from './src/bootstrap/appearanceDependencies';
+import { onboardingService } from './src/bootstrap/onboardingDependencies';
+import { OnboardingProvider } from './src/frontend/context/OnboardingContext';
 
 function ThemedApplication() {
   const { resolved, palette } = useAppTheme();
@@ -44,9 +46,11 @@ function ThemedApplication() {
       <StatusBar style={resolved === 'dark' ? 'light' : 'dark'} />
 
       <ProfileProvider service={profileService}>
-        <NavigationContainer theme={navigationTheme} linking={linking}>
-          <AppNavigator />
-        </NavigationContainer>
+        <OnboardingProvider service={onboardingService}>
+          <NavigationContainer theme={navigationTheme} linking={linking}>
+            <AppNavigator />
+          </NavigationContainer>
+        </OnboardingProvider>
       </ProfileProvider>
     </>
   );

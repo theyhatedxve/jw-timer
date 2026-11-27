@@ -1,4 +1,10 @@
 import { useEffect } from 'react';
+import { Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { useOnboarding } from '../context/OnboardingContext';
+import AppButton from '../components/common/AppButton';
+import AppScreen from '../components/common/AppScreen';
 import {
   createNativeStackNavigator,
   type NativeStackScreenProps,
@@ -24,6 +30,7 @@ import BackupChecksScreen from '../screens/BackupChecksScreen';
 import { runSqliteDiagnostics } from '../../backend/database/diagnostics/sqliteDiagnostics';
 import { runBackupChecks } from '../../backend/database/diagnostics/backupDiagnostics';
 
+import { onboardingEn } from '../../constants/strings/onboardingEn';
 import { appearanceEn } from '../../constants/strings/appearanceEn';
 import { fullscreenTimerEn } from '../../constants/strings/fullscreenTimerEn';
 import { nativewindPreviewEn } from '../../constants/strings/nativewindPreviewEn';
@@ -51,12 +58,25 @@ function MeetingProgramsRedirect({
 export default function AppNavigator() {
   const { palette: colors } = useAppTheme();
   const { state, reload } = useLocalProfile();
+  const onboarding = useOnboarding();
 
   if (state.status !== 'ready') {
     return <ProfileBoundary state={state} onRetry={reload} />;
   }
 
   const hasProfile = state.profile !== null;
+  if (!hasProfile && !onboarding.state.ok) {
+    return (
+      <SafeAreaView className="flex-1 bg-app-canvas">
+        <AppScreen>
+          <Text accessibilityRole="header" className="text-app-title font-bold text-app-text">{onboardingEn.appName}</Text>
+          <Text accessibilityRole="alert" className="text-app-body text-app-danger">{onboardingEn.loadError}</Text>
+          <AppButton label={onboardingEn.retry} onPress={onboarding.reload} />
+        </AppScreen>
+      </SafeAreaView>
+    );
+  }
+  const canEnterApp = hasProfile || (onboarding.state.ok && onboarding.state.completed);
 
   return (
     <Root.Navigator
@@ -68,8 +88,8 @@ export default function AppNavigator() {
         contentStyle: { backgroundColor: colors.canvas },
       }}
     >
-      {hasProfile ? (
-        <Root.Group navigationKey="configured">
+      {canEnterApp ? (
+        <Root.Group navigationKey={hasProfile ? 'configured' : 'setup-later'}>
           <Root.Screen name="Main" component={TabNavigator} />
 
           {__DEV__ ? (

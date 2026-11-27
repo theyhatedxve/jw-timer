@@ -7,7 +7,7 @@
     "start": "expo start --dev-client --localhost",
     "android": "expo run:android --device",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/timer.test.ts tests/timerProgram.test.ts tests/timerAgenda.test.ts tests/publisher.test.ts tests/legacyRecords.test.ts tests/legacySyncFormat.test.ts tests/backupFormat.test.ts tests/appReset.test.ts"
+    "test": "tsx --test tests/timer.test.ts tests/timerProgram.test.ts tests/timerAgenda.test.ts tests/publisher.test.ts tests/legacyRecords.test.ts tests/legacySyncFormat.test.ts tests/backupFormat.test.ts tests/appReset.test.ts tests/onboarding.test.ts"
   },
   "dependencies": {
     "@js-temporal/polyfill": "0.5.1",

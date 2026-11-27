@@ -40,3 +40,13 @@ Status text and overtime prefixes supplement color.
 The owner runs tests, builds, emulator/device interaction, and screenshot
 verification under docs/Specific-Chat-Step-Instructions-Only.md.
 Source checks are not proof of visual fidelity or Android runtime behavior.
+
+## Onboarding reference
+
+The owner's 2026-11-27 onboarding image governs this surface: teal welcome
+with a book/stopwatch mark and feature rows; two centered feature pages
+with large native UI previews; and a ready page with mint building artwork.
+Use src/constants/onboardingTheme.ts for reference colors. Light feature
+pages use a near-white surface; dark mode preserves readable equivalents.
+Welcome stays dark teal. Three progress dots represent the intro pages;
+the final setup choice is separate. Landscape places artwork beside copy.

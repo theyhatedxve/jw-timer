@@ -53,10 +53,12 @@ Device verification status is recorded separately from source inspection.
 
 ## First-use flow
 
-The owner approved a short, skippable three-step introduction before
-congregation setup. A saved profile is the existing first-use completion
-gate. Existing users bypass the intro; unfinished setup may return to it
-on relaunch. No account or additional stored onboarding flag is introduced.
+The reference-based flow presents a welcome, two feature pages and a
+ready page. The owner approved optional setup: Do it later persists an
+onboarding completion preference and opens the app without a dummy profile.
+Saved profiles also bypass onboarding. Home and Meetings explain how to
+finish setup; program import still needs the profile language and time zone.
+Reset app clears the completion choice and returns to onboarding.
 
 ## Reset app
 

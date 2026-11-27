@@ -1131,3 +1131,31 @@ A private pending marker is written before deletion and removed only after
 every store is cleared. Interrupted or failed resets block the application
 until a retry finishes; startup checks the marker before mounting providers.
 Owner-run Android, lifecycle, accessibility and automated checks remain pending.
+
+## Reference onboarding redesign and optional setup - 2026-11-27
+
+This supersedes the earlier three-step intro's required-profile gate.
+The owner supplied a reference with a teal welcome, two light feature
+pages and a final ready page, and explicitly allowed setup later.
+
+Get started opens the program overview, Next opens the timer overview,
+and Next opens You're Ready. Skip jumps to ready. Back, including Android
+Back, returns one page. Set up now opens the existing validated profile
+form. Do it later writes onboarding_complete to app_preferences before
+entering Main, without creating a dummy congregation or sample program.
+
+The saved preference skips onboarding on relaunch. Saving a first profile
+after deferral replaces the navigation group and returns Home. Home and
+Meetings show setup prompts while no congregation exists; Settings retains
+Congregation profile. Program imports still need the profile's language
+and time zone. Read errors retain a retry boundary. Failed completion
+writes leave the user on ready with an error and retry action.
+Reset app removes this preference with the rest of app_preferences.
+
+Welcome remains dark teal; other pages respect appearance. Illustrated
+program/timer previews are static native UI. The mint meeting-hall image
+is bundled locally. Portrait stacks content; wide landscape splits it.
+Safe areas, font scaling, accessible progress and scrolling remain.
+Owner-run typecheck, tests, TalkBack, portrait/landscape screenshots,
+setup-now/later relaunch, first profile save after deferral, and reset
+checks remain pending.

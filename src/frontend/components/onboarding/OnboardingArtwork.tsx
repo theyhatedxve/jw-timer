@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { onboardingTheme as color } from '../../../constants/onboardingTheme';
@@ -8,12 +8,12 @@ import AppIcon from '../common/AppIcon';
 export function OnboardingMark({ small = false }: { readonly small?: boolean }) {
   const size = small ? 76 : 132;
   return (
-    <View accessible={false} importantForAccessibility="no-hide-descendants" style={[styles.mark, { width: size, height: size, borderRadius: size / 4.5 }]}>
-      <AppIcon name="book" size={size * 0.62} color={color.white} />
-      <View style={[styles.markTimer, { width: size * 0.43, height: size * 0.43, borderRadius: size, right: size * 0.07, bottom: size * 0.07 }]}>
-        <AppIcon name="timer" size={size * 0.35} color={color.white} />
-      </View>
-    </View>
+    <Image
+      source={require('../../../../assets/app-icon.png')}
+      resizeMode="contain"
+      accessible={false}
+      style={[styles.mark, { width: size, height: size }]}
+    />
   );
 }
 
@@ -86,8 +86,7 @@ export function TimerPreview() {
 }
 
 const styles = StyleSheet.create({
-  mark: { backgroundColor: color.teal, alignItems: 'center', justifyContent: 'center', alignSelf: 'center' },
-  markTimer: { position: 'absolute', alignItems: 'center', justifyContent: 'center', backgroundColor: color.welcome },
+  mark: { alignSelf: 'center' },
   artboard: { width: 310, height: 300, alignSelf: 'center', justifyContent: 'center' },
   backdrop: { position: 'absolute', width: 280, height: 246, borderRadius: 100, backgroundColor: color.pale, alignSelf: 'center', transform: [{ rotate: '-18deg' }] },
   phone: { width: 178, height: 280, alignSelf: 'center', borderWidth: 7, borderColor: color.welcome, borderRadius: 30, backgroundColor: color.white, overflow: 'hidden', transform: [{ rotate: '-7deg' }] },

@@ -1278,3 +1278,17 @@ react-native-svg dependency. Decorative wave SVGs remain artwork.
 
 Owner-run typecheck and Android visual checks remain pending for tabs,
 Home/Meetings, timer/fullscreen, Settings, profile and onboarding.
+
+## App logo update
+
+The owner-provided workbook-and-stopwatch logo is now bundled as
+assets/app-icon.png. The icon version omits the external wordmark and
+canvas. app.config.ts references the 1024px master for future native icon
+generation. Current local Android launcher/round-launcher resources were
+regenerated for all five density buckets without running an app build.
+
+Onboarding welcome and ready screens display the same asset through
+OnboardingMark. General interface icons remain Lucide.
+Owner-run typecheck, native rebuild/install, launcher and onboarding
+visual checks remain pending. A Metro reload updates JS content but
+does not replace an installed launcher's native icon.

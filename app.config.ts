@@ -3,6 +3,7 @@ import type { ExpoConfig } from 'expo/config';
 const config: ExpoConfig = {
   name: 'JW Timer Prototype',
   slug: 'jw-timer-phase-0',
+  icon: './assets/app-icon.png',
   version: '0.0.1',
   scheme: 'jwtimer-prototype',
   platforms: ['android'],

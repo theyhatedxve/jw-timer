@@ -58,3 +58,9 @@ rounded bordered field groups, icon-led inputs, full-width language radio
 choices and a teal primary action. Reuse the existing meeting-hall asset.
 Keep review summaries in the same visual system. Current appearance tokens
 govern both themes; narrow screens and large text stack the header artwork.
+
+## Brand logo
+
+Use assets/app-icon.png for the launcher and in-app logo. The owner-supplied
+teal workbook-and-stopwatch mark is used without its external wordmark.
+General UI icons continue to use Lucide React Native.

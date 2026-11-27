@@ -701,9 +701,9 @@ function selectPart(index: number) {
     : Math.max(
       22,
       Math.min(
-        76,
-        (Math.min(width, 800) - 80) /
-          (digits.length * 0.68 * fontScale),
+        128,
+        (Math.min(width, 640) - 96) /
+          (digits.length * 0.62 * fontScale),
       ),
     );
 

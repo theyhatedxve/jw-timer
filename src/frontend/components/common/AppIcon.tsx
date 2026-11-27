@@ -1,6 +1,7 @@
 import Svg, { Path } from 'react-native-svg';
 
 const paths = {
+  fullscreen: 'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5',
   exitFullscreen: 'M4 9h5V4M20 9h-5V4M4 15h5v5M20 15h-5v5',
   arrowRight: 'M5 12h14M13 6l6 6-6 6',
   plus: 'M12 4v16M4 12h16',

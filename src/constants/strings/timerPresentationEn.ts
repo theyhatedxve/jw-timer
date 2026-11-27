@@ -1,5 +1,15 @@
 export const timerPresentationEn = {
   title: 'Meeting timer',
+  screenTitle: 'Timer',
+  meetingTypes: { midweek: 'Midweek', weekend: 'Weekend' },
+  enterFullscreen: 'Enter fullscreen',
+  restart: 'Restart',
+  upNext: 'UP NEXT',
+  nextSymbol: '›',
+  remaining: 'Remaining time',
+  overtime: 'Overtime',
+  nextReady: 'Ready when selected',
+  savedPart: 'Saved time retained',
   entryDescription:
     'Open your current timer or choose a saved meeting program.',
   operationNote:

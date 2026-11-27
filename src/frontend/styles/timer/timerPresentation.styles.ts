@@ -21,6 +21,10 @@ export const styles = StyleSheet.create({
     padding: spacing.medium,
     paddingBottom: spacing.large,
   },
+  sessionContent: {
+    maxWidth: dimensions.contentWidth,
+    padding: spacing.large,
+  },
   fullscreenContent: {
     flexGrow: 1,
     justifyContent: 'center',

@@ -14,6 +14,9 @@ import { StatusBar } from 'expo-status-bar';
 import { useKeepAwake } from 'expo-keep-awake';
 
 import { timerEn as text } from '../../../constants/strings/timerEn';
+import { timerPresentation } from '../../../constants/timerTheme';
+import { formatCompactMeetingWeek } from '../../../constants/strings/programFormatting';
+import { meetingWeek } from '../../../backend/domain/meetings/meetingWeek';
 import { timerPresentationEn as presentation } from '../../../constants/strings/timerPresentationEn';
 
 import { useAppTheme } from '../../context/AppearanceContext';
@@ -55,6 +58,17 @@ export default function TimerSessionView(model: Model) {
     if (!model.active || model.fullscreen) setShowAgenda(false);
   }, [model.active, model.fullscreen]);
 
+  const statusBackground = model.timer.status === 'paused'
+    ? palette.warningBackground
+    : model.overtime && model.timer.status === 'running' ? palette.danger + '22' : palette.selection;
+  const statusColor = model.timer.status === 'paused'
+    ? palette.warning
+    : model.overtime && model.timer.status === 'running' ? palette.danger : palette.brand;
+  const caption = model.program.meetingType && model.program.meetingDate
+    ? presentation.meetingTypes[model.program.meetingType] + ' · ' +
+      formatCompactMeetingWeek(meetingWeek(model.program.meetingDate))
+    : model.program.title;
+
   const current = agenda.rows[model.timer.partIndex];
   const next = model.timer.status === 'completed'
     ? undefined
@@ -89,34 +103,30 @@ export default function TimerSessionView(model: Model) {
         className="flex-1"
         contentContainerStyle={[
           styles.content,
-          model.fullscreen && styles.fullscreenContent,
+          model.fullscreen ? styles.fullscreenContent : styles.sessionContent,
         ]}
       >
           <View className="gap-app-medium pb-app-medium">
             {!model.fullscreen ? (
-              <>
-                <View className="flex-row items-start gap-app-small">
-                  <View className="flex-1 gap-app-small">
-                    <Text accessibilityRole="header" className="text-app-title font-bold text-app-text">
-                      {model.program.title}
-                    </Text>
-                    <Text className="text-app-body text-app-secondary">
-                      {agenda.week}
-                    </Text>
+              <View className="gap-app-small">
+                <View className="flex-row flex-wrap items-center gap-app-small">
+                  <Text accessibilityRole="header" className="flex-1 text-app-title font-bold text-app-text">{presentation.screenTitle}</Text>
+                  <View className="rounded-full px-app-medium py-app-small" style={{ backgroundColor: statusBackground }}>
+                    <Text className="text-xs font-bold" style={{ color: statusColor }}>{model.stateLabel.toUpperCase()}</Text>
                   </View>
-
                   <Pressable
                     accessibilityRole="button"
                     accessibilityLabel={presentation.showAgenda}
                     accessibilityState={{ disabled: !showCountdown }}
                     disabled={!showCountdown}
                     onPress={() => setShowAgenda(true)}
-                    className="min-h-app-touch min-w-app-touch items-center justify-center rounded-app-button border border-app-border bg-app-surface p-app-small active:opacity-75 disabled:opacity-50"
+                    className="min-h-app-touch min-w-app-touch items-center justify-center rounded-full border border-app-border bg-app-surface active:opacity-75 disabled:opacity-50"
                   >
-                    <AppIcon name="list" color={palette.brand} size={22} />
+                    <AppIcon name="list" color={palette.brand} size={20} />
                   </Pressable>
                 </View>
-              </>
+                <Text className="text-app-body text-app-secondary">{caption}</Text>
+              </View>
             ) : null}
 
             <TimerSessionMessages model={model} />
@@ -142,28 +152,45 @@ export default function TimerSessionView(model: Model) {
             <TimerControls model={model} />
 
             {!model.fullscreen && showCountdown && next ? (
-              <AppCard>
-                <Text className="text-app-body text-app-secondary">
-                  {presentation.next}
-                </Text>
-                <Text className="text-app-body font-bold text-app-text">
-                  {next.title}
-                </Text>
-                <View className="flex-row items-center gap-app-small">
-                  <AppIcon name="timer" color={palette.secondary} size={16} />
-                  <Text className="text-app-body text-app-secondary">
-                    {next.durationLabel}
-                  </Text>
-                </View>
-              </AppCard>
+              <View className="gap-app-small">
+                <Text className="text-xs font-bold text-app-secondary">{presentation.upNext}</Text>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={text.chooseTimer + '. ' + next.title}
+                  accessibilityState={{ disabled: model.locked || model.timer.status === 'running' }}
+                  disabled={model.locked || model.timer.status === 'running'}
+                  onPress={() => model.selectPart(model.timer.partIndex + 1)}
+                  className="min-h-app-touch flex-row items-center gap-app-medium rounded-app-card border border-app-border bg-app-surface p-app-medium active:opacity-75 disabled:opacity-50"
+                >
+                  <View className="rounded-full p-app-small" style={{ backgroundColor: palette.selection }}>
+                    <AppIcon name="list" color={palette.brand} size={24} />
+                  </View>
+                  <View className="flex-1 gap-app-small">
+                    <Text className="text-xl font-bold text-app-text">{next.title}</Text>
+                    <Text className="text-sm text-app-secondary">
+                      {next.durationLabel}{' · '}
+                      {(model.timer.partElapsedMs?.[model.timer.partIndex + 1] ?? 0) > 0
+                        ? presentation.savedPart : presentation.nextReady}
+                    </Text>
+                  </View>
+                  <Text accessible={false} className="text-app-title text-app-secondary">{presentation.nextSymbol}</Text>
+                </Pressable>
+              </View>
             ) : null}
 
             {!model.fullscreen ? (
-              <AppButton
-                label={text.fullscreen}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={presentation.enterFullscreen}
+                accessibilityState={{ disabled: model.locked }}
                 disabled={model.locked}
                 onPress={model.toggleFullscreen}
-              />
+                className="min-h-app-touch flex-row items-center justify-center gap-app-small rounded-app-card p-app-medium active:opacity-75 disabled:opacity-50"
+                style={{ backgroundColor: timerPresentation.sessionBackground }}
+              >
+                <AppIcon name="fullscreen" color={timerPresentation.sessionText} size={22} />
+                <Text className="flex-shrink text-center text-app-body font-bold" style={{ color: timerPresentation.sessionText }}>{presentation.enterFullscreen}</Text>
+              </Pressable>
             ) : null}
 
             {!model.fullscreen ? (

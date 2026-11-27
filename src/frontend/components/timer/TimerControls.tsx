@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { timerEn as text } from '../../../constants/strings/timerEn';
 import { timerPresentation } from '../../../constants/timerTheme';
+import { timerPresentationEn as presentation } from '../../../constants/strings/timerPresentationEn';
 
 import { useAppTheme } from '../../context/AppearanceContext';
 import type { useTimerSession } from '../../hooks/useTimerSession';
@@ -47,10 +48,10 @@ export default function TimerControls({
     {
       key: 'restart',
       icon: 'restart' as const,
-      label: text.restart,
+      label: model.fullscreen ? text.restart : presentation.restart,
       onPress: model.confirmReset,
       disabled: model.locked,
-      background: timerPresentation.restartBackground,
+      background: model.fullscreen ? timerPresentation.restartBackground : timerPresentation.sessionRestartBackground,
       foreground: timerPresentation.restartText,
     },
   ];
@@ -158,15 +159,15 @@ export default function TimerControls({
               accessibilityState={{ disabled: action.disabled }}
               disabled={action.disabled}
               onPress={action.onPress}
-              className="min-h-app-touch items-center justify-center gap-app-small rounded-app-button border p-app-medium active:opacity-75 disabled:opacity-50"
+              className="min-h-app-touch flex-row items-center justify-center gap-app-small rounded-app-card p-app-medium active:opacity-75 disabled:opacity-50"
               style={{
                 backgroundColor: action.background,
-                borderColor: palette.border,
+                minHeight: timerPresentation.sessionControlHeight,
               }}
             >
               <AppIcon name={action.icon} color={action.foreground} size={24} />
               <Text
-                className="text-center text-app-body font-bold"
+                className="flex-shrink text-center text-app-body font-bold"
                 style={{ color: action.foreground }}
               >
                 {action.label}
@@ -182,12 +183,10 @@ export default function TimerControls({
           accessibilityState={{ expanded: expanded && !selectionLocked, disabled: selectionLocked }}
           disabled={selectionLocked}
           onPress={() => setExpanded(value => !value)}
-          className="min-h-app-touch flex-row items-center gap-app-small p-app-medium disabled:opacity-50"
+          className="min-h-app-touch flex-row items-center gap-app-small px-app-medium py-app-small disabled:opacity-50"
         >
-          <View className="flex-1 gap-1">
-            <Text className="text-sm text-app-secondary">{text.chooseTimer}</Text>
-            <Text className="text-app-body font-semibold text-app-text">{model.partTitle}</Text>
-          </View>
+          <AppIcon name="list" color={palette.brand} size={18} />
+          <Text className="flex-1 text-sm font-semibold text-app-text">{text.chooseTimer}</Text>
           <Text accessible={false} className="text-app-body text-app-secondary">{expanded ? '⌃' : '⌄'}</Text>
         </Pressable>
         {expanded && !selectionLocked ? (

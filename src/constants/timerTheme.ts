@@ -21,6 +21,14 @@ export const timerLayout = {
 } as const;
 
 export const timerPresentation = {
+  sessionBackground: '#16323B',
+  sessionText: '#FFFFFF',
+  sessionMuted: '#B8E8DE',
+  sessionTrack: '#45656D',
+  sessionOvertime: '#FFB4B8',
+  sessionRadius: 28,
+  sessionRestartBackground: '#B54D52',
+  sessionControlHeight: 64,
   progressHeight: 10,
   minimumDigitScale: 0.3,
   runningBackground: timerColors.start,

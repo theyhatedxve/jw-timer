@@ -1034,3 +1034,23 @@ The redundant navigation header is hidden only for Meetings.
 Light/dark colors, top safe area, text wrapping, and minimum touch targets
 remain supported. No data schema or dependency changes.
 Owner typecheck, calendar tests, and device visual checks remain pending.
+
+## Timer screen visual redesign - 2026-11-27
+
+The standard Timer view follows the approved reference: Timer heading,
+meeting/week caption and state badge, dark current-part card with large
+countdown, allotted duration, elapsed progress, and remaining/overtime state.
+Resume/Pause and Restart use two adjacent controls. The existing Choose
+timer selector remains below them and stays locked while running.
+
+An Up next card selects the next part through the existing guarded
+selection/confirmation handler while paused; it does not auto-start it.
+The dark Enter fullscreen button and keep-awake switch remain below.
+Agenda popup/reset-all, current clock, live estimated finish, recovery,
+and per-part elapsed history remain available. Fullscreen rendering and
+customization retain their existing path.
+
+Normal countdown sizing accounts for the new card padding and available
+width. The layout supports light/dark appearance, scrolling, large text,
+and minimum touch targets. No timer engine, schema, or dependency changes.
+Owner typecheck, timer regression tests, and Android visual checks pending.

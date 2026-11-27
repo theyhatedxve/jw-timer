@@ -20,6 +20,9 @@ export default function HomeScreen() {
       openTimer={() =>
         navigation.navigate('Main', { screen: 'Timer' })
       }
+      openSettings={() =>
+        navigation.navigate('Main', { screen: 'SettingsTab' })
+      }
     />
   );
 }

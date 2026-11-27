@@ -15,7 +15,7 @@ function meeting(id: string, date: string): SavedMeeting {
       title: 'Test program',
       meetingType: 'midweek',
       meetingDate: date,
-      startLocalTime: null,
+      startLocalTime: '18:30',
       timezone: 'Asia/Manila',
       programLanguage: 'en',
       sections: [{
@@ -31,6 +31,7 @@ function meeting(id: string, date: string): SavedMeeting {
 
 function fixture(records: readonly SavedMeeting[]) {
   return createHomeService({
+    sessions: { load: () => null },
     profiles: {
       load: () => ({
         ok: true,

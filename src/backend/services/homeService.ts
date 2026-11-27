@@ -1,5 +1,8 @@
 import { Temporal } from '@js-temporal/polyfill';
 import { meetingWeek } from '../domain/meetings/meetingWeek';
+import { formatTime } from '../domain/timer/timer';
+import { restoreSession, type SessionCheckpoint } from '../domain/timer/timerProgram';
+import type { TimerSessionService } from './timerSessionService';
 
 
 import type {
@@ -14,8 +17,15 @@ export interface HomeMeeting {
   readonly durationSeconds: number;
 }
 
+export interface HomeRecentSession {
+  readonly partTitle: string;
+  readonly digits: string;
+  readonly status: SessionCheckpoint['status'];
+}
+
 export interface HomeSnapshot {
   readonly next: HomeMeeting | null;
+  readonly recent: HomeRecentSession | null;
   readonly refreshAt: number;
 }
 
@@ -26,10 +36,29 @@ export type HomeResult =
 export function createHomeService({
   meetings,
   profiles,
+  sessions,
 }: {
   readonly meetings: Pick<MeetingService, 'list' | 'get'>;
   readonly profiles: Pick<ProfileService, 'load'>;
+  readonly sessions: Pick<TimerSessionService, 'load'>;
 }) {
+  function recentSession(): HomeRecentSession | null {
+    try {
+      const saved = sessions.load();
+      if (!saved || saved.program.meetingId === null) return null;
+      const part = saved.program.parts[saved.partIndex];
+      if (!part) return null;
+      return {
+        partTitle: part.title,
+        digits: formatTime(restoreSession(saved), 0),
+        status: saved.status,
+      };
+    } catch {
+      // An unreadable checkpoint must not hide the saved meeting overview.
+      return null;
+    }
+  }
+
   return {
     load(now = Date.now()): HomeResult {
       try {
@@ -49,6 +78,7 @@ export function createHomeService({
         const listed = meetings.list();
         if (!listed.ok) return { ok: false };
 
+        const recent = recentSession();
         const currentWeek = meetingWeek(today);
         const candidates = [...listed.value]
           .filter(meeting => meeting.meetingDate >= currentWeek)
@@ -70,7 +100,7 @@ export function createHomeService({
         }
 
         if (!candidate) {
-          return { ok: true, value: { next: null, refreshAt } };
+          return { ok: true, value: { next: null, recent, refreshAt } };
         }
 
         const parts = candidate.draft.sections.flatMap(
@@ -82,6 +112,7 @@ export function createHomeService({
           ok: true,
           value: {
             refreshAt,
+            recent,
             next: {
               meeting: candidate,
               partCount: parts.length,

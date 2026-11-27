@@ -991,3 +991,24 @@ Midweek, and Weekend programs. Past scheduled meetings and previous-week
 programs remain excluded. Existing card counts, timed duration, and
 Open program routing use the selected saved meeting as before.
 Owner typecheck, Home regression tests, and Android verification remain pending.
+
+## Home meeting overview redesign - 2026-11-27
+
+Home follows the approved reference: welcome/overview header, Settings
+shortcut, offline-ready banner, dark Up next meeting card, and mint
+Open meeting program button. Part count and timed duration sit inside
+the meeting card. Quick access contains two equal Meetings/Timer cards.
+
+Recent session displays the saved checkpoint's actual current part and
+remaining/overtime digits. A saved Running checkpoint is labelled Saved at,
+not presented as a live timer. Tapping it opens the existing Timer tab
+with its existing recovery flow. No checkpoint or practice-only data
+shows an empty recent-session state. Checkpoint read errors do not hide
+the meeting overview. Viewing Home never starts or changes a timer.
+
+The redundant Home navigation title is hidden; its header respects the
+top safe area. Other screen headers and the bottom tab navigation remain.
+Colors support light/dark appearance, text wraps, and buttons retain
+minimum touch targets. Current-week WOL/PDF selection and empty/error
+states retain their existing behavior. No new dependency or schema.
+Owner typecheck, Home regression tests, and Android visual checks pending.

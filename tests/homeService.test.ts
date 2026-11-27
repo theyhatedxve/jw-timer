@@ -3,6 +3,7 @@ import { test } from 'node:test';
 
 import { createHomeService } from '../src/backend/services/homeService';
 import type { SavedMeeting } from '../src/backend/services/meetingService';
+import type { SessionCheckpoint } from '../src/backend/domain/timer/timerProgram';
 
 function program(
   id: string,
@@ -30,8 +31,9 @@ function program(
   };
 }
 
-function home(records: readonly SavedMeeting[], timezone = 'Asia/Manila') {
+function home(records: readonly SavedMeeting[], timezone = 'Asia/Manila', saved: SessionCheckpoint | null = null) {
   return createHomeService({
+    sessions: { load: () => saved },
     profiles: { load: () => ({
       ok: true,
       value: {
@@ -89,4 +91,45 @@ test('Home uses the profile time zone when the current week changes', () => {
   assert.ok(newYork.ok);
   assert.equal(manila.value.next, null);
   assert.equal(newYork.value.next?.meeting.id, current.id);
+});
+
+test('Home recent session uses the actual saved part and remaining time without a future meeting', () => {
+  const saved: SessionCheckpoint = {
+    schemaVersion: 2,
+    program: {
+      meetingId: 'a'.repeat(32), revision: 1, title: 'Saved meeting',
+      parts: [{ id: 'b'.repeat(32), title: 'Karantahon 158', durationMs: 300000 }],
+    },
+    partIndex: 0, elapsedMs: 5000, status: 'paused', savedAtMs: friday,
+  };
+  const result = home([], 'Asia/Manila', saved).load(friday);
+  assert.ok(result.ok);
+  assert.equal(result.value.next, null);
+  assert.deepEqual(result.value.recent, {
+    partTitle: 'Karantahon 158', digits: '04:55', status: 'paused',
+  });
+  assert.equal(saved.status, 'paused');
+  assert.equal(saved.elapsedMs, 5000);
+
+  const overtime = home([], 'Asia/Manila', { ...saved, elapsedMs: 302000, status: 'running' }).load(friday);
+  assert.ok(overtime.ok);
+  assert.deepEqual(overtime.value.recent, {
+    partTitle: 'Karantahon 158', digits: '+00:02', status: 'running',
+  });
+});
+
+test('Home does not manufacture a recent session from practice data or an empty checkpoint', () => {
+  const practice: SessionCheckpoint = {
+    schemaVersion: 2,
+    program: {
+      meetingId: null, revision: 0, title: 'Practice program',
+      parts: [{ id: 'practice-1', title: 'Synthetic part', durationMs: 10000 }],
+    },
+    partIndex: 0, elapsedMs: 0, status: 'ready', savedAtMs: friday,
+  };
+  for (const saved of [null, practice]) {
+    const result = home([], 'Asia/Manila', saved).load(friday);
+    assert.ok(result.ok);
+    assert.equal(result.value.recent, null);
+  }
 });

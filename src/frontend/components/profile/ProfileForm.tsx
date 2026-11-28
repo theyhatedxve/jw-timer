@@ -129,7 +129,7 @@ export default function ProfileForm(model: Model) {
                 <Text style={styles.body}>{text.introduction}</Text>
               </View>
               <View style={[styles.heroArtwork, stackedHero && styles.stackedHeroArtwork]}>
-                <Image source={require('../../assets/onboarding/meeting-hall.png')} resizeMode="contain" accessible={false} style={[styles.hall, stackedHero && styles.stackedHall]} />
+                <Image source={require('../../assets/onboarding/meeting-hall.png')} resizeMode="contain" accessible={false} style={styles.hall} />
               </View>
               <View accessible={false} pointerEvents="none" style={styles.waves}><OnboardingWaves /></View>
             </View>

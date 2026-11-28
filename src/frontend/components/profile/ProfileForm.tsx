@@ -1,5 +1,6 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { Image, Keyboard, KeyboardAvoidingView, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
+import type { ScrollViewInstance } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PROFILE_TEXT as text } from '../../../constants/strings/profileEn';
@@ -84,7 +85,7 @@ export default function ProfileForm(model: Model) {
   const stackedHero = width < 360 || fontScale > 1.25;
   const [timezoneOpen, setTimezoneOpen] = useState(false);
   const [nameFocused, setNameFocused] = useState(false);
-  const scroll = useRef<ScrollView>(null);
+  const scroll = useRef<ScrollViewInstance>(null);
   const fieldError = model.error === 'name' || model.error === 'timezone' || model.error === 'language';
 
   function toTop() {

@@ -18,6 +18,8 @@ const config: ExpoConfig = {
     blockedPermissions: ['android.permission.RECORD_AUDIO'],
   },
   plugins: [
+    './plugins/withWindowsCmake.cjs',
+    './plugins/withReleaseSigning.cjs',
     'expo-sqlite',
     ['expo-dev-client', { launchMode: 'most-recent' }],
   ],

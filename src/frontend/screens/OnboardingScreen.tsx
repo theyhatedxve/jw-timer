@@ -3,6 +3,7 @@ import {
   AccessibilityInfo, BackHandler, Image, Pressable, ScrollView, StyleSheet,
   Text, useWindowDimensions, View,
 } from 'react-native';
+import type { ScrollViewInstance } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
@@ -54,7 +55,7 @@ function IntroButton({ label, onPress, secondary = false, welcome = false, chevr
 export default function OnboardingScreen({ navigation }: Props) {
   const [step, setStep] = useState(0);
   const [saveError, setSaveError] = useState(false);
-  const scroll = useRef<ScrollView>(null);
+  const scroll = useRef<ScrollViewInstance>(null);
   const { palette, resolved } = useAppTheme();
   const { complete } = useOnboarding();
   const { width, height } = useWindowDimensions();

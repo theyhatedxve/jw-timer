@@ -226,6 +226,15 @@ export function useTimerSession(
     return () => {
       clearInterval(ticker);
       lifecycle.remove();
+
+      const value = current.current;
+
+      if (value.timer.status === 'running') {
+        commit({
+          ...value,
+          timer: pause(value.timer, performance.now()),
+        });
+      }
     };
   }, [commit]);
 
@@ -233,17 +242,8 @@ export function useTimerSession(
     useCallback(() => {
       return () => {
         setFullscreen(false);
-
-        const value = current.current;
-
-        if (value.timer.status === 'running') {
-          commit({
-            ...value,
-            timer: pause(value.timer, performance.now()),
-          });
-        }
       };
-    }, [commit]),
+    }, []),
   );
 
   useEffect(() => {

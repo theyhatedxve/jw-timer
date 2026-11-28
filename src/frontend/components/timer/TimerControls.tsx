@@ -118,8 +118,9 @@ export default function TimerControls({
     );
 
     return (
-      <View className="gap-app-small" style={landscape ? { width: '80%', alignSelf: 'flex-end' } : undefined}>
+      <View className="gap-app-small">
         <View className="flex-row items-stretch gap-app-small">
+          {landscape ? programButton : null}
           {actions.map(action => (
             <Pressable
               key={action.key}
@@ -136,16 +137,17 @@ export default function TimerControls({
               </Text>
             </Pressable>
           ))}
-          {landscape ? programButton : null}
-          {landscape ? (
+          {landscape && model.overtime && !completed ? (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={text.exitFullscreen}
-              onPress={model.toggleFullscreen}
-              className="min-h-app-touch min-w-app-touch items-center justify-center rounded-app-button active:opacity-75"
+              accessibilityLabel={model.isLastPart ? text.finish : text.next}
+              accessibilityState={{ disabled: model.locked }}
+              disabled={model.locked}
+              onPress={model.advancePart}
+              className="min-h-app-touch min-w-app-touch items-center justify-center rounded-app-button active:opacity-75 disabled:opacity-50"
               style={{ backgroundColor: fullscreenTheme.panel }}
             >
-              <AppIcon name="close" color={fullscreenTheme.text} size={20} />
+              <AppIcon name={model.isLastPart ? 'check' : 'nextPart'} color={fullscreenTheme.text} size={20} />
             </Pressable>
           ) : null}
         </View>

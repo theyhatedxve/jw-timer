@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Text, View, useWindowDimensions, type DimensionValue } from 'react-native';
+import { Pressable, Text, View, useWindowDimensions, type DimensionValue } from 'react-native';
 
 import type { FullscreenTimerPreferences } from '../../../backend/domain/timer/fullscreenTimer';
 import type { TimerStatus } from '../../../backend/domain/timer/timer';
 import { fullscreenPresentation as theme, timerPresentation } from '../../../constants/timerTheme';
+import { timerEn } from '../../../constants/strings/timerEn';
+import AppIcon from '../common/AppIcon';
 import { timerPresentationEn as text } from '../../../constants/strings/timerPresentationEn';
 import { spacing } from '../../../constants/theme';
 import { fullscreenColors, fullscreenDigitSize } from '../../utils/timerPresentation';
@@ -32,7 +34,7 @@ export function FullscreenTimerStatus({
 
 export default function FullscreenTimerFace({
   preferences, digits, stateLabel, durationLabel, partTitle, progress, overtime,
-  fontSize, meetingTitle, layout, status,
+  fontSize, meetingTitle, layout, status, onExitFullscreen,
 }: {
   readonly preferences: FullscreenTimerPreferences;
   readonly digits: string;
@@ -45,6 +47,7 @@ export default function FullscreenTimerFace({
   readonly meetingTitle: string;
   readonly layout: 'preview' | 'portrait' | 'landscape';
   readonly status: TimerStatus;
+  readonly onExitFullscreen?: () => void;
 }) {
   const { fontScale } = useWindowDimensions();
   const [area, setArea] = useState({ width: 0, height: 0 });
@@ -76,7 +79,22 @@ export default function FullscreenTimerFace({
             </Text>
           ) : null}
         </View>
-        {landscape || preview ? <FullscreenTimerStatus stateLabel={stateLabel} status={status} overtime={overtime} /> : null}
+        {landscape || preview ? (
+          <View className="flex-row items-center gap-app-small">
+            <FullscreenTimerStatus stateLabel={stateLabel} status={status} overtime={overtime} />
+            {landscape && onExitFullscreen ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={timerEn.exitFullscreen}
+                onPress={onExitFullscreen}
+                className="min-h-app-touch min-w-app-touch items-center justify-center rounded-app-button active:opacity-75"
+                style={{ backgroundColor: theme.panel }}
+              >
+                <AppIcon name="close" color={colors.digits} size={20} />
+              </Pressable>
+            ) : null}
+          </View>
+        ) : null}
       </View>
 
       <View

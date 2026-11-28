@@ -72,6 +72,7 @@ export default function FullscreenTimerView({
             meetingTitle={meetingTitle}
             status={model.timer.status}
             layout={landscape ? 'landscape' : 'portrait'}
+            onExitFullscreen={model.toggleFullscreen}
           />
         ) : <View style={{ flex: 1 }} />}
         <TimerControls model={model} />

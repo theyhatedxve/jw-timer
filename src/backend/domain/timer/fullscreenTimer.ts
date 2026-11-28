@@ -1,7 +1,11 @@
 export const FULLSCREEN_TIMER_SIZES = ['small', 'standard', 'large'] as const;
 export type FullscreenTimerSize = typeof FULLSCREEN_TIMER_SIZES[number];
 
+export const FULLSCREEN_TIMER_DISPLAYS = ['digital', 'hybrid', 'analog'] as const;
+export type FullscreenTimerDisplay = typeof FULLSCREEN_TIMER_DISPLAYS[number];
+
 export interface FullscreenTimerPreferences {
+  readonly displayMode: FullscreenTimerDisplay;
   readonly textSize: FullscreenTimerSize;
   readonly background: string;
   readonly digits: string;
@@ -11,6 +15,7 @@ export interface FullscreenTimerPreferences {
 }
 
 export const DEFAULT_FULLSCREEN_TIMER: FullscreenTimerPreferences = {
+  displayMode: 'digital',
   textSize: 'standard',
   background: 'theme',
   digits: 'theme',
@@ -27,6 +32,7 @@ export function isFullscreenTimerPreferences(value: unknown): value is Fullscree
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
   const preference = value as Record<string, unknown>;
   return (
+    FULLSCREEN_TIMER_DISPLAYS.some(mode => mode === preference.displayMode) &&
     FULLSCREEN_TIMER_SIZES.some(size => size === preference.textSize) &&
     isTimerColor(preference.background) &&
     isTimerColor(preference.digits) &&

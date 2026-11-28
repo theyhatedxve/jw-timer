@@ -6,6 +6,7 @@ import {
   DEFAULT_FULLSCREEN_TIMER,
   isFullscreenTimerPreferences,
 } from '../src/backend/domain/timer/fullscreenTimer';
+import { countdownDialHands } from '../src/frontend/utils/timerPresentation';
 import { createFullscreenTimerService } from '../src/backend/services/fullscreenTimerService';
 
 test('new installations use theme colors and visible fullscreen details', () => {
@@ -88,4 +89,75 @@ test('color picker preserves arbitrary saved hex colors when opened', () => {
   }
   assert.throws(() => hexToHsv('theme'));
   assert.throws(() => hexToHsv('#FFF'));
+});
+
+test('legacy fullscreen settings keep custom values and default to digital', () => {
+  const legacy = {
+    textSize: 'large',
+    background: '#102030',
+    digits: '#ABCDEF',
+    overtime: '#FF0000',
+    showCurrentPart: false,
+    showProgress: false,
+  };
+  let writes = 0;
+  const service = createFullscreenTimerService({
+    read: () => legacy,
+    write: () => { writes += 1; },
+  });
+  assert.deepEqual(service.load(), {
+    ok: true,
+    value: { ...legacy, displayMode: 'digital' },
+  });
+  assert.equal(writes, 0);
+});
+
+test('all fullscreen display choices survive saving and reloading', () => {
+  let stored: unknown = null;
+  const service = createFullscreenTimerService({
+    read: () => stored,
+    write: value => { stored = JSON.parse(JSON.stringify(value)); },
+  });
+  for (const displayMode of ['digital', 'hybrid', 'analog'] as const) {
+    const value = { ...DEFAULT_FULLSCREEN_TIMER, displayMode };
+    assert.deepEqual(service.save(value), { ok: true, value });
+    assert.deepEqual(service.load(), { ok: true, value });
+  }
+});
+
+test('invalid display choices fail without overwriting preferences', () => {
+  let writes = 0;
+  for (const displayMode of ['clock', null, undefined, 1]) {
+    const invalid = { ...DEFAULT_FULLSCREEN_TIMER, displayMode };
+    const service = createFullscreenTimerService({
+      read: () => invalid,
+      write: () => { writes += 1; },
+    });
+    assert.deepEqual(service.save(invalid), { ok: false });
+    assert.deepEqual(service.load(), { ok: false });
+  }
+  assert.equal(writes, 0);
+});
+
+test('analog countdown hands match digital rounding, zero, overtime, and long parts', () => {
+  const remaining = countdownDialHands(282_000);
+  assert.ok(Math.abs(remaining.minuteAngle - 28.2) < 0.000001);
+  assert.equal(remaining.secondAngle, 252);
+  assert.equal(remaining.hours, 0);
+  assert.deepEqual(countdownDialHands(1), {
+    minuteAngle: 0.1, secondAngle: 6, hours: 0,
+  });
+  assert.deepEqual(countdownDialHands(0), {
+    minuteAngle: 0, secondAngle: 0, hours: 0,
+  });
+  const overtime = countdownDialHands(-12_999);
+  assert.ok(Math.abs(overtime.minuteAngle - 1.2) < 0.000001);
+  assert.equal(overtime.secondAngle, 72);
+  assert.equal(overtime.hours, 0);
+  assert.deepEqual(countdownDialHands(3_600_000), {
+    minuteAngle: 0, secondAngle: 0, hours: 1,
+  });
+  assert.deepEqual(countdownDialHands(86_400_000), {
+    minuteAngle: 0, secondAngle: 0, hours: 24,
+  });
 });

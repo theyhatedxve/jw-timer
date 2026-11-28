@@ -4,6 +4,7 @@ import { Switch, Text, View } from 'react-native';
 import {
   DEFAULT_FULLSCREEN_TIMER,
   FULLSCREEN_TIMER_SIZES,
+  FULLSCREEN_TIMER_DISPLAYS,
   isFullscreenTimerPreferences,
   isTimerColor,
   type FullscreenTimerPreferences,
@@ -55,6 +56,7 @@ export default function FullscreenTimerSettingsScreen() {
         <FullscreenTimerFace
           preferences={preview}
           digits={overtime ? '+00:12' : '04:42'}
+          remainingMs={overtime ? -12_000 : 282_000}
           stateLabel={overtime ? text.sampleOvertime : text.sampleState}
           durationLabel="05:00"
           partTitle={text.samplePart}
@@ -70,6 +72,21 @@ export default function FullscreenTimerSettingsScreen() {
         <Text className="flex-1 text-app-body text-app-text">{text.previewOvertime}</Text>
         <Switch accessibilityLabel={text.previewOvertime} value={overtime} onValueChange={setOvertime} />
       </View>
+
+      <Text accessibilityRole="header" className="text-app-body font-bold text-app-text">{text.displayMode}</Text>
+      <View className="gap-app-small">
+        {FULLSCREEN_TIMER_DISPLAYS.map(displayMode => (
+          <AppButton
+            key={displayMode}
+            label={text.displays[displayMode]}
+            selected={draft.displayMode === displayMode}
+            onPress={() => setDraft(current => ({ ...current, displayMode }))}
+          />
+        ))}
+      </View>
+      {draft.displayMode !== 'digital' ? (
+        <Text className="text-app-body text-app-secondary">{text.dialHint}</Text>
+      ) : null}
 
       <Text accessibilityRole="header" className="text-app-body font-bold text-app-text">{text.size}</Text>
       <View className="flex-row gap-app-small">

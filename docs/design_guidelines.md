@@ -625,3 +625,20 @@ decorative where their parent control already supplies an accessible
 label. Callers retain control of size and palette color. Standard icon
 stroke width is 2. The existing react-native-svg package remains required
 by Lucide and by non-icon decorative artwork.
+
+## Fullscreen countdown display choices - 2026-11-28
+
+Fullscreen customization offers Digital, Digital + Analog, and Analog only.
+Digital remains the default. Older saved settings gain this default on load
+while retaining custom colors, text size, and visibility choices.
+
+Hybrid places digital digits beside the analog countdown in portrait and
+landscape. The analog dial uses a thick minute hand and a thin second hand,
+with an hour count for longer parts. Both displays follow the same part
+countdown, pause state, and overtime. At zero the dial uses the overtime
+color and counts upward. Analog-only provides the exact countdown and state
+through its accessibility label. Display changes use the existing Save
+customization and Reset to defaults actions.
+
+Owner verification remains pending for saving/reloading all three choices,
+legacy settings, hour-long parts, overtime, font scaling, rotation, and TalkBack.

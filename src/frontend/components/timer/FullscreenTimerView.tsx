@@ -4,6 +4,7 @@ import { fullscreenPresentation as theme } from '../../../constants/timerTheme';
 import { timerEn as text } from '../../../constants/strings/timerEn';
 import { timerPresentationEn as presentation } from '../../../constants/strings/timerPresentationEn';
 import { spacing } from '../../../constants/theme';
+import { elapsed } from '../../../backend/domain/timer/timer';
 import type { useTimerSession } from '../../hooks/useTimerSession';
 import { useFullscreenTimer } from '../../context/FullscreenTimerContext';
 import { fullscreenColors, timerProgressPercent } from '../../utils/timerPresentation';
@@ -63,6 +64,7 @@ export default function FullscreenTimerView({
           <FullscreenTimerFace
             preferences={preferences}
             digits={model.digits}
+            remainingMs={model.timer.durationMs - elapsed(model.timer, model.nowMs)}
             stateLabel={model.stateLabel}
             durationLabel={durationLabel}
             partTitle={model.partTitle}

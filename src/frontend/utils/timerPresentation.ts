@@ -16,6 +16,16 @@ export function timerProgressPercent(
   ));
 }
 
+/** Clock hands display the same whole-second countdown as the digital timer. */
+export function countdownDialHands(remainingMs: number) {
+  const seconds = remainingMs > 0 ? Math.ceil(remainingMs / 1000) : Math.floor(Math.abs(remainingMs) / 1000);
+  return {
+    minuteAngle: (seconds / 60 % 60) * 6,
+    secondAngle: (seconds % 60) * 6,
+    hours: Math.floor(seconds / 3600),
+  };
+}
+
 export function fullscreenColors(preferences: FullscreenTimerPreferences) {
   return {
     background: preferences.background === 'theme' ? fullscreenPresentation.background : preferences.background,

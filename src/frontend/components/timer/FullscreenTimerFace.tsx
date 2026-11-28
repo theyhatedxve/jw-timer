@@ -9,6 +9,7 @@ import AppIcon from '../common/AppIcon';
 import { timerPresentationEn as text } from '../../../constants/strings/timerPresentationEn';
 import { spacing } from '../../../constants/theme';
 import { fullscreenColors, fullscreenDigitSize } from '../../utils/timerPresentation';
+import AnalogTimerFace from './AnalogTimerFace';
 import { styles } from '../../styles/timer/timerPresentation.styles';
 
 export function FullscreenTimerStatus({
@@ -33,11 +34,12 @@ export function FullscreenTimerStatus({
 }
 
 export default function FullscreenTimerFace({
-  preferences, digits, stateLabel, durationLabel, partTitle, progress, overtime,
+  preferences, digits, remainingMs, stateLabel, durationLabel, partTitle, progress, overtime,
   fontSize, meetingTitle, layout, status, onExitFullscreen,
 }: {
   readonly preferences: FullscreenTimerPreferences;
   readonly digits: string;
+  readonly remainingMs: number;
   readonly stateLabel: string;
   readonly durationLabel: string;
   readonly partTitle: string;
@@ -57,9 +59,19 @@ export default function FullscreenTimerFace({
   const percent = Math.max(0, Math.min(100, progress));
   const width = (percent + '%') as DimensionValue;
   const scale = { small: 0.8, standard: 1, large: 1.25 } as const;
+  const hybrid = preferences.displayMode === 'hybrid';
+  const showAnalog = preferences.displayMode !== 'digital';
+  const dialSize = preview
+    ? (hybrid ? 104 : 160)
+    : Math.max(64, Math.min(
+      area.height - 40 * fontScale,
+      hybrid ? (area.width - spacing.medium) * 0.38 : area.width,
+      420,
+    ));
+  const digitWidth = hybrid ? area.width - dialSize - spacing.medium : area.width;
   const digitSize = preview || area.width === 0 || area.height === 0
-    ? fontSize * scale[preferences.textSize]
-    : fullscreenDigitSize(area.width, area.height, digits, fontScale, preferences.textSize);
+    ? fontSize * scale[preferences.textSize] * (hybrid ? 0.6 : 1)
+    : fullscreenDigitSize(digitWidth, area.height, digits, fontScale, preferences.textSize);
 
   return (
     <View style={{ flex: preview ? undefined : 1, width: '100%', gap: spacing.small, backgroundColor: colors.background }}>
@@ -103,23 +115,46 @@ export default function FullscreenTimerFace({
           setArea(previous => previous.width === nextWidth && previous.height === nextHeight
             ? previous : { width: nextWidth, height: nextHeight });
         }}
-        style={{ flex: preview ? undefined : 1, minHeight: preview ? undefined : 80, justifyContent: 'center', gap: spacing.small }}
+        style={{ flex: preview ? undefined : 1, minHeight: showAnalog ? (preview ? 192 : 144) : preview ? undefined : 80, justifyContent: 'center', gap: spacing.small }}
       >
-        <Text
-          accessibilityLabel={stateLabel + ': ' + digits}
-          accessibilityLiveRegion="none"
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={timerPresentation.minimumDigitScale}
-          style={[styles.digits, {
-            color: overtime ? colors.overtime : colors.digits,
-            fontSize: digitSize,
-            lineHeight: digitSize * 1.1,
-            includeFontPadding: false,
-          }]}
-        >
-          {digits}
-        </Text>
+        <View style={{
+          flex: preview ? undefined : 1,
+          flexDirection: hybrid ? 'row' : 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: spacing.medium,
+        }}>
+          {preferences.displayMode !== 'analog' ? (
+            <View style={{ flex: hybrid ? 1 : undefined, width: hybrid ? undefined : '100%' }}>
+              <Text
+                accessibilityLabel={stateLabel + ': ' + digits}
+                accessibilityLiveRegion="none"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={timerPresentation.minimumDigitScale}
+                style={[styles.digits, {
+                  color: overtime ? colors.overtime : colors.digits,
+                  fontSize: digitSize,
+                  lineHeight: digitSize * 1.1,
+                  includeFontPadding: false,
+                }]}
+              >
+                {digits}
+              </Text>
+            </View>
+          ) : null}
+          {showAnalog ? (
+            <AnalogTimerFace
+              remainingMs={remainingMs}
+              size={dialSize}
+              color={overtime ? colors.overtime : colors.digits}
+              mutedColor={colors.muted}
+              trackColor={colors.track}
+              overtime={overtime}
+              accessibilityLabel={preferences.displayMode === 'analog' ? stateLabel + ': ' + digits : undefined}
+            />
+          ) : null}
+        </View>
         <Text className="text-center text-app-body" style={{ color: colors.muted }}>
           {text.allotted(durationLabel)}{' · '}{stateLabel}
         </Text>

@@ -13,6 +13,7 @@ function validated(value: unknown): Result {
   return {
     ok: true,
     value: {
+      displayMode: value.displayMode,
       textSize: value.textSize,
       background: value.background,
       digits: value.digits,
@@ -31,7 +32,13 @@ export function createFullscreenTimerService(repository: {
     load(): Result {
       try {
         const value = repository.read();
-        return validated(value === null ? DEFAULT_FULLSCREEN_TIMER : value);
+        if (value === null) return validated(DEFAULT_FULLSCREEN_TIMER);
+        // Settings saved before display choices retain all customizations.
+        const migrated = typeof value === 'object' && value !== null &&
+          !Array.isArray(value) && !('displayMode' in value)
+          ? { ...value, displayMode: 'digital' }
+          : value;
+        return validated(migrated);
       } catch {
         return { ok: false };
       }

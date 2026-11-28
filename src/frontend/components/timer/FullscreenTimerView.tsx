@@ -65,6 +65,7 @@ export default function FullscreenTimerView({
             preferences={preferences}
             digits={model.digits}
             remainingMs={model.timer.durationMs - elapsed(model.timer, model.nowMs)}
+            durationMs={model.timer.durationMs}
             stateLabel={model.stateLabel}
             durationLabel={durationLabel}
             partTitle={model.partTitle}

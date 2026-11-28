@@ -34,12 +34,13 @@ export function FullscreenTimerStatus({
 }
 
 export default function FullscreenTimerFace({
-  preferences, digits, remainingMs, stateLabel, durationLabel, partTitle, progress, overtime,
+  preferences, digits, remainingMs, durationMs, stateLabel, durationLabel, partTitle, progress, overtime,
   fontSize, meetingTitle, layout, status, onExitFullscreen,
 }: {
   readonly preferences: FullscreenTimerPreferences;
   readonly digits: string;
   readonly remainingMs: number;
+  readonly durationMs: number;
   readonly stateLabel: string;
   readonly durationLabel: string;
   readonly partTitle: string;
@@ -51,7 +52,7 @@ export default function FullscreenTimerFace({
   readonly status: TimerStatus;
   readonly onExitFullscreen?: () => void;
 }) {
-  const { fontScale } = useWindowDimensions();
+  const { fontScale, width: screenWidth, height: screenHeight } = useWindowDimensions();
   const [area, setArea] = useState({ width: 0, height: 0 });
   const colors = fullscreenColors(preferences);
   const preview = layout === 'preview';
@@ -61,17 +62,22 @@ export default function FullscreenTimerFace({
   const scale = { small: 0.8, standard: 1, large: 1.25 } as const;
   const hybrid = preferences.displayMode === 'hybrid';
   const showAnalog = preferences.displayMode !== 'digital';
-  const dialSize = preview
-    ? (hybrid ? 104 : 160)
-    : Math.max(64, Math.min(
-      area.height - 40 * fontScale,
-      hybrid ? (area.width - spacing.medium) * 0.38 : area.width,
-      420,
-    ));
-  const digitWidth = hybrid ? area.width - dialSize - spacing.medium : area.width;
-  const digitSize = preview || area.width === 0 || area.height === 0
-    ? fontSize * scale[preferences.textSize] * (hybrid ? 0.6 : 1)
-    : fullscreenDigitSize(digitWidth, area.height, digits, fontScale, preferences.textSize);
+  const sideBySide = hybrid && (landscape || (preview && screenWidth > screenHeight));
+  const stackedHybrid = hybrid && !sideBySide;
+  const stackedDialSize = Math.min(screenWidth - spacing.large * 2, screenHeight * 0.32, 260);
+  const dialSize = preview ? 160 : stackedHybrid ? stackedDialSize : Math.max(64, Math.min(
+    sideBySide ? (area.width - spacing.medium) * 0.38 : area.width,
+    area.height,
+    420,
+  ));
+  const digitWidth = sideBySide ? Math.max(1, area.width - dialSize - spacing.medium) : area.width;
+  const stackedDigitWidth = area.width || screenWidth - spacing.large * 2;
+  const digitSize = stackedHybrid
+    ? fullscreenDigitSize(stackedDigitWidth, stackedDigitWidth, digits, fontScale, preferences.textSize)
+    : preview || area.width === 0 || area.height === 0
+      ? fontSize * scale[preferences.textSize]
+      : fullscreenDigitSize(digitWidth, area.height, digits, fontScale, preferences.textSize);
+  const stackedDigitHeight = digitSize * 1.1 * fontScale;
 
   return (
     <View style={{ flex: preview ? undefined : 1, width: '100%', gap: spacing.small, backgroundColor: colors.background }}>
@@ -115,17 +121,30 @@ export default function FullscreenTimerFace({
           setArea(previous => previous.width === nextWidth && previous.height === nextHeight
             ? previous : { width: nextWidth, height: nextHeight });
         }}
-        style={{ flex: preview ? undefined : 1, minHeight: showAnalog ? (preview ? 192 : 144) : preview ? undefined : 80, justifyContent: 'center', gap: spacing.small }}
+        style={{
+          flex: preview ? undefined : 1,
+          minHeight: stackedHybrid ? stackedDigitHeight + dialSize + spacing.medium : showAnalog ? 192 : preview ? undefined : 80,
+          justifyContent: 'center',
+          gap: spacing.small,
+        }}
       >
         <View style={{
           flex: preview ? undefined : 1,
-          flexDirection: hybrid ? 'row' : 'column',
+          flexDirection: sideBySide ? 'row' : 'column',
           alignItems: 'center',
           justifyContent: 'center',
           gap: spacing.medium,
         }}>
           {preferences.displayMode !== 'analog' ? (
-            <View style={{ flex: hybrid ? 1 : undefined, width: hybrid ? undefined : '100%' }}>
+            <View
+              style={{
+                flex: sideBySide ? 1 : undefined,
+                height: stackedHybrid ? stackedDigitHeight : undefined,
+                width: sideBySide ? undefined : '100%',
+                minHeight: hybrid ? 80 : undefined,
+                justifyContent: 'center',
+              }}
+            >
               <Text
                 accessibilityLabel={stateLabel + ': ' + digits}
                 accessibilityLiveRegion="none"
@@ -146,6 +165,8 @@ export default function FullscreenTimerFace({
           {showAnalog ? (
             <AnalogTimerFace
               remainingMs={remainingMs}
+              durationMs={durationMs}
+              remainingColor={colors.remaining}
               size={dialSize}
               color={overtime ? colors.overtime : colors.digits}
               mutedColor={colors.muted}
@@ -155,9 +176,11 @@ export default function FullscreenTimerFace({
             />
           ) : null}
         </View>
-        <Text className="text-center text-app-body" style={{ color: colors.muted }}>
-          {text.allotted(durationLabel)}{' · '}{stateLabel}
-        </Text>
+        {!showAnalog ? (
+          <Text className="text-center text-app-body" style={{ color: colors.muted }}>
+            {text.allotted(durationLabel)}{' · '}{stateLabel}
+          </Text>
+        ) : null}
       </View>
 
       {preferences.showProgress ? (

@@ -44,6 +44,7 @@ export const fullscreenPresentation = {
   overtime: '#FFB4B8',
   track: '#45656D',
   accent: '#00898B',
+  remaining: '#7DE36D',
   panel: '#24464F',
   start: '#00767A',
   restart: '#B54D52',

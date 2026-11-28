@@ -10,6 +10,7 @@ export interface FullscreenTimerPreferences {
   readonly background: string;
   readonly digits: string;
   readonly overtime: string;
+  readonly remaining: string;
   readonly showCurrentPart: boolean;
   readonly showProgress: boolean;
 }
@@ -20,6 +21,7 @@ export const DEFAULT_FULLSCREEN_TIMER: FullscreenTimerPreferences = {
   background: 'theme',
   digits: 'theme',
   overtime: 'theme',
+  remaining: 'theme',
   showCurrentPart: true,
   showProgress: true,
 };
@@ -37,6 +39,7 @@ export function isFullscreenTimerPreferences(value: unknown): value is Fullscree
     isTimerColor(preference.background) &&
     isTimerColor(preference.digits) &&
     isTimerColor(preference.overtime) &&
+    isTimerColor(preference.remaining) &&
     typeof preference.showCurrentPart === 'boolean' &&
     typeof preference.showProgress === 'boolean'
   );

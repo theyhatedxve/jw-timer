@@ -18,7 +18,7 @@ import FullscreenTimerFace from '../components/timer/FullscreenTimerFace';
 import { fullscreenColors } from '../utils/timerPresentation';
 import { useFullscreenTimer } from '../context/FullscreenTimerContext';
 
-const colorFields = ['background', 'digits', 'overtime'] as const;
+const colorFields = ['background', 'digits', 'overtime', 'remaining'] as const;
 const switches = ['showCurrentPart', 'showProgress'] as const;
 
 export default function FullscreenTimerSettingsScreen() {
@@ -33,6 +33,7 @@ export default function FullscreenTimerSettingsScreen() {
     background: isTimerColor(draft.background) ? draft.background : model.preferences.background,
     digits: isTimerColor(draft.digits) ? draft.digits : model.preferences.digits,
     overtime: isTimerColor(draft.overtime) ? draft.overtime : model.preferences.overtime,
+    remaining: isTimerColor(draft.remaining) ? draft.remaining : model.preferences.remaining,
   };
   const colors = fullscreenColors(preview);
   const defaults = fullscreenColors(DEFAULT_FULLSCREEN_TIMER);
@@ -57,6 +58,7 @@ export default function FullscreenTimerSettingsScreen() {
           preferences={preview}
           digits={overtime ? '+00:12' : '04:42'}
           remainingMs={overtime ? -12_000 : 282_000}
+          durationMs={300_000}
           stateLabel={overtime ? text.sampleOvertime : text.sampleState}
           durationLabel="05:00"
           partTitle={text.samplePart}

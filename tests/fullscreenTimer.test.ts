@@ -6,7 +6,7 @@ import {
   DEFAULT_FULLSCREEN_TIMER,
   isFullscreenTimerPreferences,
 } from '../src/backend/domain/timer/fullscreenTimer';
-import { countdownDialHands } from '../src/frontend/utils/timerPresentation';
+import { countdownDialFraction, countdownDialHands } from '../src/frontend/utils/timerPresentation';
 import { createFullscreenTimerService } from '../src/backend/services/fullscreenTimerService';
 
 test('new installations use theme colors and visible fullscreen details', () => {
@@ -29,6 +29,7 @@ test('saves and reloads custom fullscreen colors and visibility', () => {
     background: '#000000',
     digits: '#FFFFFF',
     overtime: '#FF5555',
+    remaining: '#44DD55',
     showCurrentPart: false,
     showProgress: false,
   };
@@ -49,6 +50,7 @@ test('invalid preferences never replace saved customization', () => {
     { ...DEFAULT_FULLSCREEN_TIMER, textSize: 'giant' },
     { ...DEFAULT_FULLSCREEN_TIMER, background: '#FFF' },
     { ...DEFAULT_FULLSCREEN_TIMER, digits: 'red' },
+    { ...DEFAULT_FULLSCREEN_TIMER, remaining: 'green' },
     { ...DEFAULT_FULLSCREEN_TIMER, overtime: '#FF000000' },
     { ...DEFAULT_FULLSCREEN_TIMER, showProgress: 'yes' },
   ]) {
@@ -107,7 +109,7 @@ test('legacy fullscreen settings keep custom values and default to digital', () 
   });
   assert.deepEqual(service.load(), {
     ok: true,
-    value: { ...legacy, displayMode: 'digital' },
+    value: { ...legacy, displayMode: 'digital', remaining: 'theme' },
   });
   assert.equal(writes, 0);
 });
@@ -159,5 +161,33 @@ test('analog countdown hands match digital rounding, zero, overtime, and long pa
   });
   assert.deepEqual(countdownDialHands(86_400_000), {
     minuteAngle: 0, secondAngle: 0, hours: 24,
+  });
+});
+
+test('analog shading follows the allotted part duration, including short timers', () => {
+  assert.equal(countdownDialFraction(300_000, 300_000), 1);
+  assert.equal(countdownDialFraction(150_000, 300_000), 0.5);
+  assert.equal(countdownDialFraction(5_000, 10_000), 0.5);
+  assert.equal(countdownDialFraction(900_000, 3_600_000), 0.25);
+  assert.equal(countdownDialFraction(3_600_000, 3_600_000), 1);
+  assert.equal(countdownDialFraction(86_400_000, 86_400_000), 1);
+  assert.equal(countdownDialFraction(0, 300_000), 0);
+  assert.equal(countdownDialFraction(-12_000, 300_000), 0);
+});
+
+test('existing hybrid preferences gain a remaining color without changing other choices', () => {
+  const { remaining, ...saved } = {
+    ...DEFAULT_FULLSCREEN_TIMER,
+    displayMode: 'hybrid' as const,
+    digits: '#FFFFFF',
+    background: '#000000',
+  };
+  const service = createFullscreenTimerService({
+    read: () => saved,
+    write: () => { throw new Error('Loading must not write'); },
+  });
+  assert.deepEqual(service.load(), {
+    ok: true,
+    value: { ...saved, remaining },
   });
 });

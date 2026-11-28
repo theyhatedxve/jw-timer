@@ -1,11 +1,13 @@
 import { View } from 'react-native';
-import Svg, { Circle, G, Line, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
 
 import { fullscreenTimerEn as text } from '../../../constants/strings/fullscreenTimerEn';
-import { countdownDialHands } from '../../utils/timerPresentation';
+import { countdownDialFraction, countdownDialHands } from '../../utils/timerPresentation';
 
 interface Props {
   readonly remainingMs: number;
+  readonly durationMs: number;
+  readonly remainingColor: string;
   readonly size: number;
   readonly color: string;
   readonly mutedColor: string;
@@ -15,9 +17,15 @@ interface Props {
 }
 
 export default function AnalogTimerFace({
-  remainingMs, size, color, mutedColor, trackColor, overtime, accessibilityLabel,
+  remainingMs, durationMs, remainingColor, size, color, mutedColor, trackColor, overtime, accessibilityLabel,
 }: Props) {
   const hands = countdownDialHands(remainingMs);
+  const fraction = countdownDialFraction(remainingMs, durationMs);
+  const angle = fraction * 2 * Math.PI;
+  const sectorX = 100 + 91 * Math.sin(angle);
+  const sectorY = 100 - 91 * Math.cos(angle);
+  const sector = 'M100 100 L100 9 A91 91 0 ' +
+    (fraction > 0.5 ? '1' : '0') + ' 1 ' + sectorX + ' ' + sectorY + ' Z';
 
   return (
     <View
@@ -29,6 +37,11 @@ export default function AnalogTimerFace({
       style={{ width: size, height: size }}
     >
       <Svg width="100%" height="100%" viewBox="0 0 200 200" accessible={false}>
+        {fraction >= 1 ? (
+          <Circle cx={100} cy={100} r={91} fill={remainingColor} fillOpacity={0.65} />
+        ) : fraction > 0 ? (
+          <Path d={sector} fill={remainingColor} fillOpacity={0.65} />
+        ) : null}
         <Circle cx={100} cy={100} r={94} fill="none" stroke={trackColor} strokeWidth={2} />
         {Array.from({ length: 60 }, (_, index) => (
           <G key={index} rotation={index * 6} origin="100, 100">
@@ -39,10 +52,23 @@ export default function AnalogTimerFace({
             />
           </G>
         ))}
-        <SvgText x={100} y={41} fill={mutedColor} fontSize={13} textAnchor="middle">0</SvgText>
-        <SvgText x={164} y={105} fill={mutedColor} fontSize={13} textAnchor="middle">15</SvgText>
-        <SvgText x={100} y={171} fill={mutedColor} fontSize={13} textAnchor="middle">30</SvgText>
-        <SvgText x={36} y={105} fill={mutedColor} fontSize={13} textAnchor="middle">45</SvgText>
+        {Array.from({ length: 12 }, (_, index) => {
+          const number = index + 1;
+          const radians = number * Math.PI / 6;
+          return (
+            <SvgText
+              key={number}
+              x={100 + 69 * Math.sin(radians)}
+              y={105 - 69 * Math.cos(radians)}
+              fill={mutedColor}
+              fontSize={13}
+              fontWeight="700"
+              textAnchor="middle"
+            >
+              {number}
+            </SvgText>
+          );
+        })}
         <SvgText x={100} y={76} fill={mutedColor} fontSize={10} textAnchor="middle">
           {overtime ? text.dialOvertime : text.dialRemaining}
         </SvgText>

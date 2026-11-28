@@ -26,11 +26,17 @@ export function countdownDialHands(remainingMs: number) {
   };
 }
 
+/** Shade the remaining portion of the current part, including short timers. */
+export function countdownDialFraction(remainingMs: number, durationMs: number): number {
+  return Math.min(1, Math.max(0, remainingMs / durationMs));
+}
+
 export function fullscreenColors(preferences: FullscreenTimerPreferences) {
   return {
     background: preferences.background === 'theme' ? fullscreenPresentation.background : preferences.background,
     digits: preferences.digits === 'theme' ? fullscreenPresentation.text : preferences.digits,
     overtime: preferences.overtime === 'theme' ? fullscreenPresentation.overtime : preferences.overtime,
+    remaining: preferences.remaining === 'theme' ? fullscreenPresentation.remaining : preferences.remaining,
     muted: preferences.digits === 'theme' ? fullscreenPresentation.muted : preferences.digits,
     track: preferences.digits === 'theme' ? fullscreenPresentation.track : preferences.digits + '44',
   };

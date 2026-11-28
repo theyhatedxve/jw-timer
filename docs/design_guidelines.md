@@ -632,9 +632,16 @@ Fullscreen customization offers Digital, Digital + Analog, and Analog only.
 Digital remains the default. Older saved settings gain this default on load
 while retaining custom colors, text size, and visibility choices.
 
-Hybrid places digital digits beside the analog countdown in portrait and
-landscape. The analog dial uses a thick minute hand and a thin second hand,
-with an hour count for longer parts. Both displays follow the same part
+Hybrid stacks Digital above Analog in portrait and places them side by side
+in landscape. Digital text fits stable parent bounds; its size setting
+does not change the analog dial size. Portrait digital rows reserve their
+height from the selected text size; the analog size follows the viewport. The analog dial uses a thick minute hand and a thin second hand,
+with an hour count for longer parts. Its transparent face has numerals 1-12
+and a colored sector showing the remaining fraction of the current part.
+Analog remaining-time color has its own saved color picker and defaults to
+green. Older settings gain this color default while retaining other choices.
+At zero, the remaining sector disappears. Analog displays omit the bottom
+time caption. Both displays follow the same part
 countdown, pause state, and overtime. At zero the dial uses the overtime
 color and counts upward. Analog-only provides the exact countdown and state
 through its accessibility label. Display changes use the existing Save

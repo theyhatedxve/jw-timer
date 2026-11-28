@@ -18,6 +18,7 @@ function validated(value: unknown): Result {
       background: value.background,
       digits: value.digits,
       overtime: value.overtime,
+      remaining: value.remaining,
       showCurrentPart: value.showCurrentPart,
       showProgress: value.showProgress,
     },
@@ -35,8 +36,8 @@ export function createFullscreenTimerService(repository: {
         if (value === null) return validated(DEFAULT_FULLSCREEN_TIMER);
         // Settings saved before display choices retain all customizations.
         const migrated = typeof value === 'object' && value !== null &&
-          !Array.isArray(value) && !('displayMode' in value)
-          ? { ...value, displayMode: 'digital' }
+          !Array.isArray(value)
+          ? { displayMode: 'digital', remaining: 'theme', ...value }
           : value;
         return validated(migrated);
       } catch {
